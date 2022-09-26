@@ -1,0 +1,7 @@
+ACTIVE   ID                      Caption1               Default        Caption2    Type      Editable      Param                      Range            RangeCaptions   Help
+---      ToAlignFQ1_$N           ---                    ---            ---         File      Array         -1                         Array            ---             ---
+---      ToAlignFQ2_$N           ---                    NULL           ---         File      Array         -2                         Array            ---             ---
+---      AlignedBAM_$N           ---                    ---            ---         File      Array         outfile                    Array            ---             ---
+---      hisat2_sorted           ---                    TRUE           ---         Boolean   NO            sortReadsByCoordinates     ---              ---             ---
+---      hisat2_output           ---                    'BAM'          ---         String    NO            output_format              ---              ---             ---
+always   align_nthreads          Threads                4              BLANK       Integer   YES           nthreads                   1 to 8           ---             Number of processors to use

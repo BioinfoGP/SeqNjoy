@@ -1,0 +1,16 @@
+make
+gcc-c++
+gcc-gfortran
+readline-devel
+libX11
+libX11-devel
+libXt
+libXt-devel
+bzip2-devel
+pcre2-devel
+libcurl-devel
+libxml2-devel
+openssl-devel
+libpng-devel
+libjpeg-turbo-devel
+librsvg2-devel

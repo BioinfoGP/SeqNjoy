@@ -1,0 +1,4 @@
+ACTIVE     ID                          Caption1                    Default        SkipIf      Caption2              Type            Editable      Param                         Range                           RangeCaptions   Help
+always     edgeR_priorCount            Prior Count:                0.125          ---         BLANK                 Float           YES           prior.count                   0 to 100                        ---             For shrinkage
+---        ExpressionNumerator_$N      ---                         NULL           ---         ---                   File            Array         ---                           Array                           ---             ---
+---        ExpressionDenominator_$N    ---                         NULL           ---         ---                   File            Array         ---                           Array                           ---             ---

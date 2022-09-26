@@ -1,0 +1,16 @@
+make
+gcc-c++
+gcc-fortran
+readline-devel
+libX11-devel
+libXt-devel
+libbz2-devel
+lzma-sdk-devel
+pcre2-devel
+libcurl-devel
+openjpeg-devel
+libxml2-devel
+libopenssl-devel
+libjpeg8-devel
+libpng16-devel
+librsvg-devel

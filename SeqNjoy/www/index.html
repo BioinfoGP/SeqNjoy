@@ -1,0 +1,281 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="css/styles.css">
+		<link rel="stylesheet" type="text/css" href="css/styles_newmenu.css">
+		<link rel="stylesheet" type="text/css" href="css/fa/all.css">
+		<script src="js/global_variables.js"></script>
+		<script src="js/functions.js"></script>
+		<script src="js/functions_steps.js"></script>
+		<script src="js/functions_loading.js"></script>
+		<script src="js/functions_aligning.js"></script>
+		<script src="js/functions_quantifying.js"></script>
+		<script src="js/functions_comparing.js"></script>
+		<script src="js/helper_functions.js"></script>
+		<script src="js/functions_to_server.js"></script>
+		<script src="js/functions_igv.js"></script>
+		<script src="js/functions_download.js"></script>
+		<script src="js/functions_delete.js"></script>
+		<script src="js/igv.js"></script>
+		<script src="js/functions_newmenu.js"></script>
+	</head>
+	<body onload="main();close_all_dialogs();" onresize="resize();" onclick="close_all_menus();">
+
+		<input type="hidden" id="AlignTab" class="slash_off">
+		<input type="hidden" id="TrimTab" class="slash_off">
+		<input type="hidden" id="QuantifyTab" class="slash_off">
+		<input type="hidden" id="ExpressionTab" class="slash_off">
+		
+		<div id="MainDiv" class="w100 h100">
+			<table id="MainTable" cellspacing="0px" cellpadding="0px" border="0px" width="100%" height="100%">
+				<tr>
+					<td id="TopRow">
+						<table cellpadding="4px" cellspacing="0px" border="0px" class="w100">
+							<tr>
+								<td class="relative">
+									<div id="MenuFile">
+										<div id="dropContainerInMenu">
+											<input id="LoadFiles" name="LoadFiles" type="File" accept=".fa, .fa.gz, .fasta, .fasta.gz, .fna, .fna.gz, .gff, .gff.gz, .gtf, .gtf.gz, .gff3, .gff3.gz, .fastq, .fastq.gz, .fq, .fq.gz, .bam, .sam, .ann, .ann.txt, .ann.tsv, .ann.xls, .ann.xlsx, .ann.tab" multiple onchange="uploadFiles(this.files);">
+											
+
+											<button id="MenuFile_Load" class="ButtonMenuContent">Load Files...</button>
+										</div>
+									</div>
+								</td>
+								<td style="width:3rem;">&nbsp;</td>
+								<td class="w40">
+									<input id="ProjectName" name="ProjectName" type="textbox" class="borderbox w100 font18" value="Project Title" onChange='this.value=safeString(this.value);checkProjectName(trim(this.value))' onInput='this.value=safeString(this.value);checkProjectName(trim(this.value))' onblur="changeProjectDescription(trim(this.value));">
+								</td>
+								<!--
+								<td class="relative">
+									<button id="MenuSteps" name="ButtonMenu" class="ButtonMenu" onclick="open_menu('MenuStepsContent','MenuSteps');">Steps</button>
+									<div id="MenuStepsContent" name="MenuContent" class="MenuContent">
+										<button id="MenuSteps_Align" class="ButtonMenuContent" onclick="open_dialog('Align');checkForm();">Align Reads to Genomes</button>
+										<button id="MenuSteps_Quantify" class="ButtonMenuContent" onclick="open_dialog('Quantify');checkForm();">Quantify Genomic Features</button>
+										<button id="MenuSteps_Compare" class="ButtonMenuContent" onclick="open_dialog('Expression');checkForm();">Calculate Differential Expression</button>
+									</div>
+								</td>
+								-->
+								<td style="width:3rem;">&nbsp;</td>
+								<td class="relative">
+									<button id="MenuAlign" name="MenuAlign" class="ButtonMenu" onclick="open_menu('MenuAlignContent','MenuAlign');">Align Reads</button>
+									<div id="MenuAlignContent" name="MenuAlignContent" class="MenuContent">
+										<button id="MenuSteps_Align_bowtie2" class="ButtonMenuContent" onclick="open_dialog('Align', 'bowtie2');checkForm();">Align reads with <span class="spanFunctionName">bowtie2</span></button>
+										<button id="MenuSteps_Align_hisat2" class="ButtonMenuContent" onclick="open_dialog('Align', 'hisat2');checkForm();">Align reads with <span class="spanFunctionName">hisat2</span></button>
+									</div>
+								</td>
+								<td class="relative">
+									<button id="MenuQuantify" name="MenuQuantify" class="ButtonMenu" onclick="open_menu('MenuQuantifyContent','MenuQuantify');">Quantify Genes</button>
+									<div id="MenuQuantifyContent" name="MenuQuantifyContent" class="MenuContent">
+										<button id="MenuSteps_Quantify" class="ButtonMenuContent" onclick="open_dialog('Quantify', 'featureCounts');checkForm();">Quantify genes with <span class="spanFunctionName">featureCounts</span></button>
+									</div>
+								</td>
+								<td class="relative">
+									<button id="MenuCompare" name="MenuCompare" class="ButtonMenu" onclick="open_menu('MenuCompareContent','MenuCompare');">Compare Samples</button>
+									<div id="MenuCompareContent" name="MenuCompareContent" class="MenuContent">
+										<button id="MenuSteps_Compare_DESeq2" class="ButtonMenuContent" onclick="open_dialog('Expression', 'DESeq2');checkForm();">Compare samples with <span class="spanFunctionName">DESeq2</span></button>
+										<button id="MenuSteps_Compare_edgeR" class="ButtonMenuContent" onclick="open_dialog('Expression', 'edgeR');checkForm();">Compare samples with <span class="spanFunctionName">edgeR</span></button>
+									</div>
+								</td>
+								<td style="width:3rem;">&nbsp;</td>
+								<td class="relative">
+									<button id="MenuAbout" name="MenuAbout" class="ButtonMenu" onclick="open_menu('MenuAboutContent','MenuAbout');">About</button>
+									<div id="MenuAboutContent" name="MenuAboutContent" class="MenuContent">
+										<button id="MenuAbout_Credits" class="ButtonMenuContent" onclick="open_credits();">Credits</button>
+										<button id="MenuAbout_Help" class="ButtonMenuContent" onclick="window.open('https://bioinfogp.cnb.csic.es/tools/seqnjoy/help');">Help</button>
+									</div>
+								</td>
+								<td class="right w100">
+									<button class="closeButton" onclick="endSession();" title="Close project">X</button>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td id="FilesTD" class="w100 top" style="padding-right:1rem;padding-top:1rem;">
+						<table cellpadding="0px" cellspacing="0px" border="0px" width="100%">
+							<tr>
+								<td class="center nowrap bottom" style="padding-right:1rem;padding-left:0.5rem;padding-bottom:0.5rem;">
+									<span>Selected: </span>
+									<button id="ButtonDownloadFiles" class="buttonIcon" disabled onclick="launchDownloadingQueue();"><i class="fa fa-download left buttonIconPadding" aria-hidden="true" style="font-size:1.1rem;"></i></button>
+									<button id="ButtonDeleteFiles" class="buttonIcon" disabled onclick="if(confirm('Delete selected files?')) { launchDeletingQueue('selected'); }"><i class="fa fa-trash left buttonIconPadding" aria-hidden="true" style="font-size:1.1rem;"></i></button>
+								</td>
+<!--
+								<td style="padding-right:0rem;padding-left:1rem;padding-bottom:0.75rem;" class="bottom">
+									<input type="textbox" id="filterName" placeholder="filter name" oninput="filterFileName(this.value);"></input>
+								</td>
+-->
+								<td style="text-align:left;width:100%;">
+									<div id="FileTypesDiv"></div>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td id="FilesDivTD" style="height:100%">
+						<div id="FilesDiv" style="width:100%;height:100%;overflow:auto;background:#FFFFFF;">
+							<div id="dtFiles" style="width:100%;height:100%;overflow-y:scroll;overflow-x:auto;">
+								<table id="over_FilesTable" border="0px" cellpadding="0px" cellspacing="0px" width="100%" height="100%">
+									<tr>
+										<th style="position:sticky;top:0px;" class="nowrap center"><input style="display:none;" id="allFileChecks" type="checkbox" onChange="toggleFileChecks();"><div style="display:inline-block" id="labelNSelectedFiles">x0</div></td>
+										<th style="position:sticky;top:0px;"><div id="DIV_filesTableHeader-ftype" class="w100"><button id="DUMMY_filesTableHeader-ftype" class="ButtonTableHead nowrap w100" onclick="renderFileTable('ftype','auto');" value="Type">Type <i class="D4D0C8 fa fa-sort"></i></button></div></td>
+										<th style="position:sticky;top:0px;" class="w100"><div id="DIV_filesTableHeader-fname" class="w100"><button id="filesTableHeader-fname" class="ButtonTableHead nowrap w100" onclick="renderFileTable('fname','auto');" value="Description">Description <i class="D4D0C8 fa fa-sort"></i></button></div></td>
+										<th style="position:sticky;top:0px;"><div id="DIV_filesTableHeader-fsize" class="w100"><button id="filesTableHeader-fsize" class="ButtonTableHead nowrap w100" onclick="renderFileTable('fsize','auto');" value="Bytes">Bytes <i class="D4D0C8 fa fa-sort"></i></button></div></td>
+										<th style="position:sticky;top:0px;"><div id="DIV_filesTableHeader-fcreated" class="w100"><button id="filesTableHeader-fcreated" class="ButtonTableHead nowrap w100" onclick="renderFileTable('fcreated','auto');" value="Date">Date <i class="D4D0C8 fa fa-sort"></i></button></div></td>
+										<th style="position:sticky;top:0px;" class="medipadded  nowrap center middle"><button class="buttonIcon" style="opacity:0;">&nbsp;<i class="fa fa-trash"></i>&nbsp;</button></td>
+									</tr>
+									<tr>
+										<td colspan=6 class="w100 center middle">
+											THIS IS A DUMMY SESSION
+										</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td id="FootDivTD">
+						<div id="FootDiv">SeqNjoy for RNA-Seq. Developed by BioinfoGP CNB-CSIC (2022)
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+
+		<div id="Viewer" style="display:none;z-index:999">
+			<div id="ViewerDiv"></div>
+			<div id="ViewerCaption" style="float:right;padding-right: 10px;padding-top: 10px" ><span style="color:#FF0000;" id="CurrentView"></span> <input type="button" value="Close" onclick="document.getElementById('Viewer').style.display='none';"></div>
+		</div>		
+
+
+		<div id="LogDiv" style="display:none;">
+			<div id="LogContent">
+			</div>
+			<div id="LogCaption" style="float:right;padding-right: 10px;padding-top: 10px;" ><span style="color:#FF0000;" id="CurrentLog"></span> <input type="button" value="Close" onclick="document.getElementById('LogDiv').style.display='none';"></div>
+		</div>		
+
+
+		<div id="HomeCourtain"></div>	
+
+	
+		<div id="ModalCourtainDialogs"></div>
+		<div id="TrimDiv" class="CenteredDialog largeshadow border radius" style="display:none">
+			<div class="CenteredDialogTitle"><table cellpadding=0 cellspacing=0 border=0><tr><td class="DialogTitle" style="width:100%;padding:1rem;">Preprocess Reads </td><td><button class="closeButtonDialog" onclick="close_all_dialogs()">X</button></td></tr></table></div>
+			<div id="TrimFormDiv" class="borderbox w100 h100">
+				<div id="TrimFormTable" class="medipadded h100 borderbox"></div>
+			</div>
+		</div>
+		<div id="AlignDiv" class="CenteredDialog largeshadow border radius" style="display:none">
+			<div class="CenteredDialogTitle"><table cellpadding=0 cellspacing=0 border=0><tr><td class="DialogTitle" style="width:100%;padding:1rem;">Align Reads to Genomes </td><td><button class="closeButtonDialog" onclick="close_all_dialogs()">X</button></td></tr></table></div>
+			<div id="AlignFormDiv" style="width:100%;height:40%;">
+				<div id="AlignFormTable" class="medipadded h100 borderbox"></div>
+			</div>
+		</div>
+		<div id="QuantifyDiv" class="CenteredDialog largeshadow border radius" style="display:none">
+			<div class="CenteredDialogTitle"><table cellpadding=0 cellspacing=0 border=0><tr><td class="DialogTitle" style="width:100%;padding:1rem;">Quantify Genomic Features </td><td><button class="closeButtonDialog" onclick="close_all_dialogs()">X</button></td></tr></table></div>
+			<div id="QuantifyFormDiv" style="width:100%;height:40%;">
+				<div id="QuantifyFormTable" class="medipadded h100 borderbox"></div>
+			</div>
+		</div>
+		<div id="ExpressionDiv" class="CenteredDialog largeshadow border radius" style="display:none">
+			<div class="CenteredDialogTitle"><table cellpadding=0 cellspacing=0 border=0><tr><td class="DialogTitle" style="width:100%;padding:1rem;">Calculate Differential Expression </td><td><button class="closeButtonDialog" onclick="close_all_dialogs()">X</button></td></tr></table></div>
+			<div id="ExpressionFormDiv" style="width:100%;height:40%;">
+				<div id="ExpressionFormTable" class="medipadded h100 borderbox"></div>
+			</div>
+		</div>
+
+		<div id="ModalCourtain"></div>
+
+		<div id="CreditsDiv" class="CenteredDialog largeshadow border radius" style="display:none;background:white;">
+			<div class="CenteredDialogTitle"><table cellpadding=0 cellspacing=0 border=0><tr><td class="DialogTitle" style="width:100%;padding:1rem;">Credits</td><td><button class="closeButtonDialog" onclick="close_credits();">X</button></td></tr></table></div>
+			<div class="h100 w100 borderbox" style="padding-left:2rem;padding-right:2rem;padding-bottom:2rem;color:black;">
+				<table cellpadding="4px" cellspacing="0px" border="0px">
+					<tr>
+						<td style="text-align:right;width:10%;white-space:nowrap;font-weight:bold;font-size:1.1rem;">
+							Juan Antonio García-Martín:
+						</td>
+						<td colspan=3 style="padding-left:0.5rem;width:100%;white-space:nowrap;font-size:1.1rem;">
+							R programming, installers (Windows, Linux and macOS) and original draft
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:right;width:10%;white-space:nowrap;font-weight:bold;font-size:1.1rem;">
+							Rafael Torres-Pérez:
+						</td>
+						<td colspan=3 style="padding-left:0.5rem;width:100%;white-space:nowrap;font-size:1.1rem;">
+							Additional programming and manuals
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:right;width:10%;white-space:nowrap;font-weight:bold;font-size:1.1rem;">
+							Juan Carlos Oliveros:
+						</td>
+						<td colspan=3 style="padding-left:0.5rem;width:100%;white-space:nowrap;font-size:1.1rem;">
+							Javascript programming, GUI design and coordination
+						</td>
+					</tr>
+					<tr>
+						<td colspan=3 style="white-space:nowrap;padding-top:2rem;font-size:1.1rem;">
+							Bioinformatics for Genomics and Proteomics (<a href="https://bioinfogp.cnb.csic.es" target="bioinfogp">BioinfoGP</a>) <a href="https://www.cnb.csic.es" target="cnb">CNB</a>-<a href="https://www.csic.es/en" target="csic">CSIC</a> (Madrid, Spain)
+						</td>
+						<td style="text-align:right;padding-top:2rem;font-size:1.1rem;">
+							bioinfogp@cnb.csic.es
+						</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+
+			
+		<div id="ModalCourtainDark"></div>
+		<div id="ModalCourtainGFF"></div>
+
+		<textarea id="area_ShinyDetails" id="area_ShinyDetails" style="display:none;">none</textarea>
+		<div id="area_ShinyResponse" id="area_ShinyResponse"></div>
+
+
+		<div id="myalert" style="display:none;z-index:9999;">
+			<div id="myalert_dialog" class="largeshadow radius">
+				<table border=0 cellpadding=0 cellspacing=0 style="width:100%;height:100%;">
+					<tr>
+						<td id="myalert_title" style="font-size:1em;">
+						</td>
+					</tr>
+					<tr>
+						<td id="myalert_content" style="text-align:left;height:100%;font-size:1em;vertical-align:top;">
+						</td>
+					</tr>
+					<tr>
+						<td id="myalert_buttons" style="text-align:right;">
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div id="igv_div_container" class="igv_div_container border radius largeshadow">
+			<table border="0px" cellpadding="0px" cellspacing="0px" style="width:100%;height:100%;background:#EFEFEF;">
+				<tr>
+					<td style="padding-left:1rem;padding-right:1rem;padding-top:1rem;padding-bottom:0rem;white-space:nowrap;">
+						Add tracks: <select id="IGV_available_bam" onchange="loadIGVSelectedTracks(this);"></select>
+						<select id="IGV_available_gff" onchange="loadIGVSelectedTracks(this);"></select>
+					</td>
+					<td style="text-align:right;padding-bottom:0rem;padding-right:1rem;padding-top:1rem;padding-left:1rem;"><button class="miniCloseButton" onclick="close_igv();">X</button></td>
+				</tr>
+				<tr>
+					<td colspan=2 style="height:100%;padding-left:1rem;padding-right:1rem;padding-bottom:1rem;padding-top:0.5rem;">
+						<div id="igv-div" class="igv_div"></div>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</body>
+</html>

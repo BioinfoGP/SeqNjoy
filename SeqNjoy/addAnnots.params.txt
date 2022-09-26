@@ -1,0 +1,2 @@
+ACTIVE   ID                          Caption1                       Default         SkipIf      Caption2              Type            Editable      Param                         Range                           RangeCaptions   Help
+always   annots_ann                  Annotations (optional)         NO_MANDATORY    ---         BLANK                 SelectFile      YES           ---                           \.\/ANNOTS\/.+\.ann(\.\w+)?$    ---             Add annotations from .ann file

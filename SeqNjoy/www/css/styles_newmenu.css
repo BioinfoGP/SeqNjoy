@@ -1,0 +1,111 @@
+/* top right bottom left */
+.ButtonMenu {
+	padding-left:1.5rem;
+	padding-right:1.5rem;
+	padding-top:0.5rem;
+	padding-bottom:0.5rem;
+	border-radius:0.5rem;
+	border:2px solid silver;
+	white-space:nowrap;
+	background:#FFFFFF;
+	font-size:1.1rem;
+	z-index:9999;
+}
+
+.ButtonMenuSelected {
+	padding-left:1.5rem;
+	padding-right:1.5rem;
+	padding-top:0.5rem;
+	padding-bottom:0.5rem;
+	border-radius:0.5rem;
+	border:2px solid silver;
+	white-space:nowrap;
+	background:#EFEFEF;
+	font-size:1.1rem;
+	z-index:9999;
+}
+
+.ButtonMenu:hover {
+	background:#FFFF00 !important;
+	color:black !important;
+}
+
+.MenuContent {
+	position:absolute;
+	left:0px;
+	top:0px;
+	border-radius:0.5rem;
+	border:2px solid silver;
+	padding:1rem 0 1rem 0;
+	background:#EFEFEF;
+	display:none;
+	z-index:9999;
+}
+
+.ButtonMenuContent {
+	padding-left:1.5rem;
+	padding-right:1.5rem;
+	padding-top:0.5rem;
+	padding-bottom:0.5rem;
+	border:0px solid silver;
+	white-space:nowrap;
+	background:transparent;
+	margin:0px;
+	width:100%;
+	text-align:left;
+	font-size:1.1rem;
+}
+
+.ButtonMenuContent:hover {
+	background:#FFFF00 !important;
+	color:black !important;
+}
+
+.CenteredDialog {
+	background:#EFEFEF;
+	vertical-align:top;
+	position:absolute;
+	top: 50%; 
+	left: 50%; 
+	transform: translate(-50%, -50%);
+}
+
+.CenteredDialogTitle {
+	padding:1rem;
+	font-size:1.2rem;
+}
+
+#dropContainerInMenu {
+	position:relative;
+	overflow:hidden;
+	width:100%;
+	height:100%;
+	background:transparent;
+	font-size:1.2rem;
+}
+
+
+
+#MenuFile {
+	border-radius:0.5rem;
+	border:2px solid blue;
+	white-space:nowrap;
+	background:lightblue;
+	font-size:1.1rem;
+	z-index:9999;
+	width:9rem;
+}
+
+#MenuFile:hover {
+	background:#FFFF00 !important;
+	color:black !important;
+}
+
+#MenuFile_Load {
+	font-size:1.1rem;
+	color:blue;
+}
+
+
+
+
