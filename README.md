@@ -4,7 +4,7 @@ SeqNjoy: Complete RNA-Seq workflows in your Desktop
 _The RNA-Seq GUI_
 ---------------------
 
-SeqNjoy is a stand-alone application for generating and analyzing differential gene expression results from RNA-Seq experiments. Analyses can be performed from the very initial step, using the files containing short reads (FASTQ files), or from an intermediate stage, using already aligned reads in BAM/SAM files.
+[SeqNjoy](https://bioinfogp.cnb.csic.es/tools/seqnjoy) is a stand-alone application for generating and analyzing differential gene expression results from RNA-Seq experiments. Analyses can be performed from the very initial step, using the files containing short reads (FASTQ files), or from an intermediate stage, using already aligned reads in BAM/SAM files.
 
 The main results of SeqNjoy are annotated list of genes differentially expressed (or not) between groups of samples. These results are presented both as standard tables and as interactive pages that allow the user to apply custom filters and to download ready-to-publish figures (scatter-plots).
 
@@ -71,7 +71,7 @@ Resources
 ---------
 
 *   [Help Pages](https://bioinfogp.cnb.csic.es/tools/seqnjoy/help)
-*   [Quick Guide](help/quick_guide) and [RNA-Seq Sample Files](https://bioinfogp.cnb.csic.es/files/samples/rnaseq) to start using SeqNjoy
+*   [Quick Guide](https://bioinfogp.cnb.csic.es/tools/seqnjoy/help/quick_guide) and [RNA-Seq Sample Files](https://bioinfogp.cnb.csic.es/files/samples/rnaseq) to start using SeqNjoy
 *   Source code: [GitHub](github.com/BioinfoGP/SeqNjoy)
 
 License
