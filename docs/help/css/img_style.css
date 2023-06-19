@@ -1,0 +1,77 @@
+img {
+	vertical-align:middle;
+}
+#seqnjoy {
+	width:100px;
+}
+
+#openprojBt {  }
+#deleteprojBt {  }
+#downloadBt {  }
+#deletefileBt {  }
+#gffBt {  }
+#igvBt {  }
+#fiesta2Bt {  }
+#showedbam { border:0px solid white; }
+#hiddenbam { border:0px solid white; }
+
+#img_rnaseq { }
+#img_flowchart1 { width:100%; }
+#img_inputsoutputs {  }
+#img_inputsoutputs2 {  }
+#img_utilities { }
+#img_functionalities { width:100%; }
+#img_homepage1 { width:100%; }
+#img_homepage2 { width:100%; }
+#img_homepage3 { width:100%; }
+
+
+#img_mainpage { width:100%; }
+#img_uploading { width:100%; }
+#img_uploadingOK { width:100%; }
+#img_mainpagefull { width:100%; }
+
+
+
+#img_alignmentMethodSelection { width:100%; }
+#img_alignreads1 { width:100%; }
+#img_fastqc { width:100%; }
+#img_dupreads { width:100%; }
+#img_localendtoend { width:100%; }
+#img_alignmentBowtieReady { width:100%; }
+#img_quantifyInitial { width:100%; }
+#img_primonly { width:100%; }
+#img_featureblock { width:100%; }
+#img_quatifyReady { width:100%; }
+#img_CompareSamplesMethodSelection { width:100%; }
+#img_comparesamplesinitial { width:100%; }
+#img_betapriordeseq2 { width:60%; }
+#img_betaprioredger { width:100%; }
+#img_comparesamplesfinal { width:100%; }
+#img_Rgfftree { width:100%; }
+#img_igv1 { width:100%; }
+#img_igv2 { width:100%; }
+#img_FigureFIESTA2 { width:100%; }
+#img_fastaformat { width:80%; box-shadow:2px 2px 5px black; }
+#img_fastqformat { width:100%; box-shadow:2px 2px 5px black; }
+#img_GFFgene { width:100%; }
+#img_GFFFASTAmatching { width:90%; }
+#img_GFF3GTF { width:100%; }
+#img_counts { width:80%; box-shadow:2px 2px 5px black; }
+#img_annformat { width:100%; }
+#img_diffexpfile { width:100%; }
+#img_sepe1 { width:100%; box-shadow:2px 2px 5px black; }
+#img_se { box-shadow:2px 2px 5px black; }
+#img_pe { width:80%;  box-shadow:2px 2px 5px black; }
+#img_peigv { width:100%; box-shadow:2px 2px 5px black; }
+#img_pemodel { box-shadow:2px 2px 5px black; }
+#img_strandnesstranscription { width:80%; box-shadow:2px 2px 5px black; }
+#img_sensegenespecific { width:80%; box-shadow:2px 2px 5px black; }
+#img_strandedunstranded { width:80%; box-shadow:2px 2px 5px black; }
+#img_strandedfastq { width:80%; box-shadow:2px 2px 5px black; }
+#img_igvgearfop { width:180px; }
+#img_igvpairorientation { width:360px; }
+#img_directstranded { width:100%; box-shadow:2px 2px 5px black; }
+#img_reversestranded { width:100%; box-shadow:2px 2px 5px black; }
+#img_determinestrandness { width:100%; }
+

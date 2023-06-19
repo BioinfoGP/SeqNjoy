@@ -1,0 +1,163 @@
+html {
+	font-family:sans-serif;
+	font-size:12pt;
+}
+
+body {
+	padding:2rem;
+	background:#D4D0C8;
+	text-align:center;
+}
+
+.page {
+	text-align:left;
+	padding:2rem;
+	background:white;
+	box-sizing:border-box;
+}
+
+p {
+	display:block;
+	margin:0px 0px 0px 0px;
+	padding:0.5rem 0.5rem 0.5rem 0.5rem;
+	color:black;
+}
+
+h1 {
+	font-size:1.5rem;
+	font-weight:bold;
+	padding-bottom:1rem;
+}
+
+h2 {
+	font-size:1.25rem;
+	font-weight:bold;
+
+}
+
+h3 {
+	font-size:1rem;
+	font-weight:bold;
+}
+
+
+ul {
+	list-style-position:outside;
+	margin:0px;
+}
+
+li {
+	margin-bottom:0.5rem;
+}
+
+table {
+	border-spacing:0px;
+	border-collapse:separate;
+}
+
+table[class="border"] {
+	border-top: 1px solid #D4D0C8;
+	border-left: 1px solid #D4D0C8;
+}
+
+table[class="border"] td, th {
+	border-bottom: 1px solid #D4D0C8;
+	border-right: 1px solid #D4D0C8;
+}
+
+table[class="border"] th {
+	color:#000000;
+	font-weight:normal;
+	background:#EFEFEF;
+}
+
+td, th {
+	padding:0.5rem;
+}
+
+button, input[type=submit] {
+	border-radius:0.5rem;
+	padding-left:8px;
+	padding-top:4px;
+	padding-right:8px;
+	padding-bottom:4px;
+	border-left:2px solid #EFEFEF;
+	border-top:2px solid #EFEFEF;
+	border-right:2px solid #D4D0C8;
+	border-bottom:2px solid #D4D0C8;
+	background:#EFEFEF;
+	margin-left:0px;
+	margin-top:0px;
+	margin-right:0px;
+	margin-bottom:0px;
+	user-select:none;
+	line-height:1;
+}
+
+button:hover, input[type=submit]:hover {
+	background:yellow;
+}
+
+button:active, input[type=submit]:active {
+	padding-left:8px;
+	padding-top:4px;
+	padding-right:8px;
+	padding-bottom:4px;
+	border-left:2px solid #666666;
+	border-top:2px solid #666666;
+	border-right:2px solid #666666;
+	border-bottom:2px solid #666666;
+	background:#D4D0C8;
+	margin-left:0px;
+	margin-top:0px;
+	margin-right:0px;
+	margin-bottom:0px;
+	user-select:none;
+	line-height:1;
+}
+
+a {
+	text-decoration:none;
+	color:#4863A0;
+}
+
+a:hover {
+	text-decoration:underline;
+}
+
+input[type=file] {
+	padding-bottom:0.5rem;
+	border-bottom:1px dotted black;
+}
+
+
+select {
+	border-radius:0.5rem;
+	padding:0.5rem;
+	width:100%;
+	background:#EFEFEF;
+}
+
+.thisbutton {
+	font-weight:normal;
+	color: white;
+	background:silver;
+	padding-left:5px;
+	padding-right:5px;
+	padding-top:2px;
+	padding-bottom:2px;
+	border-radius:3px;
+}
+
+.top { vertical-align:top; }
+.left { text-align:left; }
+.center { text-align:center; }
+.right { text-align:right; }
+.justify { text-align:justify; }
+.nowrap { white-space:nowrap; }
+.box { background:#EFEFEF; }
+.xlargepadding { padding:2rem; }
+.largepadding { padding:1rem; }
+.radius { border-radius:1rem; }
+
+
