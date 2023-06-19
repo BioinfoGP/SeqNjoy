@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Juan Antonio Garcia-Martín, Rafael Torres-Pérez, Juan Carlos Oliveros" />
+
+<meta name="date" content="2022-08-09" />
+
+<title>SeqNjoy: Quick Guide</title>
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+      .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">SeqNjoy: Quick Guide</h1>
+<h4 class="author">Juan Antonio Garcia-Martín, Rafael Torres-Pérez, Juan Carlos Oliveros</h4>
+<h4 class="date">08/09/2022</h4>
+
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p><strong>SeqNjoy</strong> is a stand-alone application to generate and analyze differential gene expression results from RNA-Seq experiments.</p>
+<p>This Quick Guide is intended to guide you to perform a RNA-seq data analysis with <strong>SeqNjoy</strong>. For a complete description of <strong>SeqNjoy</strong> and its functionalities please refer the <a href="https://bioinfogp.cnb.csic.es/tools/seqnjoy/help/index.html"><em>SeqNjoy Tutorial</em></a>.</p>
+<p>In <a href="https://bioinfogp.cnb.csic.es/files/samples/rnaseq/" class="uri">https://bioinfogp.cnb.csic.es/files/samples/rnaseq/</a> you will find the information about the experiment from which the data have been taken to elaborate this example. In that link you can also download all the files used in the present guide so you can perform the suggested RNA-seq data analysis with <strong>SeqNjoy</strong> on your own.</p>
+<p>In short, the project has 9 sample files of <em>Saccharomyces cerevisiae</em> short-reads as input. As you can see in the <em>Content</em> section of the <a href="https://bioinfogp.cnb.csic.es/files/samples/rnaseq/">link</a>, 3 groups of replicas were grown in 3 different CO2 and pH conditions (“<em>pH5_CO2</em>”, “<em>pH5</em>” and “<em>pH3</em>). In the project named”<em>S. cerevisiae: pH, CO2</em>” performed in this guide, two comparisons between conditions will be analyzed for the input data: “<em>pH5_CO2</em>” versus “<em>pH5</em>” and “<em>pH3</em>” versus “<em>pH5</em>”.</p>
+</div>
+<div id="step-by-step-guide" class="section level1">
+<h1>Step-by-step guide</h1>
+<ol style="list-style-type: decimal">
+<li><p>Type the project name (<em>S. cerevisiae: pH, CO2</em>) in the text box located at the bottom of the <strong>Homepage</strong> and then click <em>Start New Project</em> (Figure 1).
+<br/>
+<br/></p>
+<div class="figure"><span style="display:block;" id="fig:homepage2"></span>
+<img src="Figures/WelcomePage_firstproject.png" alt="Creating your project" width="" id="img_homepage2" />
+<p class="caption">
+Figure 1: Creating your project
+</p>
+</div></li>
+<li><p>In the <strong>Project’s Main Page</strong> displayed (Figure 2) press <strong>Load Files</strong> and select in your computer the reference genome (FASTA) file, the gene features (GFF) file and the annotations (ANN) file.
+<br/>
+<br/></p>
+<div class="figure"><span style="display:block;" id="fig:mainpage"></span>
+<img src="Figures/MainPage_ProjectStart.png" alt="Project's Main page" width="" id="img_mainpage" />
+<p class="caption">
+Figure 2: Project’s Main page
+</p>
+</div></li>
+<li><p>The application will display a pop-up window showing the progress of the files being uploaded (Figure 3).
+<br/>
+<br/></p>
+<div class="figure"><span style="display:block;" id="fig:uploading"></span>
+<img src="Figures/MainPage_UploadProgress_ini.png" alt="Uploading files in **SeqNjoy**" width="" id="img_uploading" />
+<p class="caption">
+Figure 3: Uploading files in <strong>SeqNjoy</strong>
+</p>
+</div>
+<p><br/>
+Once the files have been added to the project, the window will display a message “<em>All steps done!</em>” (Figure 4). Click <em>Close</em> button on this window to be redirected to the <strong>Project’s Main Page</strong>.
+<br/>
+<br/></p>
+<div class="figure"><span style="display:block;" id="fig:uploadingOK"></span>
+<img src="Figures/MainPage_UploadProgress_end.png" alt="Uploading process successful" width="" id="img_uploadingOK" />
+<p class="caption">
+Figure 4: Uploading process successful
+</p>
+</div></li>
+<li><p>Note that the <strong>Project’s Main Page</strong> lists now the three files added to the project (Figure 5).
+<br/>
+<br/></p>
+<div class="figure"><span style="display:block;" id="fig:filelist"></span>
+<img src="Figures/FILE_LIST_files_loaded.png" alt="File List" width="" id="img_filelist" />
+<p class="caption">
+Figure 5: File List
+</p>
+</div></li>
+<li><p>Click the <img src="Figures/GFF_tree_icon.png" id="gffBt" /> icon located at the rightmost of the “Details” column corresponding to the GFF file to get a glimpse of the genome structure in the form of a tree of dependencies between the feature types present in the GFF file (Figure 6).
+<br/>
+<br/></p>
+<div class="figure"><span style="display:block;" id="fig:rgfffromfilelist"></span>
+<img src="Figures/UTILITIES_Rgff_from_File_list.png" alt="Viewing the tree of dependencies between the feature types present in the GFF file" width="" id="img_rgfffromfilelist" />
+<p class="caption">
+Figure 6: Viewing the tree of dependencies between the feature types present in the GFF file
+</p>
+</div></li>
+<li><p>Proceed as in step <em>2</em> to load the files that contain the short reads (FASTQ files): click <strong>Load Files</strong> button and select in your computer the <em>FASTQ</em> files to be processed. As seen before (step <em>3</em>), a pop-up window showing the progress of the upload will be displayed (Figures 7-8). Click <em>Close</em> when the message “<em>All steps done!</em>” is displayed to be redirected to the <em>Project’s Main Page</em>.
+<br/>
+<br/></p>
+<div class="figure"><span style="display:block;" id="fig:uploading2"></span>
+<img src="Figures/MainPage_UploadProgressFQ_ini.png" alt="Uploading FASTQ files" width="" id="img_uploading2" />
+<p class="caption">
+Figure 7: Uploading FASTQ files
+</p>
+</div>
+<div class="figure"><span style="display:block;" id="fig:uploading3"></span>
+<img src="Figures/MainPage_UploadProgressFQ_end.png" alt="Uploading process successful" width="" id="img_uploading3" />
+<p class="caption">
+Figure 8: Uploading process successful
+</p>
+</div></li>
+<li><p>After the files have been added to the project, you will see them listed along with the other input files in the <strong>Project’s Main Page</strong> (Figure 9).
+<br/>
+<br/></p>
+<div class="figure"><span style="display:block;" id="fig:filelist2"></span>
+<img src="Figures/FILE_LIST_files_loaded2.png" alt="*File List* with all input files loaded" width="" id="img_filelist2" />
+<p class="caption">
+Figure 9: <em>File List</em> with all input files loaded
+</p>
+</div>
+<p><br/>
+All FASTQ files contain one million reads. We have randomly subset this amount of short reads from the real files for this example in benefit of speed.</p></li>
+<li><p>Now, we will align the short reads contained in the FASTQ files to the genome reference contained in the FASTA file and will obtain files with the alignments (BAM files).</p>
+<p>In the <strong>Project’s Main Page</strong> click <em>Align Reads</em> button, located in the upper part of the page (Figure 10). A submenu will appear for you to select one of the two methods that are available in <strong>SeqNjoy</strong> to perform this task. For this project we select “<em>bowtie2</em>” so we click “<em>Align reads with bowtie2</em>” option.</p>
+<div class="figure"><span style="display:block;" id="fig:alignmentMethodSelection"></span>
+<img src="Figures/Alignment_method_selection_ed.png" alt="Align Reads: selecting alignment method (aligner)" width="" id="img_alignmentMethodSelection" />
+<p class="caption">
+Figure 10: Align Reads: selecting alignment method (aligner)
+</p>
+</div></li>
+<li><p>In the <em>Align Reads to Genomes</em> dialog displayed (Figure 11), select the input FASTA and FASTQ files. The dialog also contains some parameters associated to the alignment method (shaded area on the right). For this example, do not modify the default values of these parameters. Click the <em>Launch!</em> button to perform the alignment task (Figure 12).</p>
+<div class="figure"><span style="display:block;" id="fig:alignreads1"></span>
+<img src="Figures/Alignment_bowtie_initial.png" alt="*Align Reads to Genomes* dialog" width="" id="img_alignreads1" />
+<p class="caption">
+Figure 11: <em>Align Reads to Genomes</em> dialog
+</p>
+</div>
+<div class="figure"><span style="display:block;" id="fig:alignreads2"></span>
+<img src="Figures/Alignment_bowtie_ready.png" alt="*Align Reads to Genomes* dialog ready to launch the alignments processes." width="" id="img_alignreads2" />
+<p class="caption">
+Figure 12: <em>Align Reads to Genomes</em> dialog ready to launch the alignments processes.
+</p>
+</div>
+<p><br/>
+Alignments may take a long time, depending on the number and size of the FASTQ files. A pop-up window informs you of the progress of the alignment task.</p></li>
+<li><p>When the whole process ends, click “Close” button (Figure 13).</p>
+<div class="figure"><span style="display:block;" id="fig:alignreadsOK"></span>
+<img src="Figures/Alignment_progress_ok.png" alt="Alignment process ended OK" width="" id="alignreadsOK" />
+<p class="caption">
+Figure 13: Alignment process ended OK
+</p>
+</div></li>
+<li><p>Now you are in the “<em>Align Reads to Genomes</em>” dialog again (Figure 14). Now, you could fill in the data to run additional alignments or click the “X” icon to close this window. As we do not wish to align more FASTQ files, click the “X” icon.</p>
+<div class="figure"><span style="display:block;" id="fig:alignmentnewform"></span>
+<img src="Figures/Alignment_new_form.png" alt="*Align Reads to Genomes* dialog: click the &quot;X&quot; icon (top right) to exit the window" width="" id="img_alignmentnewform" />
+<p class="caption">
+Figure 14: <em>Align Reads to Genomes</em> dialog: click the “X” icon (top right) to exit the window
+</p>
+</div></li>
+<li><p>You will return to the <em>Project’s Main Page</em>, which will have been updated to contain the new alignment files (extension <em>.bam</em>) in its <em>File List</em> (Figure 15).</p>
+<div class="figure"><span style="display:block;" id="fig:filelistbamsadded"></span>
+<img src="Figures/File_list_new_bams_added.png" alt="*File list* with the new alignment (.bam) files added" width="" id="img_filelistbamsadded" />
+<p class="caption">
+Figure 15: <em>File list</em> with the new alignment (.bam) files added
+</p>
+</div></li>
+<li><p>From the <em>File List</em>, you can explore visually the BAM files that contains the alignments generated. To do that, click the <img src="Figures/bam_mountain_icon.png" id="igvBt" /> icon in the <em>File List</em> for the BAM file of interest (“<em>pH5-Rep1.bam</em>” in the example of Figure 16).</p>
+<div class="figure"><span style="display:block;" id="fig:filelistbamselection"></span>
+<img src="Figures/File_list_select_bam.png" alt="Selecting a .bam file in the *File list* to access IGV viewer" width="" id="img_filelistbamselection" />
+<p class="caption">
+Figure 16: Selecting a .bam file in the <em>File list</em> to access IGV viewer
+</p>
+</div></li>
+<li><p>You will be directed to the <em>IGV</em> utility, a popular genome browser to inspect alignments (among other utilities). You can see in Figure 17 that there are two tracks loaded: the upper track for the reference genome of <em>Saccharomyces cerevisiae</em> (chromosomes I, II, III, etc.), and the bottom track corresponding to the “<em>pH5-Rep1.bam</em>” alignments file.</p>
+<div class="figure"><span style="display:block;" id="fig:igv1"></span>
+<img src="Figures/igv_1.png" alt="*pH5-Rep1.bam* alignments file loaded in IGV" width="" id="img_igv1" />
+<p class="caption">
+Figure 17: <em>pH5-Rep1.bam</em> alignments file loaded in IGV
+</p>
+</div></li>
+<li><p>Select now the GFF file corresponding to that BAM file in the <em>Select gff</em> drop-down menu at the top (Figure 18). GFF track will be added (Figure 19).</p>
+<div class="figure"><span style="display:block;" id="fig:igv2"></span>
+<img src="Figures/igv_2.png" alt="GFF selection" width="" id="img_igv2" />
+<p class="caption">
+Figure 18: GFF selection
+</p>
+</div>
+<div class="figure"><span style="display:block;" id="fig:igv3"></span>
+<img src="Figures/igv_3.png" alt="GFF track is displayed after selection (bottom track)" width="" id="img_igv3" />
+<p class="caption">
+Figure 19: GFF track is displayed after selection (bottom track)
+</p>
+</div></li>
+<li><p>Focus on a certain region to inspect their alignments. In the text box (close to the GFF filename) type the following region of the chromosome I: <em>I:126,500-136,000</em> (Figure 20).</p>
+<div class="figure"><span style="display:block;" id="fig:igv4"></span>
+<img src="Figures/ph5_rep1_I_126500-136000_CYS3.png" alt="Zooming in on region *I:126,500-136,000* to explore the alignments on that region" width="" id="img_igv4" />
+<p class="caption">
+Figure 20: Zooming in on region <em>I:126,500-136,000</em> to explore the alignments on that region
+</p>
+</div>
+<p>At this magnification you can appreciate the different pile up of reads between genes, mirroring different expression levels. You can see an additional feature of this partiucular sequencing: depending on the orientation of the gene, reads are colored differently. Genes oriented forward (“<em>&gt; &gt; &gt;</em>” on the genes bar) are colored blue and genes in oriented reverse (“<em>&lt; &lt; &lt;</em>”) are colored red. This coloring indicates that the protocol followed in the sequencing of the sample was <em>reverse stranded</em>. You can find more information on <em>strandness in RNA-seq</em> and how to determine the strandness using IGV in the <a href="https://bioinfogp.cnb.csic.es/tools/seqnjoy/help/index.html#appendix-2-strandness-and-rna-seq"><em>Tutorial</em></a>.</p></li>
+<li><p>Very often, we are interested in comparing the alignments of different samples in a certain region. In this example, we are going to incorporate more samples and see how align all of them in the above-defined region of chromosome I. To do that, select the BAM files of interest in the top “Select bam” selector. In Figure 21 you can see the aspect when other three samples (“<em>pH5-Rep2.bam</em>”, “<em>pH5-CO2-Rep1.bam</em>” and “<em>pH5-CO2-Rep2.bam</em>”) have been loaded.</p>
+<div class="figure"><span style="display:block;" id="fig:igv5"></span>
+<img src="Figures/ph3_vs_ph5_I_126500-136000_CYS3.png" alt="Comparing alignment files with IGV" width="" id="img_igv5" />
+<p class="caption">
+Figure 21: Comparing alignment files with IGV
+</p>
+</div>
+<p>As an example, you can see differences in the coverage (number of reads in a certain region, see the “mountains” above the reads) of gene <em>CYS3</em> between the “pH5” replicas (top) and the “pH3” replicas (bottom). These differences may be or not statistically significant, a question that only can be solved after performing the <em>Compare Samples</em> process in the next steps.</p></li>
+<li><p>After inspecting the alignments, close IGV tool by clicking the “X” icon at the top right to return to the <em>Project’s Main Page</em> and continue to the next task of the workflow.</p></li>
+<li><p>Click the “<em>Quantify Genes</em>” button in the <em>Project’s Main Page</em> and select “<em>Quantify Genes with featureCounts</em>” (Figure 22) to access the dialog for quantifying genes (Figure 23).</p>
+<div class="figure"><span style="display:block;" id="fig:quantifySelection"></span>
+<img src="Figures/Quantify_selection.png" alt="Selecting *Quantify Genes* task" width="" id="img_quantifySelection" />
+<p class="caption">
+Figure 22: Selecting <em>Quantify Genes</em> task
+</p>
+</div>
+<div class="figure"><span style="display:block;" id="fig:quantifyInitial"></span>
+<img src="Figures/Quantify_initial.png" alt="Quantification dialog" width="" id="img_quantifyInitial" />
+<p class="caption">
+Figure 23: Quantification dialog
+</p>
+</div></li>
+<li><p>Select the <em>Genome Features</em> file (<em>GFF</em>) from the list of loaded GFF files displayed in the drop-down menu (Figure 24).</p>
+<div class="figure"><span style="display:block;" id="fig:quantifygffSelection"></span>
+<img src="Figures/Quantify_gff_selection.png" alt="Select GFF file" width="" id="img_quantifygffSelection" />
+<p class="caption">
+Figure 24: Select GFF file
+</p>
+</div></li>
+<li><p>Select the <em>Alignments</em> files (<em>BAM</em>) from the list of the BAM files that have been generated in the previous <em>Align Reads</em> task (Figure 25).</p>
+<div class="figure"><span style="display:block;" id="fig:quantifybamSelection"></span>
+<img src="Figures/Quantify_bam_selection.png" alt="Select BAM files" width="" id="img_quantifybamSelection" />
+<p class="caption">
+Figure 25: Select BAM files
+</p>
+</div></li>
+<li><p>Open the drop-down menu labelled <em>Strand Specificity</em> to display the possible options for this parameter (Figure 26). <em>Strand Specificity</em> refers to the protocol (<em>reverse</em>, <em>direct</em> or <em>unstranded</em>) followed in the library preparation of the samples. See the <a href="https://bioinfogp.cnb.csic.es/tools/seqnjoy/help/index.html#appendix-2-strandness-and-rna-seq"><em>Tutorial</em></a> to get more insight into this important issue.</p>
+<div class="figure"><span style="display:block;" id="fig:quantifystrandSelection"></span>
+<img src="Figures/Quantify_strand_selection.png" alt="Select the *Strand Specificity* protocol used in the library preparation of the samples" width="" id="img_quantifystrandSelection" />
+<p class="caption">
+Figure 26: Select the <em>Strand Specificity</em> protocol used in the library preparation of the samples
+</p>
+</div></li>
+<li><p>In the sequencing of this example a <em>reverse</em> stranded protocol was followed, so we select this option from the list (Figure 27).</p>
+<div class="figure"><span style="display:block;" id="fig:quantifystrandSelected"></span>
+<img src="Figures/Quantify_strand_selected.png" alt="Strand Specificity: *reverse* protocol is selected" width="" id="img_quantifystrandSelected" />
+<p class="caption">
+Figure 27: Strand Specificity: <em>reverse</em> protocol is selected
+</p>
+</div></li>
+<li><p>Click “<em>Launch!</em>” to quantify counts-by-gene in each of the nine alignment (<em>BAM</em>) files. A pop-up window informs of the progress of the quantification task (Figure 28).</p>
+<div class="figure"><span style="display:block;" id="fig:quantifyProgression"></span>
+<img src="Figures/Quantify_progress.png" alt="*File list* with the new alignment (.bam) files added" width="" id="img_quantifyProgression" />
+<p class="caption">
+Figure 28: <em>File list</em> with the new alignment (.bam) files added
+</p>
+</div></li>
+<li><p>When the whole process ends a message “done” is displayed. Click <em>Close</em> button (Figure 29).</p>
+<div class="figure"><span style="display:block;" id="fig:quantifyOK"></span>
+<img src="Figures/Quantify_progress_ok.png" alt="*Quantify Samples* ended OK" width="" id="img_quantifyOK" />
+<p class="caption">
+Figure 29: <em>Quantify Samples</em> ended OK
+</p>
+</div></li>
+<li><p>You will return to the <em>Quantify Genomic Features</em> dialog. Click the “X” icon to close this window (Figure 30).</p>
+<div class="figure"><span style="display:block;" id="fig:quantifynewform"></span>
+<img src="Figures/Quantify_new_form.png" alt="Click the &quot;X&quot; icon (top right) to close *Quantify Genomic Features* dialog" width="" id="img_quantifynewform" />
+<p class="caption">
+Figure 30: Click the “X” icon (top right) to close <em>Quantify Genomic Features</em> dialog
+</p>
+</div></li>
+<li><p>You are now again in the “<em>Project’s Main Page</em>”. The <em>File List</em> will have been updated to contain the new “<em>counts</em>” files generated by the <em>quantification</em> task (Figure 31).</p>
+<div class="figure"><span style="display:block;" id="fig:filelistcountsadded"></span>
+<img src="Figures/File_list_new_counts_added.png" alt="*File list* with the new counts (*.counts*) files added" width="" id="img_filelistcountsadded" />
+<p class="caption">
+Figure 31: <em>File list</em> with the new counts (<em>.counts</em>) files added
+</p>
+</div></li>
+<li><p>In the following steps you will obtain the list of differentially expressed genes between the test group of samples that grew at pH5 in presence of CO2 and the control group, that grew at pH5 in absence of CO2. To access this task, click the <em>Compare Samples</em> button located in the upper part of the “<em>Project’s Main Page</em>”. Then select “<em>Compare samples with DESeq2</em>” option as the method to perform the differential expression calculations (Figure 32).</p>
+<div class="figure"><span style="display:block;" id="fig:CompareSamplesMethodSelection"></span>
+<img src="Figures/Compare_Samples_method_selection.png" alt="*Compare Samples*: selecting the method for calculating differential expression" width="" id="img_CompareSamplesMethodSelection" />
+<p class="caption">
+Figure 32: <em>Compare Samples</em>: selecting the method for calculating differential expression
+</p>
+</div></li>
+<li><p>After selecting the method, the <em>Calculate Differential Expression</em> dialog is displayed to be filled in (Figure 33).</p>
+<div class="figure"><span style="display:block;" id="fig:comparesamplesinitialDESeq2"></span>
+<img src="Figures/Compare_initial_DESeq2.png" alt="*Calculate Differential Expression* dialog as displayed initially." width="" id="img_comparesamplesinitialDESeq2" />
+<p class="caption">
+Figure 33: <em>Calculate Differential Expression</em> dialog as displayed initially.
+</p>
+</div></li>
+<li><p>Select the <em>Counts group</em> from the list displayed in the drop-down menu (Figure 34). Observe that the name of the <em>Counts Group</em> is composed of two parameters chosen when <em>quantifying genes</em>: the name of the <em>GFF</em> file (<em>Saccharomyces_cerevisiae-R64-1-1.107.gtf</em>) plus the <em>feature type</em> (<em>gene</em>).</p>
+<div class="figure"><span style="display:block;" id="fig:comparegffSelection"></span>
+<img src="Figures/Compare_counts_group_selection.png" alt="*Calculate Differential Expression*: select counts group" width="" id="img_comparegffSelection" />
+<p class="caption">
+Figure 34: <em>Calculate Differential Expression</em>: select counts group
+</p>
+</div></li>
+<li><p>Select in the drop-down menus the <em>counts</em> files corresponding to the <em>Case</em> group of samples and the <em>counts</em> files corresponding to the <em>Control</em> group of samples. Type identifying names for each condition in the <em>Case Label</em> (type "<em>pH5_CO2</em>") and <em>Control Label</em> (type "<em>pH5</em>") text boxes (Figure 35). These names will be incorporated in the final result files.</p>
+<div class="figure"><span style="display:block;" id="fig:comparesamplesprefinal"></span>
+<img src="Figures/Compare_pre_final.png" alt="*Calculate Differential Expression*: *counts* files assignment to counts groups and Case and Control naming" width="" id="img_comparesamplesprefinal" />
+<p class="caption">
+Figure 35: <em>Calculate Differential Expression</em>: <em>counts</em> files assignment to counts groups and Case and Control naming
+</p>
+</div></li>
+<li><p>We loaded previously an <em>annotations file</em> with useful information (annotations) that can be added to each gene in the results file containing the differential expression calculations. Select this <em>annotations file</em> in the corresponding <em>Annotations</em> drop-down menu (Figure 36). Then launch the <em>Calculate Differential Expression</em> process by clicking the <em>Launch!</em> button.</p>
+<div class="figure"><span style="display:block;" id="fig:comparesamplesfinal"></span>
+<img src="Figures/Compare_final.png" alt="*Calculate Differential Expression* dialog for differential expression ready to be launched" width="" id="img_comparesamplesfinal" />
+<p class="caption">
+Figure 36: <em>Calculate Differential Expression</em> dialog for differential expression ready to be launched
+</p>
+</div></li>
+<li><p>When the process ends the message “done” is displayed in the pop-up window that informs of the progress the “<em>differential expression</em>” task (Figure 37).</p>
+<div class="figure"><span style="display:block;" id="fig:compareOK"></span>
+<img src="Figures/Compare_progress_ok.png" alt="*ph5_CO2 versus pH5* comparison ended OK" width="" id="img_compareOK" />
+<p class="caption">
+Figure 37: <em>ph5_CO2 versus pH5</em> comparison ended OK
+</p>
+</div></li>
+<li><p>Click the <em>Close</em> button and you will return to the <em>Calculate Differential Expression</em> dialog (Figure 38).</p>
+<div class="figure"><span style="display:block;" id="fig:comparesamplesinitialDESeq2b"></span>
+<img src="Figures/Compare_initial_DESeq2_2.png" alt="*Calculate Differential Expression* dialog after returning from a previous done comparison" width="" id="img_comparesamplesinitialDESeq2b" />
+<p class="caption">
+Figure 38: <em>Calculate Differential Expression</em> dialog after returning from a previous done comparison
+</p>
+</div></li>
+<li><p>Now, we can fill in again the form with a new comparison between two groups of samples to calculate the differential expression between them. For example, we wish now to compare the samples that grew at pH3 and those that grew at pH5. So, we will consider <em>pH3</em> as “Case” condition and keep <em>pH5</em> as “Control” condition. To modify the form according to new comparison, we first clean the previous “Case” data from the form by clicking the “<em>Clear</em>” button located at the bottom of the “Case” column (Figure 39).</p>
+<div class="figure"><span style="display:block;" id="fig:comparesamplesclear"></span>
+<img src="Figures/Compare_clear.png" alt="*Calculate Differential Expression*: using the *Clear* button to clean data from the dialog" width="" id="img_comparesamplesclear" />
+<p class="caption">
+Figure 39: <em>Calculate Differential Expression</em>: using the <em>Clear</em> button to clean data from the dialog
+</p>
+</div></li>
+<li><p>Fill in the “Case” column with the data corresponding to the “<em>pH3</em>” condition, i.e., the counts files of the samples in “<em>pH3</em>” condition and a “<em>Case Label</em>” (type "<em>pH3</em>") to identify this condition (Figure 40).</p>
+<div class="figure"><span style="display:block;" id="fig:comparesamplesfinal2"></span>
+<img src="Figures/Compare_final2.png" alt="*Calculate Differential Expression* dialog for differential expression ready to be launched for the second comparison" width="" id="img_comparesamplesfinal2" />
+<p class="caption">
+Figure 40: <em>Calculate Differential Expression</em> dialog for differential expression ready to be launched for the second comparison
+</p>
+</div></li>
+<li><p>Click the “<em>Launch!</em>” button. After calculating the differential expression for this second comparison, the pop-up progress window will display the “done” message (Figure 41). Click the “Close” button to return to the <em>Calculate Differential Expression</em> dialog.</p>
+<div class="figure"><span style="display:block;" id="fig:compareOK2"></span>
+<img src="Figures/Compare_progress_ok2.png" alt="*Calculate Differential Expression* for &quot;pH3 versus pH5&quot; comparison ended OK" width="" id="img_compareOK2" />
+<p class="caption">
+Figure 41: <em>Calculate Differential Expression</em> for “pH3 versus pH5” comparison ended OK
+</p>
+</div></li>
+<li><p>As we do not want to perform more comparisons, click the “X” icon to close the <em>Calculate Differential Expression</em> window. You will then return to the <em>Project’s Main Page</em>, that it will have been updated to list the differential expression files generated in Excel format (extension <em>.xlsx</em>) containing the results of the calculated differential expressions for the two comparisons performed (Figure 42).</p>
+<div class="figure"><span style="display:block;" id="fig:filelistdiffexpadded"></span>
+<img src="Figures/File_list_new_diffexp_added.png" alt="*File list* with the new differential expression files (.xlsx) added" width="" id="img_filelistdiffexpadded" />
+<p class="caption">
+Figure 42: <em>File list</em> with the new differential expression files (.xlsx) added
+</p>
+</div></li>
+<li><p>You can now graphically inspect any results file containing the comparison in the genes expression between two conditions by using the <em>FIESTA2.0</em> analytic tool. Let’s select the file with the comparison “<em>pH3</em>” versus “<em>pH5</em>” conditions. Click the <img src="Figures/diffexp_table_icon.png" id="fiesta2Bt" /> icon located rightmost in the Details column of the corresponding results (.xlsx) file (Figure 43) and you will access the <em>FIESTA2.0</em>.</p>
+<div class="figure"><span style="display:block;" id="fig:filelistdiffexpselection"></span>
+<img src="Figures/File_list_select_diffexp2.png" alt="Selecting a *differential expression* file in the *File list* to access *FIESTA2.0*" width="" id="img_filelistdiffexpselection" />
+<p class="caption">
+Figure 43: Selecting a <em>differential expression</em> file in the <em>File list</em> to access <em>FIESTA2.0</em>
+</p>
+</div></li>
+<li><p>With <em>FIESTA2.0</em> you can set filters for selecting significant genes differentially expressed between the two conditions compared. You only have to type the filter in the text boxes located at the top of the corresponding columns. For example (Figure 44), type “&gt;0” in the <em>Log2Ratio</em> column header and “&lt;0.05” in the “<em>P-adjusted</em>” column header to select only the set of genes overexpressed in the case condition (<em>pH3</em>) respect to the control condition (<em>pH5</em>) for a significance threshold (adjusted <em>P</em>) of 0.05.</p>
+<div class="figure"><span style="display:block;" id="fig:fiestainitial"></span>
+<img src="Figures/FIESTA2_initial2.png" alt="*FIESTA2.0* window for the *pH3* versus *pH5* comparison" width="" id="img_fiestainitial" />
+<p class="caption">
+Figure 44: <em>FIESTA2.0</em> window for the <em>pH3</em> versus <em>pH5</em> comparison
+</p>
+</div>
+<p><br>
+Inspecting the differential expression results with <em>FIESTA2.0</em> we can determine now that <em>CYS3</em> is overexpressed (<em>Log2Ratio</em>=1.61) in the test (<em>pH3</em>) condition respect to the control (<em>pH5</em>) condition and that the calculated overexpression is statistically significant (<em>P-adjusted</em>=4.90·10<sup>-9</sup>).
+<br>
+<br></p>
+<p style="text-align: center;">
+<p><em>SeqNjoy for RNA-Seq. Developed by <a href="https://bioinfogp.cnb.csic.es/">BioinfoGP</a> <a href="http://www.cnb.csic.es/index.php/en/">CNB-CSIC</a> (2022)</em></p>
+</p></li>
+</ol>
+</div>
+
+
+
+<!-- code folding -->
+
+
+
+</body>
+</html>

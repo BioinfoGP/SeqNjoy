@@ -1,0 +1,143 @@
+html {
+	font-family:sans-serif;
+	font-size:12pt;
+}
+
+#header_top_right {
+	position:absolute;
+	right:calc(50vw - 700px);
+	top:0;
+	padding-right:1rem;
+}
+
+body {
+	margin:0px;
+	padding:0px;
+	text-align:justify;
+	margin-left:calc(50vw - 600px);
+	max-width:1200px;
+	background-image: linear-gradient(90deg, #D4D0C8 calc(50vw - 700px), #FFFFFF calc(50vw - 700px), #FFFFFF calc(50vw + 700px), #FFFFFF 1400px, #D4D0C8 1px);
+}
+
+.caption {
+	font-size:0.9rem;
+	margin:0px;
+	padding:0px;
+	padding-top:0.5rem;
+	text-align:left;
+}
+
+.figure {
+	text-align:left;
+	margin-top:1rem;
+	margin-bottom:2rem;
+	margin-right:1rem;
+	margin-left:1rem;
+}
+
+h1, h2, h3, h4 {
+	font-weight:bold;
+	margin-top:2rem;
+}
+
+ol {list-style-position: inside;}
+
+img {
+	max-width:100%;
+	padding:0px;
+	vertical-align:middle;
+	border:1px solid #D4D0C8;
+}
+
+div#TOC li {
+    list-style:none;
+    background-image:none;
+    background-repeat:none;
+    background-position:0;
+}
+
+#TOC {
+	background:#EFEFEF;
+	padding:1rem;
+	border-radius:1rem;
+}
+
+dt {
+	font-weight:normal;
+	font-style:italic;
+	font-size:1.25rem;
+	padding:0px;
+	margin:0px;
+	margin-bottom:1rem;
+}
+
+dd {
+	padding:0px;
+	margin:0px;
+	margin-bottom:2rem;
+	padding-left:1rem;
+}
+
+a {
+	text-decoration:none;
+	color:#4863A0;
+}
+
+a:hover {
+	text-decoration:underline;
+}
+
+ul {
+	list-style-position:outside;
+	margin:0px;
+}
+
+li {
+	margin-bottom:0.5rem;
+}
+
+.csl-entry {
+	margin-bottom:1rem;
+}
+
+table {
+	border-spacing:0px;
+	border-collapse:separate;
+}
+
+table {
+	border-top: 1px solid #D4D0C8;
+	border-left: 1px solid #D4D0C8;
+	margin-bottom:1rem;
+}
+
+table, td, th {
+	border-bottom: 1px solid #D4D0C8;
+	border-right: 1px solid #D4D0C8;
+}
+
+table th {
+	color:#000000;
+	font-weight:normal;
+	background:#EFEFEF;
+}
+
+td, th {
+	padding:0.5rem;
+}
+
+
+.top { vertical-align:top; }
+.left { text-align:left; }
+.center { text-align:center; }
+.right { text-align:right; }
+.justify { text-align:justify; }
+.nowrap { white-space:nowrap; }
+.box { background:#EFEFEF; }
+.xlargepadding { padding:2rem; }
+.largepadding { padding:1rem; }
+.radius { border-radius:1rem; }
+
+
+
+
