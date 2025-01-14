@@ -1,0 +1,70 @@
+Package: SeqNjoy
+Title: Complete RNA-Seq Workflows in your Desktop
+Version: 0.5.7
+Authors@R: c(
+    person("Juan Antonio", "Garcia-Martin", 
+           email  = "ja.garcia@cnb.csic.es", role = c("cre","aut"),
+           comment = c(ORCID = "0000-0003-0993-4064")),
+    person("Juan Carlos", "Oliveros",  
+           email  = "oliveros@cnb.csic.es", role = c("aut", "ctb"),
+           comment = c(ORCID = "0000-0002-4520-0853")),
+    person("Rafael", "Torres-Perez", 
+           email  = "rafael.torres@cnb.csic.es", role = c("aut", "ctb"),
+           comment = c(ORCID = "0000-0002-3696-4720")))
+Author: Juan Antonio Garcia-Martin [cre, aut] (<https://orcid.org/0000-0003-0993-4064>),
+        Juan Carlos Oliveros [aut, ctb] (<https://orcid.org/0000-0002-4520-0853>),
+        Rafael Torres-Perez [aut, ctb] (<https://orcid.org/0000-0002-3696-4720>) 
+Maintainer: Juan Antonio Garcia-Martin <ja.garcia@cnb.csic.es>
+Description: A stand-alone application for generating and analyzing 
+             differential gene expression results from RNA-Seq 
+             experiments. Analyses can be performed from the very initial
+             step, using the files containing short reads (FASTQ files), or 
+             from an intermediate stage, using already aligned reads in 
+             BAM/SAM files. This tool was developed by the BioinfoGP core 
+             facility at CNB-CSIC. 
+License: GPL-3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+biocViews: ShinyApps, RNASeq, Software, 
+           DifferentialExpression, GeneExpression
+URL: https://github.com/BioinfoGP/SeqNjoy
+BugReports: https://github.com/BioinfoGP/SeqNjoy/issues
+Imports:
+    tools,
+    shinyjs (>= 2.1.0),
+    Rbowtie2 (>= 2.0.0),
+    shiny (>= 1.7.1),
+    Rsubread (>= 2.8.2),
+    Rsamtools (>= 2.10.0),
+    Rhisat2 (>= 1.10.0),
+    DESeq2 (>= 1.34.0),
+    edgeR (>= 3.36.0),
+    openxlsx (>= 4.2.5),
+    Rgff (>= 0.1.6),
+    rtracklayer (>= 1.54.0),
+    fs (>= 1.5.3),
+    R.utils (>= 2.11.0),
+    RJSONIO (>= 1.3-1.6),
+    ShortRead (>= 1.52.0),
+    dplyr (>= 1.0.8),
+    shinyFiles (>= 0.9.1),
+    BiocIO, 
+    cli, 
+    httpuv, 
+    stringr, 
+    zip,
+    utils,
+    mime, 
+    RCurl, 
+    DiagrammeRsvg (>= 0.1),
+    DiagrammeR (>= 1.0.6.1),
+    rsvg,            
+    magrittr    
+Suggests:
+    rmarkdown (>= 2.11),
+    knitr (>= 1.36),
+    shinytest2,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3

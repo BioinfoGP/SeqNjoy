@@ -1,0 +1,1983 @@
+
+var COLORS=new Array();
+var ColorsMaxCols=0;
+var ColorsInitCols=0;
+var ColorsAddEachRow=0;
+
+// temporal flags
+var FILTER_A=-1;
+var FILTER_B=-1;
+var FILTER_CLICKED=-1;
+var FILTER_REMOVED=-1;
+
+var MOUSE_BUTTON=0;
+var XMOUSE_A=-1;
+var YMOUSE_A=-1;
+var XMOUSE_B=-1;
+var YMOUSE_B=-1;
+
+function filter_data({f = 0}) {
+	if (f==0) { // new filter to be created 
+		f=_PARAMS.filters;
+		_PARAMS.filters++;
+		_PARAMS.fdata=f;
+		_PARAMS.ViewSeries[f]=true;
+		_PARAMS.filter[f]=new Array();
+		_PARAMS.filter[f].color=Math.floor(Math.random()*(59-24))+24;
+		var newImg=document.createElement("img");
+		newImg.id="PlotImg_"+f;
+		newImg.className="PlotImg";
+		if (_$("PlotImg_10000")) {
+			_$("PlotContainer").insertBefore(newImg, _$("PlotImg_10000"));
+		}
+		else {
+			_$("PlotContainer").appendChild(newImg);
+		}	
+		init_plot_canvas(newImg);
+		_PARAMS.currentFilterView=f;
+	}
+	else { // apply to current filter
+		_PARAMS.fdata=f;
+		var tmp_color=_PARAMS.filter[f].color;
+		_PARAMS.filter[f]=new Array();
+		_PARAMS.filter[f].color=tmp_color;
+		_PARAMS.currentFilterView=f;
+	}
+	_PARAMS.filter[f].nresults=0;
+	_PARAMS.filter[f].currentFilter="";
+	_PARAMS.filter[f].currentFilterReadable="";
+	_PARAMS.filter[f].column=new Array();
+	_DATA.filter[f]=new Array();
+	_DATA.filter[f].filtered=new Array();
+	_DATA.filter[f].sorted=new Array();
+	var workingFilter="";
+	var finalFilter="";
+	for (var t=1;t<_PARAMS.columns;t++) {
+		_PARAMS.filter[f].column[t]=_$("FilterBox_"+t).value.replace(/^\s+/,"").replace(/\s+$/,"");
+		// check if it is an equal followed by a no number:
+		if (_PARAMS.filter[f].column[t].match(/^=/)) {
+			var test=_PARAMS.filter[f].column[t].replace(/^=\s*/,"");
+			if (isNaN(test)) { 
+				var searchingExactWord=true; 
+				_PARAMS.filter[f].column[t]=_PARAMS.filter[f].column[t].replace(/[\"\']/g,"");
+			}
+			else {
+				var searchingExactWord=false;
+			}
+		}
+		if (_PARAMS.filter[f].column[t].match(/\w|\+|\-/)) {
+			var KEY=" || "+_PARAMS.filter[f].column[t];
+			var equals="·"+KEY+"·";
+			equals=equals.replace(/\s+\|\|\s+(\(*)\s*/g,"· || $1dta["+t+"]·");
+			equals=equals.replace(/\s+&&\s+(\(*)\s*/g,"· && $1dta["+t+"]·");
+			equals=equals.replace(/\s+OR\s+(\(*)\s*/gi,"· || $1dta["+t+"]·");
+			equals=equals.replace(/\s+AND\s+(\(*)\s*/gi,"· && $1dta["+t+"]·");
+			if (workingFilter!=="") { workingFilter=workingFilter+" && "; }
+			if (_PARAMS.filter[f].column[t].match(/ AND /i) || _PARAMS.filter[f].column[t].match(/ OR /i)) {
+				workingFilter=workingFilter+"(dta["+t+"]"+equals+")";
+			}
+			else {
+				workingFilter=workingFilter+"dta["+t+"]"+equals;
+			}
+		}
+	}
+	finalFilter=workingFilter.replace(/(\(*)dta\[\d+\]·· \|\| /g,"$1"); // support initial parentheses
+	finalFilter=finalFilter.replace(/(dta\[\d+\])·(<=[^·]+)·/g, "$1 $2");
+	finalFilter=finalFilter.replace(/(dta\[\d+\])·(>=[^·]+)·/g, "$1 $2");
+	finalFilter=finalFilter.replace(/(dta\[\d+\])·(<[^·]+)·/g, "$1 $2");
+	finalFilter=finalFilter.replace(/(dta\[\d+\])·(>[^·]+)·/g, "$1 $2");
+	if (searchingExactWord==true) {
+		finalFilter=finalFilter.replace(/(dta\[\d+\])·==([^·]+)·/g, "$1 == '$2'");
+		finalFilter=finalFilter.replace(/(dta\[\d+\])·=([^·]+)·/g, "$1 == '$2'");
+	}
+	else if (searchingExactWord==false) {
+		finalFilter=finalFilter.replace(/(dta\[\d+\])·==([^·]+)·/g, "$1 == $2");
+		finalFilter=finalFilter.replace(/(dta\[\d+\])·=([^·]+)·/g, "$1 == $2");
+	}
+	finalFilter=finalFilter.replace(/(dta\[\d+\])·([\+\d\.-]+)·/g, "$1 == $2");
+	finalFilter=finalFilter.replace(/(dta\[\d+\])·\"([^·]+)\"·/g, "$1.toLowerCase().indexOf(`$2`.toLowerCase())>-1");
+	finalFilter=finalFilter.replace(/(dta\[\d+\])·\'([^·]+)\'·/g, "$1.toLowerCase().indexOf(`$2`.toLowerCase())>-1");
+	finalFilter=finalFilter.replace(/(dta\[\d+\])·([^·]+)·/g, "$1.toLowerCase().indexOf(`$2`.toLowerCase())>-1");
+	_PARAMS.filter[f].currentFilter=finalFilter;
+	var header=_DATA[0].split("\t");
+	var finalFilterReadable=finalFilter.replace(/\.toLowerCase\(\)\.indexOf\((`[^`]+`)\.toLowerCase\(\)\)>-1/g, " contains $1");
+	finalFilterReadable=finalFilterReadable.replace(/==/g, "=");
+	finalFilterReadable=finalFilterReadable.replace(/\s*>=\s*/g, " &ge; ");
+	finalFilterReadable=finalFilterReadable.replace(/\s*<=\s*/g, " &le; ");
+	finalFilterReadable=finalFilterReadable.replace(/\s*>\s*/g, " > ");
+	finalFilterReadable=finalFilterReadable.replace(/\s*<\s*/g, " < ");
+	finalFilterReadable=finalFilterReadable.replace(/\) && \(/g, ") AND (");
+	finalFilterReadable=finalFilterReadable.replace(/\) \|\| \(/g, ") OR (");
+	finalFilterReadable=finalFilterReadable.replace(/ && /g, " AND ");
+	finalFilterReadable=finalFilterReadable.replace(/ \|\| /g, " OR ");
+	finalFilterReadable=finalFilterReadable.replace(/^\(/, "(");
+	finalFilterReadable=finalFilterReadable.replace(/\)$/, ")");
+	for (var c=0;c<header.length;c++) {
+		finalFilterReadable=finalFilterReadable.replace(new RegExp("dta\\["+c+"\\]","g"), header[c]);
+	}	
+	_PARAMS.filter[f].currentFilterReadable=finalFilterReadable;
+	_PARAMS.filter[f].nresults=0;
+	_DATA.filter[f].filtered=new Array();
+	for (var t=1;t<_DATA.length;t++) {
+		if (_PARAMS.filter[f].currentFilter!=="") {
+			var dta=_DATA[t].replace(/([\t^])\s*([\t$])/g, "$1·$2").split("\t");
+			var go=0;
+			var toeval="if ("+_PARAMS.filter[f].currentFilter+") { go=1; }";
+			eval (toeval);
+		}
+		else { go=1; }
+		if (go==1) {
+			_DATA.filter[f].filtered[t]=true;
+			_PARAMS.filter[f].nresults++;
+		}
+	}
+	update_plot(_PARAMS.fdata);
+}
+
+function select_data_by_hand(XY) {
+	var f=10000;
+	if (!_$("PlotImg_10000")) {
+		_PARAMS.filter[f]=new Array();
+		_PARAMS.filter[f].color=47;
+		var newImg=document.createElement("img");
+		newImg.id="PlotImg_10000";
+		newImg.className="PlotImg";
+		_$("PlotContainer").appendChild(newImg);	
+		init_plot_canvas(newImg);
+		_PARAMS.filter[f].nresults=0;
+		_PARAMS.filter[f].currentFilter="";
+		_PARAMS.filter[f].currentFilterReadable="";
+		_PARAMS.filter[f].column=new Array();
+		_DATA.filter[f]=new Array();
+		_DATA.filter[f].filtered=new Array();
+		_DATA.filter[f].sorted=new Array();
+	}
+	_PARAMS.fdata=f;
+	_PARAMS.filter[f].currentFilter="Selected by hand";
+	_PARAMS.filter[f].currentFilterReadable="Selected by hand";
+	
+	var theselected=-1;
+	// select current row?
+	if (!isNaN(XY)) {
+		theselected=XY;
+	}
+	else {
+	
+		// limit to select point (in pixels)
+		var limit=_PARAMS.rpoint*_PARAMS.image_factor+2;
+		for (var t=1;t<_DATA.length;t++) {
+			var cell=_DATA[t].split("\t");
+			var current_X=_PARAMS.PX[t];
+			var current_Y=_PARAMS.PY[t];
+			var dist=Math.sqrt((current_X-XY[0])*(current_X-XY[0])+(current_Y-XY[1])*(current_Y-XY[1]));
+			if (!isNaN(dist)) {
+				if (dist < limit) {
+					theselected=t;
+					_PARAMS.currentFilterView=f;
+					break;
+				}
+			}
+		}
+	}
+	
+	if (theselected > -1) {
+		if (!_DATA.filter[f].filtered[theselected]) {
+			_DATA.filter[f].filtered[theselected]=true;
+			_PARAMS.filter[f].nresults++;
+		}
+		else {
+			delete _DATA.filter[f].filtered[theselected];
+			_PARAMS.filter[f].nresults--;
+		}
+	}
+
+
+	_PARAMS.ViewSeries[_PARAMS.fdata]=true;
+	update_plot(_PARAMS.fdata);
+	update_view({fdata:_PARAMS.currentFilterView});
+
+}
+
+function get_data_from_server(fdata) {
+	var first=(_PARAMS.page-1)*_PARAMS.nperpage+1;
+	var last=first+_PARAMS.nperpage-1;
+	var toshow=new Array();
+	var nn=0;
+	if (fdata==0) {
+		for (var n=0;n<_DATA.filter[0].sorted.length;n++) {
+			nn++;
+			if (nn >= first) {
+				if (nn <= last) {
+					toshow.push(_DATA[_DATA.filter[0].sorted[n]]);
+				}
+				else {
+					break;
+				}
+			}
+		}
+	}
+	else {
+		for (var n=0;n<_DATA.filter[0].sorted.length;n++) {
+			if (_DATA.filter[fdata].filtered[_DATA.filter[0].sorted[n]]) {
+				nn++;
+				if (nn >= first) {
+					if (nn <= last) {
+						toshow.push(_DATA[_DATA.filter[0].sorted[n]]);
+					}
+					else {
+						n=_DATA.filter[0].sorted.length; // exit for
+						break;
+					}
+				}
+			}
+		}
+	}
+	toshow.unshift(_DATA[0]); // add header
+	return (toshow);
+}
+
+function reverse_sorting() {
+	_DATA.filter[0].sorted.reverse();
+}
+
+function sort_data(n) {
+	if (n==_PARAMS.sortedBy) {
+		_DATA.filter[0].sorted.reverse();
+		_PARAMS.sortingSense=_PARAMS.sortingSense*-1;
+	}
+	else {
+		var TBO=new Array;
+		var dato=new Array;
+		for (var ff in _DATA.filter) {
+			var f=parseInt(ff);
+			if (f > 0) {
+				_DATA.filter[f].sorted=new Array();
+			}
+		}
+		for (var t=0;t<_DATA.filter[0].sorted.length;t++) {
+			TBO[t]=new Array();
+			dato=_DATA[_DATA.filter[0].sorted[t]].split("	");
+			TBO[t][0]=dato[n];
+			TBO[t][1]=_DATA.filter[0].sorted[t];
+		}
+		TBO.sort(sort_by_data_string);
+		_DATA.filter[0].sorted=new Array();
+		for (var t=0;t<TBO.length;t++) {
+			var T=parseInt(TBO[t][1]);
+			_DATA.filter[0].sorted.push(T);
+		}
+		_PARAMS.sortedBy=n;
+		_PARAMS.sortingSense=1;
+	}
+}
+
+var isNumber = function isNumber(value) {
+	return(!isNaN(value) && value.match(/\w/));
+}
+
+function sort_by_data_string(a, b) {
+   if (a[0] === null) {
+        return 1;
+    }
+    if (b[0] === null) {
+        return -1;
+    }
+    if (isNumber(a[0]) && isNumber(b[0])) {
+        if (parseFloat(a[0]) === parseFloat(b[0])) {
+           return 0;
+       }
+       return parseFloat(a[0]) > parseFloat(b[0]) ? 1 : -1;
+     }
+    if (isNumber(a[0])) {
+        return -1;
+    }
+    if (isNumber(b[0])) {
+        return 1;
+    }
+    if (a[0] === b[0]) {
+        return 0;
+    }
+    return a[0].toString().toUpperCase() > b[0].toString().toUpperCase() ? 1 : -1;
+}
+
+function init_data() {	
+// add a first column with original index and replace empty cells	
+	_DATA.columns=_DATA[0].split("\t").length;
+	var lastFullRow=-1;
+	for (var t=0;t<_DATA.length;t++) {
+		if (_DATA[t].match(/\w/)) {
+			var current_columns=_DATA[t].split("\t").length;
+			if (current_columns<_DATA.columns) {
+				_DATA[t]+="\tnd".repeat(_DATA.columns-current_columns);
+			}
+			else if (current_columns>_DATA.columns) {
+				var re=new RegExp("\t[^\t]+".repeat(current_columns-_DATA.columns)+"$");
+				_DATA[t]=_DATA[t].replace(re,"");
+			}
+			_DATA[t]=t+"\t"+_DATA[t];
+			_DATA[t]=_DATA[t].replace(/\t\t/g,"\tnd\t");
+			_DATA[t]=_DATA[t].replace(/\t\t/g,"\tnd\t");
+			_DATA[t]=_DATA[t].replace(/^\t/g,"nd\t");
+			_DATA[t]=_DATA[t].replace(/\t$/g,"\tnd");
+		}
+		else {
+			if (lastFullRow==-1) { lastFullRow=t;  }
+		}
+	}
+	if (lastFullRow > -1) {
+		_DATA.splice(lastFullRow, 100000000000);
+	}
+	_PARAMS.filter[0].nresults=_DATA.length-1;
+
+	_DATA.filter=new Array();
+	_DATA.filter[0]=new Array();
+	_DATA.filter[0].filtered=new Array();
+	_DATA.filter[0].sorted=Array.from(Array(_DATA.length).keys());
+	_DATA.filter[0].sorted.shift(); // remove header
+	_DATA.filter[10000]=new Array();
+	_DATA.filter[10000].filtered=new Array();
+	_DATA.filter[10000].sorted=new Array();
+	for (var c=0;c<_DATA[0].split("\t").length;c++) {
+		_PARAMS.max[c]="noset";
+		_PARAMS.min[c]="noset";
+		_PARAMS.min_pos[c]="noset";
+		_PARAMS.numbers[c]=0;
+		_PARAMS.NaNs[c]=0;
+	}
+	for (var r=1;r<_DATA.length;r++) {
+		var data=_DATA[r].split("\t");
+		for (var c=0;c<data.length;c++) {
+			if (isNaN(data[c]) || !data[c].match(/\w/)) { _PARAMS.NaNs[c]++; }
+			else {
+				_PARAMS.numbers[c]++;
+				// First column c=0 is index column created before!!!
+				if (_PARAMS.X==-1 && c > 0) { _PARAMS.X=c; _PARAMS.Y=c; }
+				var val=parseFloat(data[c]);
+				if (_PARAMS.max[c]=="noset") {
+					_PARAMS.max[c]=val;
+					_PARAMS.min[c]=val;
+				}
+				else {
+					_PARAMS.max[c]=Math.max(_PARAMS.max[c],val);
+					_PARAMS.min[c]=Math.min(_PARAMS.min[c],val);
+				}
+				if (val>0) {
+					if (_PARAMS.min_pos[c]=="noset") {
+						_PARAMS.min_pos[c]=val;
+					}
+					else {
+						_PARAMS.min_pos[c]=Math.min(_PARAMS.min_pos[c],val);
+					}
+				}
+			}
+		}
+	}
+	for (var c=0;c<data.length;c++) {
+		_PARAMS.log_plot[c]="";
+		var range=_PARAMS.max[c]-_PARAMS.min[c];
+		if (!_PARAMS.min_in_plot[c]) {
+			_PARAMS.min_in_plot[c]=_PARAMS.min[c];
+		}
+		if (!_PARAMS.max_in_plot[c]) {
+			_PARAMS.max_in_plot[c]=_PARAMS.max[c];
+		}
+	}
+	_PARAMS.column=_DATA[0].split("\t");
+	_PARAMS.columns=_PARAMS.column.length;
+
+	COLORS=new Array(); // declared global
+	for (var sat=100;sat<=100;sat=sat+100) { // 1 
+		for (var int=20;int<=80;int=int+10) { // 7
+			for (var hue=0;hue<360;hue=hue+30) { // 12
+				var hue2=hue;
+				var currentColor="hsl("+hue2+", "+sat+"%, "+int+"%)";
+				COLORS.push(currentColor);
+			}
+		}
+	}
+	for (var int=0; int<=255; int=int+22) { // 12 gray
+		var currentColor="rgb("+int+", "+int+", "+int+")";
+		COLORS.push(currentColor);
+	}
+	ColorsInitCols=12; ColorsMaxCols=20; ColorsAddEachRow=0;
+}
+
+function get_plot_from_server(fdata) {
+	var x=_PARAMS.X;
+	var y=_PARAMS.Y;
+	var sx=_PARAMS.XERR;
+	var sy=_PARAMS.YERR;
+	if (_PARAMS.zoomed) {
+		_PARAMS.rpoint=_PARAMS.defaultRPoint*2;
+	}
+	else {
+		_PARAMS.rpoint=_PARAMS.defaultRPoint;
+	}
+	var r=_PARAMS.rpoint*_PARAMS.image_factor;
+	var xlog=_PARAMS.xlog;
+	var ylog=_PARAMS.ylog;
+	var min_pos_x=_PARAMS.min_pos[x];
+	var min_pos_y=_PARAMS.min_pos[y];
+// create canvas
+	var cv=document.createElement("canvas");
+	cv.width=_PARAMS.wplot*_PARAMS.image_factor;
+	cv.height=_PARAMS.hplot*_PARAMS.image_factor;
+	var xmin=_PARAMS.min_in_plot[x];
+	var xmax=_PARAMS.max_in_plot[x];
+	var ymin=_PARAMS.min_in_plot[y];
+	var ymax=_PARAMS.max_in_plot[y];
+	if (_PARAMS.ylog=="LOG") { ymax=Math.log(ymax); ymin=Math.log(Math.max(min_pos_y,ymin)); }
+	else if (_PARAMS.ylog=="LOG2") { ymax=Math.log(ymax)/Math.log(2); ymin=Math.log(Math.max(min_pos_y,ymin))/Math.log(2); }
+	else if (_PARAMS.ylog=="LOG10") { ymax=Math.log(ymax)/Math.log(10); ymin=Math.log(Math.max(min_pos_y,ymin))/Math.log(10); }
+	if (_PARAMS.xlog=="LOG") { xmax=Math.log(xmax); xmin=Math.log(Math.max(min_pos_x,xmin)); }
+	else if (_PARAMS.xlog=="LOG2") { xmax=Math.log(xmax)/Math.log(2); xmin=Math.log(Math.max(min_pos_x,xmin))/Math.log(2); }
+	else if (_PARAMS.xlog=="LOG10") { xmax=Math.log(xmax)/Math.log(10); xmin=Math.log(Math.max(min_pos_x,xmin))/Math.log(10); }
+//	_PARAMS.transformed_min[x]=xmin;
+//	_PARAMS.transformed_max[x]=xmax;
+//	_PARAMS.transformed_min[y]=ymin;
+//	_PARAMS.transformed_max[y]=ymax;
+	if (isNaN(xmin)) { alert ("CHECK!!! xmin="+xmin+" xmax="+xmax+" ymin="+ymin+" ymax="+ymax); }
+	if (isNaN(xmax)) { alert ("CHECK!!! xmin="+xmin+" xmax="+xmax+" ymin="+ymin+" ymax="+ymax); }
+	if (isNaN(ymin)) { alert ("CHECK!!! xmin="+xmin+" xmax="+xmax+" ymin="+ymin+" ymax="+ymax); }
+	if (isNaN(ymax)) { alert ("CHECK!!! xmin="+xmin+" xmax="+xmax+" ymin="+ymin+" ymax="+ymax); }	
+	if (xmin=="-Infinity") { alert ("CHECK!!! xmin="+xmin+" xmax="+xmax+" ymin="+ymin+" ymax="+ymax); }
+	if (ymin=="-Infinity") { alert ("CHECK!!! xmin="+xmin+" xmax="+xmax+" ymin="+ymin+" ymax="+ymax); }	
+	var xrange=xmax-xmin;
+	var yrange=ymax-ymin;
+	var ctx=cv.getContext("2d");
+	var xfactor=(_PARAMS.wplot-_PARAMS.wml-_PARAMS.wmr)/xrange;
+	var yfactor=(_PARAMS.hplot-_PARAMS.hmu-_PARAMS.hmb)/yrange;
+	var time1=Date.now();
+	var diamond=String.fromCharCode(parseInt("0025C6", 16))
+	var circle=String.fromCharCode(parseInt("0025CF", 16))
+	if (fdata==0) { // all data
+		ctx.fillStyle=COLORS[_PARAMS.filter[fdata].color];
+		ctx.strokeStyle=COLORS[_PARAMS.filter[fdata].color];
+		ctx.textBaseline="middle";
+		ctx.textAlign="center";
+		var RF=0;
+		var fontSize=(r+1)*5;
+		ctx.font = 'normal '+fontSize+'px sans-serif';
+		for (var p=0;p<_PARAMS.filter[fdata].nresults;p++) {
+			var sp=_DATA.filter[fdata].sorted[p];
+			var px=Math.round(_PARAMS.PX[sp]*_PARAMS.image_factor);
+			var py=Math.round(_PARAMS.PY[sp]*_PARAMS.image_factor);
+			if (!_PARAMS.POUT[sp]) {
+				//try { ctx.beginPath(); ctx.arc(px, py, r+RF, 0, Math.PI*2);ctx.fill(); ctx.stroke(); } catch { }
+				try { ctx.fillText(circle, px, py); } catch { }
+			}
+			else if (_PARAMS.zoomed==false) {
+				ctx.strokeStyle="black";
+				try { ctx.fillText(diamond, px, py); ctx.strokeText(diamond, px, py); } catch { }
+				ctx.strokeStyle=COLORS[_PARAMS.filter[fdata].color];
+			}
+		}
+	}
+	else if (fdata==10000) { // selected data
+		ctx.fillStyle=COLORS[_PARAMS.filter[fdata].color];
+		ctx.strokeStyle=COLORS[_PARAMS.filter[fdata].color];;
+		ctx.textBaseline="middle";
+		ctx.textAlign="center";
+		var RF=0;
+		var fontSize=(r+1)*5;
+		ctx.font = 'normal '+fontSize+'px sans-serif';
+		var contador=0;
+		for (const sp in _DATA.filter[fdata].filtered) {
+			var px=Math.round(_PARAMS.PX[sp]*_PARAMS.image_factor);
+			var py=Math.round(_PARAMS.PY[sp]*_PARAMS.image_factor);
+			if (!_PARAMS.POUT[sp]) {
+				//try { ctx.beginPath();ctx.arc(px, py, r+RF, 0, Math.PI*2);ctx.fill(); ctx.stroke(); } catch { }
+				try { ctx.fillText(circle, px, py); } catch { }
+			}
+			else if (_PARAMS.zoomed==false) {
+				ctx.strokeStyle="black";
+				try { ctx.fillText(diamond, px, py); ctx.strokeText(diamond, px, py); } catch { }
+				ctx.strokeStyle=COLORS[_PARAMS.filter[fdata].color];
+			}
+		}
+	}
+	else if (fdata>0 && fdata < 10000 && _PARAMS.ViewSeries[fdata]==true) { // filtered data
+		ctx.fillStyle=COLORS[_PARAMS.filter[fdata].color];
+		ctx.strokeStyle=COLORS[_PARAMS.filter[fdata].color];
+		ctx.textBaseline="middle";
+		ctx.textAlign="center";
+		var RF=0;
+		var fontSize=(r+1)*5;
+		ctx.font = 'normal '+fontSize+'px sans-serif';
+		for (const sp in _DATA.filter[fdata].filtered) {
+			var px=Math.round(_PARAMS.PX[sp]*_PARAMS.image_factor);
+			var py=Math.round(_PARAMS.PY[sp]*_PARAMS.image_factor);
+			if (!_PARAMS.POUT[sp]) {
+				//try { ctx.beginPath();ctx.arc(px, py, r+RF, 0, Math.PI*2);ctx.fill(); ctx.stroke(); } catch { }
+				try { ctx.fillText(circle, px, py); } catch { }
+			}
+			else if (_PARAMS.zoomed==false) {
+				ctx.strokeStyle="black";
+				try { ctx.fillText(diamond, px, py); ctx.strokeText(diamond, px, py); } catch { }
+				ctx.strokeStyle=COLORS[_PARAMS.filter[fdata].color];
+			}
+		}
+	}
+	else if (fdata==-1) { // error bars.			
+		ctx.strokeStyle="rgb(213,213,213)";
+		for (var p=0;p<_PARAMS.filter[0].nresults;p++) {
+			var sp=_DATA.filter[0].sorted[p];
+			var cell=_DATA[sp].split("\t");
+			px=_PARAMS.PX[sp];
+			py=_PARAMS.PY[sp];			
+			// Draw error bars?
+			if (sy > -1) {
+				if (cell[sy]=="") {cell[sy]="_"; }
+				var ey=Number(cell[sy]);
+				var py1=Math.round(py-ey*yfactor)*_PARAMS.image_factor+0.5;
+				var py2=Math.round(py+ey*yfactor)*_PARAMS.image_factor+0.5;
+				try {
+					ctx.beginPath();
+					ctx.moveTo(px*_PARAMS.image_factor+0.5,py1);
+					ctx.lineTo(px*_PARAMS.image_factor+0.5,py2);
+					ctx.moveTo((px+3)*_PARAMS.image_factor+0.5, py1);
+					ctx.lineTo((px-3)*_PARAMS.image_factor+0.5, py1);
+					ctx.moveTo((px-3)*_PARAMS.image_factor+0.5, py2);
+					ctx.lineTo((px+3)*_PARAMS.image_factor+0.5, py2);
+					ctx.stroke();
+				} catch { }
+			}	
+			if (sx > -1) {
+				if (cell[sx]=="") {cell[sx]="_"; }
+				var ex=Number(cell[sx]);
+				var px1=Math.round(px-ex*xfactor)*_PARAMS.image_factor+0.5;
+				var px2=Math.round(px+ex*xfactor)*_PARAMS.image_factor+0.5;
+				try {
+					ctx.beginPath();
+					ctx.moveTo(px1, py*_PARAMS.image_factor+0.5);
+					ctx.lineTo(px2, py*_PARAMS.image_factor+0.5);
+					ctx.moveTo(px1, (py+3)*_PARAMS.image_factor+0.5);
+					ctx.lineTo(px1, (py-3)*_PARAMS.image_factor+0.5);
+
+					ctx.moveTo(px2, (py-3)*_PARAMS.image_factor+0.5);
+					ctx.lineTo(px2, (py+3)*_PARAMS.image_factor+0.5);
+					ctx.stroke();
+				} catch { }
+			}	
+		}
+		ctx.fill();
+	}	
+	else if (fdata==-10) { // axis.
+		ctx.fillStyle="white";
+		ctx.fillRect(0,0, _PARAMS.wplot*_PARAMS.image_factor, _PARAMS.hplot*_PARAMS.image_factor);			
+		ctx.strokeStyle=_PARAMS.plot_acolor;
+		var fo=10*_PARAMS.image_factor;
+		ctx.font=fo+"px Sans-serif";
+		ctx.strokeRect((_PARAMS.wml-0)*_PARAMS.image_factor+0.5,(_PARAMS.hmu-0)*_PARAMS.image_factor+0.5,(_PARAMS.wplot-_PARAMS.wml-_PARAMS.wmr+ 0)*_PARAMS.image_factor,(_PARAMS.hplot-_PARAMS.hmu-_PARAMS.hmb)*_PARAMS.image_factor+ 0);
+		ctx.fillStyle=_PARAMS.plot_tcolor;
+		ctx.textBaseline="middle";
+		ctx.textAlign="right";
+		var yticks=nice_bounds(ymin, ymax, _PARAMS.nTicksY);
+		_PARAMS.YTICKS=yticks;
+		for (var t=0;t<yticks.length;t++) {
+			if (yticks[t]>=ymin && yticks[t]<=ymax) {
+				if (_PARAMS.yrev==true) {
+					var pty=Math.round((yticks[t]-ymin)*yfactor+_PARAMS.hmu);
+				}
+				else {
+					var pty=Math.round(_PARAMS.hplot-((yticks[t]-ymin)*yfactor+_PARAMS.hmb));
+				}
+				var prenumber=yticks[t];
+				if (_PARAMS.ylog=="LOG10") { prenumber=Math.pow(10,prenumber); }
+				else if (_PARAMS.ylog=="LOG2") { prenumber=Math.pow(2,prenumber); }
+				else if (_PARAMS.ylog=="LOG") { prenumber=Math.exp(prenumber); }
+				var thenumber=prenumber.toLocaleString('en-US');
+				if (thenumber==0) { thenumber=prenumber; }
+				if (thenumber.toString().length>5) { thenumber=prenumber.toExponential(2); }
+				ctx.fillText(thenumber,(_PARAMS.wml-8-8)*_PARAMS.image_factor+0.5,pty*_PARAMS.image_factor+0.5);
+				ctx.strokeRect(_PARAMS.wml*_PARAMS.image_factor+0.5-8*_PARAMS.image_factor,pty*_PARAMS.image_factor+0.5,8*_PARAMS.image_factor,0);
+			}
+		}
+		ctx.textBaseline="top";
+		ctx.textAlign="center";
+		var xticks=nice_bounds(xmin, xmax, _PARAMS.nTicksX);
+		_PARAMS.XTICKS=xticks;
+		for (var t=0;t<xticks.length;t++) {
+			if (xticks[t]>=xmin && xticks[t]<=xmax) {
+				if (_PARAMS.xrev==false) {
+					var ptx=Math.round((xticks[t]-xmin)*xfactor+_PARAMS.wml);
+				}
+				else {
+					var ptx=Math.round(_PARAMS.wplot-((xticks[t]-xmin)*xfactor+_PARAMS.wmr));
+				}
+				var prenumber=xticks[t];
+				if (_PARAMS.xlog=="LOG10") { prenumber=Math.pow(10,prenumber); }
+				else if (_PARAMS.xlog=="LOG2") { prenumber=Math.pow(2,prenumber); }
+				else if (_PARAMS.xlog=="LOG") { prenumber=Math.exp(prenumber); }
+				var thenumber=prenumber.toLocaleString('en-US');
+				if (thenumber==0) { thenumber=prenumber; }
+				if (thenumber.toString().length>5) { thenumber=prenumber.toExponential(2); }
+				ctx.fillText(thenumber,ptx*_PARAMS.image_factor+0.5,(_PARAMS.hplot-_PARAMS.hmb+8+8)*_PARAMS.image_factor+0.5);
+				ctx.strokeRect(ptx*_PARAMS.image_factor+0.5,(_PARAMS.hplot-_PARAMS.hmb)*_PARAMS.image_factor+0.5,0,8*_PARAMS.image_factor);
+			}
+		}
+		ctx.textBaseline="bottom";
+		ctx.textAlign="center";
+		var fo=_PARAMS.image_factor*12;
+		ctx.font=fo+"px sans-serif";
+		var xlabel=((_PARAMS.wml+_PARAMS.wplot-_PARAMS.wmr)*_PARAMS.image_factor)/2;
+		var ylabel=_PARAMS.hplot*_PARAMS.image_factor;
+		var label=_PARAMS.column[_PARAMS.X];
+		ctx.fillText(label, Math.round(xlabel), Math.round(ylabel));	
+		ctx.textBaseline="top";
+		ctx.textAlign="center";
+		var xlabel=0*_PARAMS.image_factor;
+		var ylabel=((_PARAMS.hmu+_PARAMS.hplot-_PARAMS.hmb)*_PARAMS.image_factor)/2;
+		ctx.save();
+		ctx.translate(Math.round(xlabel),Math.round(ylabel));
+		ctx.rotate(-Math.PI/2);
+		var label=_PARAMS.column[_PARAMS.Y];
+		ctx.fillText(label, 0, 0);
+		ctx.restore();
+	}
+	var time2=Date.now();
+	return(cv.toDataURL(0,0,_PARAMS.wplot*_PARAMS.image_factor,_PARAMS.hplot*_PARAMS.image_factor));
+}
+
+
+function calculate_PX_PY() {
+	_PARAMS.PX=new Array();
+	_PARAMS.PY=new Array();
+	_PARAMS.POUT=new Array();
+	const x=_PARAMS.X;
+	const y=_PARAMS.Y;
+	const xlog=_PARAMS.xlog;
+	const ylog=_PARAMS.ylog;
+	const min_pos_x=_PARAMS.min_pos[x];
+	const min_pos_y=_PARAMS.min_pos[y];
+	var xmin=_PARAMS.min_in_plot[x];
+	var xmax=_PARAMS.max_in_plot[x];
+	var ymin=_PARAMS.min_in_plot[y];
+	var ymax=_PARAMS.max_in_plot[y];
+
+	if (_PARAMS.ylog=="LOG") { ymax=Math.log(ymax); ymin=Math.log(Math.max(min_pos_y,ymin)); }
+	else if (_PARAMS.ylog=="LOG2") { ymax=Math.log(ymax)/Math.log(2); ymin=Math.log(Math.max(min_pos_y,ymin))/Math.log(2); }
+	else if (_PARAMS.ylog=="LOG10") { ymax=Math.log(ymax)/Math.log(10); ymin=Math.log(Math.max(min_pos_y,ymin))/Math.log(10); }
+
+	if (_PARAMS.xlog=="LOG") { xmax=Math.log(xmax); xmin=Math.log(Math.max(min_pos_x,xmin)); }
+	else if (_PARAMS.xlog=="LOG2") { xmax=Math.log(xmax)/Math.log(2); xmin=Math.log(Math.max(min_pos_x,xmin))/Math.log(2); }
+	else if (_PARAMS.xlog=="LOG10") { xmax=Math.log(xmax)/Math.log(10); xmin=Math.log(Math.max(min_pos_x,xmin))/Math.log(10); }
+
+	const xrange=xmax-xmin;
+	const yrange=ymax-ymin;
+	const xfactor=(_PARAMS.wplot-_PARAMS.wml-_PARAMS.wmr)/xrange;
+	const yfactor=(_PARAMS.hplot-_PARAMS.hmu-_PARAMS.hmb)/yrange;
+
+	for (var p=0;p<_PARAMS.filter[0].nresults;p++) {
+		var sp=_DATA.filter[0].sorted[p];
+		var cell=_DATA[sp].split("\t");
+		if (cell[y]=="") {cell[x]="_"; }
+		if (cell[y]=="") {cell[y]="_"; }
+		var rx=Number(cell[x]);
+		var ry=Number(cell[y]);
+
+		if (_PARAMS.ylog=="LOG") { ry=Math.log(Math.max(min_pos_y,ry)); }
+		else if (_PARAMS.ylog=="LOG2") { ry=Math.log(Math.max(min_pos_y,ry))/Math.log(2); }
+		else if (_PARAMS.ylog=="LOG10") { ry=Math.log(Math.max(min_pos_y,ry))/Math.log(10); }
+
+		if (ry=="-Infinity") { alert ("CHECK!!! ry"); }
+
+		if (_PARAMS.xlog=="LOG") { rx=Math.log(Math.max(min_pos_x,rx)); }
+		else if (_PARAMS.xlog=="LOG2") { rx=Math.log(Math.max(min_pos_x,rx))/Math.log(2); }
+		else if (_PARAMS.xlog=="LOG10") { rx=Math.log(Math.max(min_pos_x,rx))/Math.log(10); }
+
+		if (rx=="-Infinity") { alert ("CHECK!!! rx"); }
+		_PARAMS.POUT[sp]=false;
+		if (rx > xmax) { rx=xmax; _PARAMS.POUT[sp]=true; }      // rx is not a number so point will not be drawn
+		else if (rx < xmin) { rx=xmin; _PARAMS.POUT[sp]=true; } //
+		if (ry > ymax) { ry=ymax; _PARAMS.POUT[sp]=true; }      //
+		else if (ry < ymin) { ry=ymin; _PARAMS.POUT[sp]=true; } //
+		if (_PARAMS.xrev==false) {
+			var px=Math.round((rx-xmin)*xfactor)+_PARAMS.wml;
+		}
+		else {
+			var px=_PARAMS.wplot-Math.round((rx-xmin)*xfactor)-_PARAMS.wmr;
+		}
+		if (_PARAMS.yrev==true) {
+			var py=Math.round((ry-ymin)*yfactor)+_PARAMS.hmu;
+		}
+		else {
+			var py=_PARAMS.hplot-Math.round((ry-ymin)*yfactor)-_PARAMS.hmb;
+		}
+		_PARAMS.PX[sp]=px;
+		_PARAMS.PY[sp]=py;
+	}
+}
+
+// FROM https://stackoverflow.com/questions/4947682/intelligently-calculating-chart-tick-positions
+function nice_number(value, round_){
+    //default value for round_ is false
+    round_ = round_ || false;
+    // :latex: \log_y z = \frac{\log_x z}{\log_x y}
+    var exponent = Math.floor(Math.log(value) / Math.log(10));
+    var fraction = value / Math.pow(10, exponent);
+    var nice_fraction=0;
+
+    if (round_)
+        if (fraction < 1.5)
+            nice_fraction = 1.
+        else if (fraction < 3.)
+            nice_fraction = 2.
+        else if (fraction < 7.)
+            nice_fraction = 5.
+        else
+            nice_fraction = 10.
+    else
+        if (fraction <= 1)
+            nice_fraction = 1.
+        else if (fraction <= 2)
+            nice_fraction = 2.
+        else if (fraction <= 5)
+            nice_fraction = 5.
+        else
+            nice_fraction = 10.
+
+    return nice_fraction * Math.pow(10, exponent)
+}
+
+function nice_bounds(axis_start, axis_end, num_ticks){
+    //default value is 10
+    num_ticks = num_ticks || 10;
+    var axis_width = axis_end - axis_start;
+
+    if (axis_width == 0){
+        axis_start -= .5
+        axis_end += .5
+        axis_width = axis_end - axis_start
+    }
+
+    var nice_range = nice_number(axis_width);
+    var nice_tick = nice_number(nice_range / (num_ticks -1), true);
+    var axis_start = Math.floor(axis_start / nice_tick) * nice_tick;
+    var axis_end = Math.ceil(axis_end / nice_tick) * nice_tick;
+    var ticks=new Array();
+    var t=0;
+    var seguir=true;
+    while (seguir) {
+		var value=Math.round((axis_start+t*nice_tick)*1e8)/1e8;
+		if (value>axis_end) { seguir=false; } else { ticks[t]=value; t++; }
+	}
+	return (ticks);
+}
+
+function save_series(s) {
+	var content="";
+	content+="# SOURCE: "+_PARAMS.fname+"\n";
+	var thefilter=_PARAMS.filter[s].currentFilterReadable.replace(/\&le\;/g,"<=");
+	thefilter=thefilter.replace(/\&ge\;/g,">=");
+	content+="# FILTER: "+thefilter+"\n";
+	content+="#\n";
+	content+=_DATA[0].replace(/^\d+\t/,"");
+	var rows=0;
+	for (var r=0;r< _DATA.filter[0].sorted.length;r++) {
+		var therow=_DATA.filter[0].sorted[r];
+		if (_DATA.filter[s].filtered[therow]) {
+			content=content+"\n"+_DATA[therow].replace(/^\d+\t/,"");
+			rows++;
+		}
+	}
+	download("data:text/csv:charset=utf-8,"+encodeURIComponent(content), "Saved_"+rows+"_Results_from_FIESTAviewer.tsv");
+}
+
+
+// example for image download("data:image/png:base64,"+content, "saved_plot_from_FIESTA.png");
+// example: download("data:text/csv;charset=utf-8,"+encodeURIComponent(html), "SNPer_report_"+snps+"_SNPs.html");
+// from: https://stackoverflow.com/questions/3916191/download-data-url-file
+function download(url, filename) {
+	fetch(url).then(function(t) {
+		return t.blob().then((b)=>{
+			var a = document.createElement("a");
+			a.href = URL.createObjectURL(b);
+			a.setAttribute("download", filename);
+			a.click();
+		}
+    );
+});
+}
+
+
+'use strict';
+
+function _$(o) { return (document.getElementById(o)); }
+
+function main_after_loading() {
+	
+	if (_PARAMS.DETAILS=="") {
+		_$("a_details").style.display="none";
+	}
+	else {
+		var lines=_PARAMS.DETAILS.split("\n");
+		var html="<table cellpadding='0px' cellspacing='0px' border='0px' style='background:gray;box-shadow:1px 1px 3px gray;border-top:1px solid gray;border-left:1px solid gray;'>";
+		for (var l=0;l<lines.length;l++) {
+			if (lines[l].match(/\w/)) {
+				if (l==0) {
+					html+="<tr style='position:sticky;top:0px;background:white;'><th style='background:white;padding:8px;font-weight:bold;border-bottom:1px solid gray;border-right:1px solid black;border-top:1px solid gray;'>"+lines[l].replace(/\t/g,"</th><th style='background:white;padding:8px;font-weight:bold;border-bottom:1px solid gray;border-right:1px solid gray;border-top:1px solid gray;'>")+"</th></tr>";
+				}
+				else {
+					html+="<tr><td style='font-size:0.8rem;background:white;padding:8px;border-bottom:1px solid gray;border-right:1px solid gray;'>"+lines[l].replace(/\t/g,"</td><td style='font-size:0.8rem;background:white;padding:8px;border-bottom:1px solid gray;border-right:1px solid gray;'>")+"</td></tr>";
+				}
+			}
+		}
+		html+="</table>";
+		_PARAMS.DETAILS=html;
+	}
+	
+	drawXaxisCanvas(_$("XaxisCanvas"));
+	drawYaxisCanvas(_$("YaxisCanvas"));
+	drawXerrorCanvas(_$("XerrorCanvas"));
+	drawYerrorCanvas(_$("YerrorCanvas"));
+	_$("TitleSpan").innerHTML=_PARAMS.fname;
+	document.body.style.cursor="default";
+	init_data();
+	update_view({ fdata: 0, page: 1, nperpage: 500});
+	remove_courtain();
+	_$("PlotImgBase").width=_PARAMS.wplot;
+	_$("PlotImgBase").height=_PARAMS.hplot;
+	_$("PlotImgBase").style.width=_PARAMS.wplot;
+	_$("PlotImgBase").style.height=_PARAMS.hplot;
+
+	var newImg=document.createElement("img");
+	newImg.id="PlotImg_Errors";
+	_$("PlotContainer").appendChild(newImg);	
+	init_plot_canvas(_$("PlotImg_Errors"));
+
+
+	var newImg=document.createElement("img");
+	newImg.id="PlotImg_0";
+	_$("PlotContainer").appendChild(newImg);	
+	init_plot_canvas(_$("PlotImg_0"));
+
+	_PARAMS.filter[10000].color=47;
+	var newImg=document.createElement("img");
+	newImg.id="PlotImg_10000";
+	_$("PlotContainer").appendChild(newImg);	
+	init_plot_canvas(newImg);
+	
+	update_plot(-1000); // hard update
+	setXlimits(_PARAMS.X, _PARAMS.min_in_plot[_PARAMS.X], _PARAMS.max_in_plot[_PARAMS.X]);
+	setYlimits(_PARAMS.Y, _PARAMS.min_in_plot[_PARAMS.Y], _PARAMS.max_in_plot[_PARAMS.Y]);
+	resize();
+}
+
+function drawXaxisCanvas(cv) {
+	cv.style.background="white";
+	var ctx=cv.getContext("2d");
+	var off=14.5;
+	var xini=off-5;
+	var xend=parseInt(cv.width)-off+5;
+	var yini=off-5;
+	var yend=parseInt(cv.width)-off;
+	ctx.strokeStyle="black";
+	ctx.lineWidth=1;
+	ctx.moveTo(xini, yend);
+	ctx.lineTo(xend, yend);
+	ctx.moveTo(xini, yini);
+	ctx.lineTo(xini, yend);
+	ctx.stroke();
+	ctx.beginPath();
+	ctx.lineWidth=1;
+	var off=14.5;
+	var xini=off-5;
+	var xend=parseInt(cv.width)-off+5;
+	var yini=off-5;
+	var yend=parseInt(cv.width)-off;
+	var arrow=4;
+	ctx.strokeStyle="red";
+	ctx.moveTo(xini, yend+arrow+3);
+	ctx.lineTo(xend, yend+arrow+3);
+	
+	ctx.moveTo(xini, yend+arrow+3);
+	ctx.lineTo(xini+arrow,yend+arrow+3-arrow);
+	ctx.moveTo(xini, yend+arrow+3);
+	ctx.lineTo(xini+arrow,yend+arrow+3+arrow);
+
+	ctx.moveTo(xend, yend+arrow+3);
+	ctx.lineTo(xend-arrow,yend+arrow+3-arrow);
+	ctx.moveTo(xend, yend+arrow+3);
+	ctx.lineTo(xend-arrow,yend+arrow+3+arrow);
+
+	ctx.stroke();
+}
+
+function drawYaxisCanvas(cv) {
+	cv.style.background="white";
+	var ctx=cv.getContext("2d");
+	var off=14.5;
+	var xini=off;
+	var xend=parseInt(cv.width)-off+5;
+	var yini=off-5;
+	var yend=parseInt(cv.width)-off+5;
+	ctx.strokeStyle="black";
+	ctx.lineWidth=1;
+	ctx.moveTo(xini, yend);
+	ctx.lineTo(xend, yend);
+	ctx.moveTo(xini, yend);
+	ctx.lineTo(xini, yini);
+	ctx.stroke();
+	ctx.beginPath();
+	ctx.lineWidth=1;
+	var off=14.5;
+	var xini=off;
+	var xend=parseInt(cv.width)-off+5;
+	var yini=off-5;
+	var yend=parseInt(cv.width)-off+5;
+	var arrow=4;
+	ctx.strokeStyle="red";
+	ctx.moveTo(xini-arrow-3, yini);
+	ctx.lineTo(xini-arrow-3, yend);
+
+	ctx.moveTo(xini-arrow-3, yini);
+	ctx.lineTo(xini-arrow-3-arrow, yini+arrow);
+	ctx.moveTo(xini-arrow-3, yini);
+	ctx.lineTo(xini-arrow-3+arrow, yini+arrow);
+
+	ctx.moveTo(xini-arrow-3, yend);
+	ctx.lineTo(xini-arrow-3-arrow, yend-arrow);
+	ctx.moveTo(xini-arrow-3, yend);
+	ctx.lineTo(xini-arrow-3+arrow, yend-arrow);
+
+	ctx.stroke();
+}
+
+
+
+function drawXerrorCanvas(cv) {
+	cv.style.background="white";
+	var xmid=parseInt(cv.width)/2+0.5;
+	var ymid=parseInt(cv.height)/2+0.5;
+	var off=10;
+	var xini=off+0.5;
+	var xend=parseInt(cv.width)-off+0.5;
+	var yini=off+0.5;
+	var yend=parseInt(cv.width)-off+0.5;
+	var ctx=cv.getContext("2d");
+	ctx.strokeStyle="red";
+	ctx.lineWidth=1;
+	ctx.moveTo(xini, ymid);
+	ctx.lineTo(xend, ymid);
+	ctx.moveTo(xini,ymid-3);
+	ctx.lineTo(xini,ymid+3);
+	ctx.moveTo(xend,ymid-3);
+	ctx.lineTo(xend,ymid+3);
+	ctx.stroke();
+	ctx.beginPath();
+	ctx.lineWidth=1;
+	ctx.fillStyle="gray";
+	ctx.strokeStyle="white";
+	ctx.arc(xmid,ymid,5,0,Math.PI*2);
+	ctx.fill();
+	ctx.stroke();
+}
+
+function drawYerrorCanvas(cv) {
+	cv.style.background="white";
+	var xmid=parseInt(cv.width)/2+0.5;
+	var ymid=parseInt(cv.height)/2+0.5;
+	var off=10;
+	var xini=off+0.5;
+	var xend=parseInt(cv.width)-off+0.5;
+	var yini=off+0.5;
+	var yend=parseInt(cv.width)-off+0.5;
+	var ctx=cv.getContext("2d");
+	ctx.strokeStyle="red";
+	ctx.lineWidth=1;
+	ctx.moveTo(xmid, yini);
+	ctx.lineTo(xmid, yend);
+	ctx.moveTo(xmid-3, yini);
+	ctx.lineTo(xmid+3, yini);
+	ctx.moveTo(xmid-3, yend);
+	ctx.lineTo(xmid+3, yend);
+	ctx.stroke();
+	ctx.beginPath();
+	ctx.lineWidth=1;
+	ctx.fillStyle="gray";
+	ctx.strokeStyle="white";
+	ctx.arc(xmid,ymid,5,0,Math.PI*2);
+	ctx.fill();
+	ctx.stroke();
+}
+
+
+
+
+function open_plot_dialog() {
+	var html_column_options_NOSELECTED="<option value='-1'>Select column</option>";
+	var html_column_options="";
+	for (var c=1;c<_PARAMS.column.length;c++) {
+		if (_PARAMS.numbers[c]>0) {
+			html_column_options+="<option value="+c+">"+_PARAMS.column[c]+"</option>";
+		}
+	}
+	
+	_$("SelectDataColumnX").innerHTML=html_column_options;
+	_$("SelectDataColumnY").innerHTML=html_column_options;
+	_$("SelectDataColumnEX").innerHTML=html_column_options_NOSELECTED+html_column_options;
+	_$("SelectDataColumnEY").innerHTML=html_column_options_NOSELECTED+html_column_options;
+	
+	_$("SelectDataColumnX").value=_PARAMS.X;
+	_$("SelectDataColumnY").value=_PARAMS.Y;
+	_$("SelectDataColumnEX").value=_PARAMS.XERR;
+	_$("SelectDataColumnEY").value=_PARAMS.YERR;
+	
+	_$('Courtain2').style.display='block';
+	_$('PlotDataSourceDialog').style.display='block';
+}
+
+function setXlimits(c, min, max) {
+	if (max <= min) {
+		min=_PARAMS.min[c];
+		max=_PARAMS.max[c];
+	}
+	_$("XPlotMin").value=min;
+	_$("XPlotMax").value=max;
+	var xticks=nice_bounds(min, max, 8);
+}
+
+function setYlimits(c, min, max) {
+	if (max <= min) {
+		min=_PARAMS.min[c];
+		max=_PARAMS.max[c];
+	}
+	_$("YPlotMin").value=min;
+	_$("YPlotMax").value=max;
+	var yticks=nice_bounds(min, max, 8);
+}
+
+function apply_plot_dialog(close) {
+	_PARAMS.X=_$("SelectDataColumnX").value;
+	_PARAMS.Y=_$("SelectDataColumnY").value;
+	_PARAMS.XERR=_$("SelectDataColumnEX").value;
+	_PARAMS.YERR=_$("SelectDataColumnEY").value;
+	_PARAMS.min_in_plot[_PARAMS.X]=parseFloat(_$("XPlotMin").value);
+	_PARAMS.max_in_plot[_PARAMS.X]=parseFloat(_$("XPlotMax").value);
+	_PARAMS.min_in_plot[_PARAMS.Y]=parseFloat(_$("YPlotMin").value);
+	_PARAMS.max_in_plot[_PARAMS.Y]=parseFloat(_$("YPlotMax").value);
+	update_plot(-1000);
+	if (close) { close_plot_dialog(); }
+}
+
+function close_plot_dialog() {
+	_$("XPlotMin").value=_PARAMS.min_in_plot[_PARAMS.X];
+	_$("XPlotMax").value=_PARAMS.max_in_plot[_PARAMS.X];
+	_$("YPlotMin").value=_PARAMS.min_in_plot[_PARAMS.Y];
+	_$("YPlotMax").value=_PARAMS.max_in_plot[_PARAMS.Y];
+
+	_$('Courtain2').style.display='none';
+	_$('PlotDataSourceDialog').style.display='none';
+}
+
+function get_xyreal_from_xyscreen(XM, YM) {
+	var l=_$("PlotContainerTD").offsetLeft;
+	var t=_$("PlotContainerTD").offsetTop;
+	if (_PARAMS.xrev==false) {
+		var XP=XM-l-_PARAMS.wml;
+	}
+	else {
+		var XP=XM-l-_PARAMS.wml;
+		XP=_PARAMS.warea-XP;
+	}
+	if (_PARAMS.yrev==false) {
+		var YP=YM-t-_PARAMS.hmu;
+		YP=_PARAMS.harea-YP;
+	}
+	else {
+		var YP=YM-t-_PARAMS.hmu;
+	}
+	
+	var x=_PARAMS.X;
+	var y=_PARAMS.Y;
+	var xmin=_PARAMS.min_in_plot[x];
+	var xmax=_PARAMS.max_in_plot[x];
+	var ymin=_PARAMS.min_in_plot[y];
+	var ymax=_PARAMS.max_in_plot[y];
+	
+	var min_pos_x=_PARAMS.min_pos[x];
+	var min_pos_y=_PARAMS.min_pos[y];
+
+
+	if (_PARAMS.ylog=="LOG") { ymax=Math.log(ymax); ymin=Math.log(Math.max(min_pos_y,ymin)); }
+	else if (_PARAMS.ylog=="LOG2") { ymax=Math.log(ymax)/Math.log(2); ymin=Math.log(Math.max(min_pos_y,ymin))/Math.log(2); }
+	else if (_PARAMS.ylog=="LOG10") { ymax=Math.log(ymax)/Math.log(10); ymin=Math.log(Math.max(min_pos_y,ymin))/Math.log(10); }
+
+	if (_PARAMS.xlog=="LOG") { xmax=Math.log(xmax); xmin=Math.log(Math.max(min_pos_x,xmin)); }
+	else if (_PARAMS.xlog=="LOG2") { xmax=Math.log(xmax)/Math.log(2); xmin=Math.log(Math.max(min_pos_x,xmin))/Math.log(2); }
+	else if (_PARAMS.xlog=="LOG10") { xmax=Math.log(xmax)/Math.log(10); xmin=Math.log(Math.max(min_pos_x,xmin))/Math.log(10); }
+		
+	var xrange=xmax-xmin;
+	var yrange=ymax-ymin;
+	var xfactor=(_PARAMS.wplot-_PARAMS.wml-_PARAMS.wmr)/xrange;
+	var yfactor=(_PARAMS.hplot-_PARAMS.hmu-_PARAMS.hmb)/yrange;
+
+	var XP=XP/xfactor+xmin;
+	var YP=YP/yfactor+ymin;
+
+	var XY=new Array();
+
+	if (_PARAMS.xlog=="LOG") {
+		XY[0]=Math.exp(XP);
+	}
+	else if (_PARAMS.xlog=="LOG2") {
+		XY[0]=Math.pow(2, XP);
+	}
+	else if (_PARAMS.xlog=="LOG10") {
+		XY[0]=Math.pow(10, XP);
+	}
+	else {
+		XY[0]=XP;
+	}
+	
+	if (_PARAMS.ylog=="LOG") {
+		XY[1]=Math.exp(YP);
+	}
+	else if (_PARAMS.ylog=="LOG2") {
+		XY[1]=Math.pow(2, YP);
+	}
+	else if (_PARAMS.ylog=="LOG10") {
+		XY[1]=Math.pow(10, YP);
+	}
+	else {
+		XY[1]=YP;
+	}
+		
+	return(XY);
+}
+
+function get_xyplot_from_xyscreen(XM, YM) {
+	var l=_$("PlotContainerTD").offsetLeft;
+	var t=_$("PlotContainerTD").offsetTop;
+	var XP=XM-l;
+	var YP=YM-t;
+	var XY=new Array();
+	XY[0]=XP*_PARAMS.image_factor;
+	XY[1]=YP*_PARAMS.image_factor;
+	return(XY);
+}
+
+
+function init_colorspalette(COLORS) {
+	var html=`<table cellspacing=0 cellpadding=0 border=0 style="background:transparent;"><tr><td style="white-space:nowrap;"><center>`;
+	var parcial=0;
+	var max=ColorsInitCols;
+	var sense="up";
+	for (var c=0;c<COLORS.length;c++) {
+		if (c==_PARAMS.filter[FILTER_CLICKED].color) {
+			html+=`<div title="`+c+`" style="position:relative;z-index:9999;border-radius:10px;margin:-2px;display:inline-block;border:2px solid white;;cursor:pointer;width:16px;height:16px;background:`+COLORS[c]+`;" onclick="_PARAMS.filter[FILTER_CLICKED].color=`+c+`;_$('ColorsPalette').style.display='none';update_plot(FILTER_CLICKED);update_view({fdata:FILTER_CLICKED});"></div>`;
+		}
+		else {
+			html+=`<div title="`+c+`" style="position:relative;z-index:9000;border-radius:9px;margin:-1px;display:inline-block;border:1px solid black;cursor:pointer;width:16px;height:16px;background:`+COLORS[c]+`;" onclick="_PARAMS.filter[FILTER_CLICKED].color=`+c+`;_$('ColorsPalette').style.display='none';update_plot(FILTER_CLICKED);update_view({fdata:FILTER_CLICKED});"></div>`;
+		}
+		parcial++;
+		if (parcial==max) {
+			parcial=0;
+			html+=`</td></tr><tr><td style="white-space:nowrap;"><center>`;
+			if (sense=="up") {
+				max=max+ColorsAddEachRow;
+				if (max==ColorsMaxCols) { sense="down"; max=max-2; }
+				html+=`</td></tr><tr><td style="white-space:nowrap;"><center>`;
+			}
+			else if (sense=="down") {
+				max=max-ColorsAddEachRow;
+				html+=`</td></tr><tr><td style="white-space:nowrap;"><center>`;
+			}
+		}
+	}
+	html+=`</td></tr></table>`;
+	_$("ColorsPalette").innerHTML=html;
+}
+
+function remove_courtain() {
+	_$("Courtain").style.animation="fadeout 1s forwards";
+	setTimeout(function() { _$("Courtain").style.display="none"; }, 1000);
+	_$("MainDiv").style.opacity=1;
+	
+}
+
+function resize() {
+	_$("Panel3").style.height=_$("MainDiv").offsetHeight-_$("Panel2").offsetHeight-_$("Panel1").offsetHeight;
+	_$("TableDataDiv").style.height=_$("Panel3").offsetHeight-_$("TablePagesDiv").offsetHeight;
+	_$("SeriesDiv").style.width="100%";
+	_$("SeriesDiv").style.height=_PARAMS.hplot;
+}
+
+
+function set_courtain_caption(text) {
+	setTimeout(function() { _$("CourtainCaption").innerHTML=text; }, 10);
+}
+
+function show_table(data, BCOLOR) {
+	var header=data[0];
+	var cs=header.split("\t").length;
+	data.shift();
+	var container=_$("TableDataDiv");
+	var containerPages=_$("TablePagesDiv");
+	container.style.height="300px";
+	container.style.overflow="auto";
+
+	var arrow_char=new Array();
+	arrow_char[0]="<span class='ArrowDown'>&#9660;</span>";
+	arrow_char[1]="<span class='NoArrow'>&#9660;</span>";
+	arrow_char[2]="<span class='ArrowUp'>&#9650;</span>";
+
+	var cell=header.split("\t");
+
+	var html=`<table id="DataTable" cellspacing="0px" cellpadding="0px" border="0px">`;
+	html+=`<tr id="HeaderTable">`;
+	for (var c=1;c<cs;c++) {
+		if (_PARAMS.sortedBy==c) {
+			var arrow=_PARAMS.sortingSense;
+		}
+		else {
+			var arrow=0;
+		}
+		var thisfilter="";
+		if (_PARAMS.currentFilterView > 0 && _PARAMS.currentFilterView < 10000) {
+			thisfilter=_PARAMS.filter[_PARAMS.currentFilterView].column[c].replace(/\"/g,"&quot;");
+		}
+		if (thisfilter=="") { thisfilter=" "; }
+		html+=`<th class="sticky_th">
+<div class="HeaderCell" id="HeaderTD_`+c+`" style="background:`+BCOLOR+`;">
+	`+arrow_char[arrow+1]+` <a class="HeaderCellAnchor" href="javascript:sort_data(`+c+`);update_view({});">`+cell[c]+`</a> `+arrow_char[arrow+1]+`
+</div>`;
+	if (_PARAMS.currentFilterView < 10000) {
+		html+=`
+<div class="HeaderFilterCell" id="FilterTD_`+c+`" style="background:`+BCOLOR+`;">
+	<input type="textbox" class="FilterBox" id="FilterBox_`+c+`" value="`+thisfilter+`" onkeypress="if(event.keyCode==13) {filter_data({f:`+_PARAMS.currentFilterView+`});update_view({fdata:_PARAMS.currentFilterView, page:1});}">
+</div>
+</td>`;
+		}
+	}
+	html+=`</tr>`;
+
+	for (var r=0;r<data.length;r++) {
+		var cell=data[r].split("\t");
+		html+=`<tr class="DataTR" onmousemove="show_point(`+cell[0]+`);" onmouseout="hide_point();" ondblclick="hide_point();select_data_by_hand(`+cell[0]+`);">`;
+		for (var c=1;c<cell.length;c++) {
+			var theclass=!isNaN(Number(cell[c]))?"NumericTD":"TextTD";
+			html+=`<td class="DataCell `+theclass+`" id="DataTD_`+r+`_`+c+`" title="`+cell[c]+`">`+cell[c]+`</td>`;
+		}
+		html+=`</tr>`;
+	}
+	html+=`<tr>`;
+	html+=`</table>`;
+	container.innerHTML=html;
+	containerPages.innerHTML=show_pages(_PARAMS.page, _PARAMS.nperpage, _PARAMS.filter[_PARAMS.currentFilterView].nresults);
+	resize();
+
+}
+
+function plot_mouseup() {
+	_$('divPlotSelectionBackground').style.display='none';
+	if (Math.abs(XMOUSE_A-XMOUSE_B) < 16 && Math.abs(YMOUSE_A-YMOUSE_B) < 16) {
+		select_data_by_hand(get_xyplot_from_xyscreen(XMOUSE_A, YMOUSE_A));
+	}
+	else {
+		_$("ResetButton").removeAttribute("disabled");
+		var X1Y1=get_xyreal_from_xyscreen(Math.min(XMOUSE_A, XMOUSE_B), Math.min(YMOUSE_A, YMOUSE_B));
+		var X2Y2=get_xyreal_from_xyscreen(Math.max(XMOUSE_A, XMOUSE_B), Math.max(YMOUSE_A, YMOUSE_B));
+		//alert (X1Y1[0]+" "+X2Y2[1]+" "+X2Y2[0]+" "+X1Y1[1]);
+		
+		if (_PARAMS.xrev==false) {
+			_PARAMS.min_in_plot[_PARAMS.X]=X1Y1[0];
+			_PARAMS.max_in_plot[_PARAMS.X]=X2Y2[0];
+		}
+		else {
+			_PARAMS.max_in_plot[_PARAMS.X]=X1Y1[0];
+			_PARAMS.min_in_plot[_PARAMS.X]=X2Y2[0];
+		}
+		
+		if (_PARAMS.yrev==false) {
+			_PARAMS.max_in_plot[_PARAMS.Y]=X1Y1[1];
+			_PARAMS.min_in_plot[_PARAMS.Y]=X2Y2[1];
+		}
+		else {
+			_PARAMS.min_in_plot[_PARAMS.Y]=X1Y1[1];
+			_PARAMS.max_in_plot[_PARAMS.Y]=X2Y2[1];
+		}
+		
+		_PARAMS.zoomed=true;
+		update_plot(-1000);
+	}
+	MOUSE_BUTTON=0;
+	_$('divPlotSelection').style.display='none';
+}
+
+function reset_plot() {
+	var rangex=_PARAMS.max[_PARAMS.X]-_PARAMS.min[_PARAMS.X];
+	var rangey=_PARAMS.max[_PARAMS.Y]-_PARAMS.min[_PARAMS.Y];
+	_PARAMS.min_in_plot[_PARAMS.X]=parseFloat(_$("XPlotMin").value);
+	_PARAMS.max_in_plot[_PARAMS.X]=parseFloat(_$("XPlotMax").value);
+	_PARAMS.min_in_plot[_PARAMS.Y]=parseFloat(_$("YPlotMin").value);
+	_PARAMS.max_in_plot[_PARAMS.Y]=parseFloat(_$("YPlotMax").value);
+	_PARAMS.zoomed=false;
+	_$("ResetButton").setAttribute("disabled", "disabled");
+	update_plot(-1000);
+}
+
+function plot_mousedown(X, Y) {
+	MOUSE_BUTTON=1;
+	XMOUSE_A=X;
+	YMOUSE_A=Y;
+	XMOUSE_B=XMOUSE_A;
+	YMOUSE_B=YMOUSE_A;
+	update_area_selection(XMOUSE_A, YMOUSE_A, XMOUSE_B, YMOUSE_B);
+	_$('divPlotSelection').style.display='block';
+}
+
+function plot_mousemove(X, Y) {
+	if (MOUSE_BUTTON==1) { 
+		_$('divPlotSelectionBackground').style.display='block';
+		XMOUSE_B=X;
+		YMOUSE_B=Y;
+		update_area_selection(XMOUSE_A, YMOUSE_A, XMOUSE_B, YMOUSE_B);
+	}
+}
+
+function show_point(r) {
+	if (!isNaN(_PARAMS.PX[r]) && !isNaN(_PARAMS.PY[r])) {
+		_$("divPoint").style.left=_PARAMS.PX[r];
+		_$("divPoint").style.top=_PARAMS.PY[r];
+		_$("divPoint").style.display="block";
+		_$("divPoint").style.width=_PARAMS.rpoint*2+2;
+		_$("divPoint").style.height=_PARAMS.rpoint*2+2;
+		_$("divPoint").style.marginTop=-_PARAMS.rpoint-2;
+		_$("divPoint").style.marginLeft=-_PARAMS.rpoint-2;
+		_$("divPoint").style.borderRadius=(_PARAMS.rpoint+1)+"px";
+	}
+	else {
+		_$("divPoint").style.display="none";
+	}
+}
+
+function hide_point() {
+	_$("divPoint").style.display="none";
+}
+
+function open_column_dialog(c) {
+	_PARAMS.CURRENT_COLUMN=c;
+	_$("ColumnTypeHead").innerHTML="Plot <i>"+_PARAMS.column[c]+"</i> ("+_PARAMS.min[c]+" to "+_PARAMS.max[c]+") as:";
+	if (_PARAMS.X==c) { _$("SelectedRadioX").checked=true;}
+	else if (_PARAMS.Y==c) { _$("SelectedRadioY").checked=true; }
+	else if (_PARAMS.XERR==c) { _$("SelectedRadioEX").checked=true; }
+	else if (_PARAMS.YERR==c) { _$("SelectedRadioEY").checked=true; }
+	else { _$("SelectedRadioX").checked=false; _$("SelectedRadioY").checked=false;  _$("SelectedRadioEX").checked=false; _$("SelectedRadioEY").checked=false;}
+	_$("PlotMin").value=_PARAMS.min_in_plot[c];
+	_$("PlotMax").value=_PARAMS.max_in_plot[c];
+
+	if (_PARAMS.log_plot[c]!=="") { _$("LogCheck").checked=true; _$("SelectLogBase").value=_PARAMS.log_plot[c]; _$("SelectLogBase").removeAttribute("disabled"); }
+	else {_$("LogCheck").checked=false; _$("SelectLogBase").value="LOG10"; _$("SelectLogBase").setAttribute("disabled","disabled"); }
+
+	var x=event.pageX-16;
+	var y=event.pageY-16;
+	_$("Courtain2").style.display="block";
+}
+
+function update_plot_options(c) {
+	if (_$("SelectedRadioX").checked) {
+		_PARAMS.X=c;	
+	}
+	if (_$("SelectedRadioY").checked) {
+		_PARAMS.Y=c;	
+	}
+	if (_$("SelectedRadioEX").checked) {
+		_PARAMS.XERR=c;	
+	}
+	if (_$("SelectedRadioEY").checked) {
+		_PARAMS.YERR=c;	
+	}
+
+	_PARAMS.min_in_plot[c]=parseFloat(_$("PlotMin").value);
+	_PARAMS.max_in_plot[c]=parseFloat(_$("PlotMax").value);
+	if (_$("LogCheck").checked) {
+		_PARAMS.log_plot[c]=_$("SelectLogBase").value;
+		_$("SelectLogBase").removeAttribute("disabled");
+	}
+	else {
+		_PARAMS.log_plot[c]="";	
+		_$("SelectLogBase").setAttribute("disabled","disabled");
+	}
+}
+
+function update_plot(fdata) {
+	if (fdata==-1) {
+		// only resort images if FILTER_A and FILTER_B are active or FILTER_REMOVED
+		if (FILTER_A !== FILTER_B) {
+			// if two filters were swapped
+			var tmp_src=_$("PlotImg_"+FILTER_A).src;
+			_$("PlotImg_"+FILTER_A).src=_$("PlotImg_"+FILTER_B).src;
+			_$("PlotImg_"+FILTER_B).src=tmp_src;
+			if (_PARAMS.ViewSeries[FILTER_A]==true) {
+				_$("PlotImg_"+FILTER_A).style.display="block";
+			}
+			else {
+				_$("PlotImg_"+FILTER_A).style.display="none";
+			}
+			if (_PARAMS.ViewSeries[FILTER_B]==true) {
+				_$("PlotImg_"+FILTER_B).style.display="block";
+			}
+			else {
+				_$("PlotImg_"+FILTER_B).style.display="none";
+			}
+		}
+		else if (FILTER_REMOVED > -1) {
+			// if a filter was removed
+			if (FILTER_REMOVED < 10000) {
+				var fs=_PARAMS.filters+1; // filter was already removed but no img
+				for (var f=1;f<fs;f++) {
+					if (f>FILTER_REMOVED) {
+						var fmu=f-1;
+						_$("PlotImg_"+fmu).src=_$("PlotImg_"+f).src;
+					}
+				}
+				var fmu=f-1;
+				if (_$("PlotImg_"+fmu)) { _$("PlotContainer").removeChild(_$("PlotImg_"+fmu)); }
+			}
+			else {
+				if (_$("PlotImg_"+FILTER_REMOVED)) { 
+					_$("PlotImg_"+FILTER_REMOVED).style.display="none";
+				}
+			}
+		}	
+	}
+	else if (fdata==-10) {
+		_$("PlotImgBase").src=get_plot_from_server(-10);
+	}
+	else if (fdata==-1000) { // Hard update of all filters
+		
+		if (_PARAMS.xlog=="raw") { _$("xrawbut").className="minibutton2_selected"; } else { _$("xrawbut").className="minibutton2"; }
+		if (_PARAMS.xlog=="LOG") { _$("xlogbut").className="minibutton2_selected"; } else { _$("xlogbut").className="minibutton2"; }
+		if (_PARAMS.xlog=="LOG2") { _$("xlog2but").className="minibutton2_selected"; } else { _$("xlog2but").className="minibutton2"; }
+		if (_PARAMS.xlog=="LOG10") { _$("xlog10but").className="minibutton2_selected"; } else { _$("xlog10but").className="minibutton2"; }
+
+		if (_PARAMS.ylog=="raw") { _$("yrawbut").className="minibutton2_selected"; } else { _$("yrawbut").className="minibutton2"; }
+		if (_PARAMS.ylog=="LOG") { _$("ylogbut").className="minibutton2_selected"; } else { _$("ylogbut").className="minibutton2"; }
+		if (_PARAMS.ylog=="LOG2") { _$("ylog2but").className="minibutton2_selected"; } else { _$("ylog2but").className="minibutton2"; }
+		if (_PARAMS.ylog=="LOG10") { _$("ylog10but").className="minibutton2_selected"; } else { _$("ylog10but").className="minibutton2"; }
+
+		if (_PARAMS.xrev==true) { _$("xrevbut").className="minibutton3_selected"; } else { _$("xrevbut").className="minibutton3"; }
+		if (_PARAMS.yrev==true) { _$("yrevbut").className="minibutton3_selected"; } else { _$("yrevbut").className="minibutton3"; }
+
+		calculate_PX_PY();
+		_$("PlotImgBase").src=get_plot_from_server(-10);
+		_$("PlotImg_Errors").src=get_plot_from_server(-1);
+
+		for (var ff in _PARAMS.filter) {
+			var f=parseInt(ff);
+			_$("PlotImg_"+f).src=get_plot_from_server(f);
+			if (_PARAMS.ViewSeries[f]==true) {
+				_$("PlotImg_"+f).style.display="block";
+			}
+			else {
+				_$("PlotImg_"+f).style.display="none";
+			}
+		}
+	}
+	else if (fdata==-2000) { // DOWNLOAD Hi-RES
+		_PARAMS.image_factor=3;
+		var c=document.createElement("canvas");
+		c.id="HIRES_canvas";
+		c.width=_PARAMS.wplot*_PARAMS.image_factor;
+		c.height=_PARAMS.hplot*_PARAMS.image_factor;
+		var ctx=c.getContext("2d");
+		var HIRES=new Image();
+		calculate_PX_PY();
+		HIRES.src=get_plot_from_server(-10);
+		HIRES.onload = function() {
+			ctx.drawImage(HIRES, 0, 0, _PARAMS.wplot*_PARAMS.image_factor, _PARAMS.hplot*_PARAMS.image_factor);
+			merge_next_image(c, -1);
+			HIRES=null;
+		}
+	}
+
+	else {
+		_$("PlotImg_"+fdata).src=get_plot_from_server(fdata);
+		if (_PARAMS.ViewSeries[fdata]==true) {
+			_$("PlotImg_"+fdata).style.display="block";
+		}
+		else {
+			_$("PlotImg_"+fdata).style.display="none";
+		}
+	}
+}
+
+function merge_next_image(c, f) {
+	var HIRES=new Image();
+	HIRES.src=get_plot_from_server(f);
+	HIRES.onload = function() {
+		var ctx=c.getContext("2d");
+		ctx.drawImage(HIRES, 0, 0, _PARAMS.wplot*_PARAMS.image_factor, _PARAMS.hplot*_PARAMS.image_factor);
+		f++;
+		if (_PARAMS.filter[f]) {
+			merge_next_image(c, f);
+		}
+		else if (f < 10000 && _PARAMS.filter[10000]) {
+			merge_next_image(c, 10000);
+		}
+		else {
+			download(c.toDataURL("image/png"), "Saved_Plot_from_FIESTA_2.0.png");
+			c=null;
+			HIRES=null;
+			_PARAMS.image_factor=1;
+		}
+	}
+}
+
+function update_area_selection(x1,y1,x2,y2) {
+	var xini=Math.min(x1,x2);
+	var yini=Math.min(y1,y2);
+	var w=Math.abs(x2-x1);
+	var h=Math.abs(y2-y1);
+	_$("divPlotSelection").style.left=xini-_$("PlotContainerTD").offsetLeft;
+	_$("divPlotSelection").style.width=w;
+	_$("divPlotSelection").style.top=yini-_$("PlotContainerTD").offsetTop;
+	_$("divPlotSelection").style.height=h;
+}
+
+function TOBEREMOVED_update_plotTDs() {
+	for (var c=0;c<_PARAMS.columns;c++) {
+		_$("PlotTD_"+c).innerHTML="&nbsp;";
+	}
+	_$("PlotTD_"+_PARAMS.X).innerHTML="x";
+	_$("PlotTD_"+_PARAMS.Y).innerHTML="y";
+	if (_PARAMS.XERR > -1) { _$("PlotTD_"+_PARAMS.XERR).innerHTML="xerr"; }
+	if (_PARAMS.YERR > -1) { _$("PlotTD_"+_PARAMS.YERR).innerHTML="Yerr"; }
+
+	if (_PARAMS.xlog=="LOG") { _$("PlotTD_"+_PARAMS.X).innerHTML="log(x)"; }
+	else if (_PARAMS.xlog=="LOG2") { _$("PlotTD_"+_PARAMS.X).innerHTML="log2(x)"; }
+	else if (_PARAMS.xlog=="LOG10") { _$("PlotTD_"+_PARAMS.X).innerHTML="log10(x)"; }
+
+	if (_PARAMS.ylog=="LOG") { _$("PlotTD_"+_PARAMS.Y).innerHTML="log(y)"; }
+	else if (_PARAMS.ylog=="LOG2") { _$("PlotTD_"+_PARAMS.Y).innerHTML="log2(y)"; }
+	else if (_PARAMS.ylog=="LOG10") { _$("PlotTD_"+_PARAMS.Y).innerHTML="log10(y)"; }
+}
+
+function show_pages(currentpage, nperpage, nresults) {
+	var some=4;
+	var html=`<table cellspacing='0px' cellpadding='0px' border='0px' style='margin-left:3rem;margin-right:3rem;'>
+	<tr>
+		<td class='PagesTD'>Page:</td>`;
+	var pages=Math.ceil(nresults/nperpage);
+	var current_minus_some=Math.max(1,currentpage-some);
+	var current_plus_some=Math.min(pages,currentpage+some);
+	var first=nperpage*(currentpage-1)+1;
+	var ini=first-1;
+	var last=Math.min(nperpage*currentpage,nresults);
+	if (current_minus_some>1) {
+		if (currentpage==1) {
+			var theclass="CurrentPage";
+			var onclick="";
+		}
+		else {
+			var theclass="OtherPage";
+			var onclick=` onmouseup='update_view({page: 1});'`;
+		}
+		html=html+`<td class='PageButtonTD'><div class='`+theclass+`'`+onclick+`>1</div></td><td>...</td>`;
+	}
+	for (var t=current_minus_some;t<current_plus_some+1;t++) {
+		if (currentpage==t) {
+			var theclass="currentpage";
+			var onclick="";
+		}
+		else {
+			var ini=nperpage*(t-1);
+			var theclass="otherpage";
+			var onclick=` onmouseup='update_view({page: `+t+`});'`;
+		}
+		html=html+"<td class='PageButtonTD'><div class='"+theclass+"'"+onclick+">"+t+"</div></td>";
+	}
+	if (current_plus_some<pages) {
+		if (currentpage==pages) {
+			var theclass="currentpage";
+			var onclick="";
+		}
+		else {
+			var ini=nperpage*(pages-1);
+			var theclass="otherpage";
+			var onclick=` onmouseup='update_view({page: `+pages+`});'`;
+		}
+		html=html+`<td class="PageButtonTD">...</td><td class="PageButtonTD"><div class='`+theclass+`'`+onclick+`>`+pages+`</div></td>`;
+	}
+	html=html+`<td style="width:100%">&nbsp;</td><td class="PagesTD">(Showing results `+first.toLocaleString('en-US')+` - `+last.toLocaleString('en-US')+` of `+nresults.toLocaleString('en-US')+`)</td><td>&nbsp;&nbsp;&nbsp;</td><td class="PagesTD">Page Size: <input size=4 type='textbox' value='`+nperpage+`' id='nperpageTextBox' onkeypress='if (event.keyCode==13) { update_view({nperpage: parseInt(this.value)}); }'></td></tr></table>`;
+	return ("<center>"+html+"</center>");
+}
+
+function update_view({fdata = _PARAMS.currentFilterView, page = _PARAMS.page, nperpage = _PARAMS.nperpage}) {
+	_PARAMS.currentFilterView=fdata;
+	_PARAMS.page=page;
+	_PARAMS.nperpage=nperpage;
+	var toshow=get_data_from_server(fdata);
+	show_table(toshow,COLORS[_PARAMS.filter[fdata].color]);
+	update_filters_table({selected:fdata});
+}
+
+function update_filters_table({selected=0}) {
+	if (_PARAMS.filter[10000].nresults==0 && selected==10000) { selected=0; update_view({fdata:0}); }
+	else {
+		// There are n filters (0, 1, 2, 3..., n) and one more (selected by hand: 1000).
+		var html=``;
+		for (var tt=_PARAMS.filters;tt>-1;tt--) {
+			if (tt==_PARAMS.filters) { var t=10000; } else { var t=tt; }
+			if (_PARAMS.filter[t].nresults > 0 || t < 10000) {
+				var html_buttons_td="";
+				if (t==10000) {
+					html_buttons_td+=`<button class="SeriesButton" style="opacity:0;" disabled>&#9650;</button>`;
+					html_buttons_td+=`<button class="SeriesButton" style="opacity:0;" disabled>&#9660;</button>`;
+				}
+				else if (t>1 && _PARAMS.filters>2 && t < 10000) {
+					var tb=t-1;
+					html_buttons_td+=`<button class="SeriesButton" onclick="swap_filters(`+t+`,`+tb+`);">&#9660;</button>`;
+				}
+				else if (t > 0 && t < 10000){
+					html_buttons_td+=`<button class="SeriesButton" disabled>&#9660;</button>`;
+				}
+				if (t>0 && t<_PARAMS.filters-1 && t < 10000) {
+					var tb=t+1;
+					html_buttons_td+=`<button class="SeriesButton" onclick="swap_filters(`+t+`,`+tb+`);">&#9650;</button>`;
+				}
+				else if (t>0 && t<10000) {
+					html_buttons_td+=`<button class="SeriesButton" disabled>&#9650;</button>`;
+				}
+
+				if (t>0) {
+					html_buttons_td+=`<button class="SeriesButton" style="margin-left:1rem;margin-right:1rem;border:1px solid transparent;background:transparent;color:red;" onclick="remove_filter(`+t+`);">&nbsp;&#x2715;&nbsp;</button>`;
+				}
+				else {
+					html_buttons_td+=`<button class="SeriesButton" style="opacity:0;" disabled>&#9650;</button>`;
+					html_buttons_td+=`<button class="SeriesButton" style="opacity:0;" disabled>&#9660;</button>`;
+					html_buttons_td+=`<button class="SeriesButton" style="margin-left:1rem;margin-right:1rem;border:1px solid transparent;background:transparent;color:red;opacity:0;" disabled onclick="remove_filter(`+t+`);">&nbsp&#x2715;&nbsp;</button>`;
+				}
+				if (selected==t) { var className="SeriesRowSelected"; }
+				else { var className="SeriesRow"; }
+				var caption=_PARAMS.filter[t].currentFilterReadable;
+				if (t==0) { var isdisabled=" disabled"; } else { var isdisabled=""; }
+				if (t>0) {
+					var html_download_td=`<button class="minibutton" onclick="save_series(`+t+`);">Save</button>`;
+				}
+				else {
+					var html_download_td=`<button class="minibutton" onclick="void();" style="opacity:0;" disabled>Save</button>`;
+				}
+				if (_PARAMS.ViewSeries[t]==true) { var isdisabled=isdisabled+" checked"; }
+
+html+=`<table class="`+className+`" id="filtersTable" cellspacing=0 cellpadding=0 border=0 style="width:100%;">
+	<tr id="filter_panel_`+t+`" onmouseup="FILTER_B=`+t+`; if (FILTER_A>0 && FILTER_B>0 && FILTER_A!==FILTER_B && FILTER_A < 10000 && FILTER_B < 10000) { swap_filters(FILTER_A,FILTER_B);FILTER_A=-1; FILTER_B=-1; }" onmousedown="FILTER_A=`+t+`;">
+		<td class="SeriesEyeTD"><div class="SeriesEyeDiv"><input id="ViewSeries_`+t+`" type="checkbox"`+isdisabled+` onchange="toggle_series_view(`+t+`);"></div></td>
+		<td class="SeriesColorDivTD">
+			<div class="SeriesColorDiv" style="background:`+COLORS[_PARAMS.filter[t].color]+`;" id="series_color_`+t+`" onclick="FILTER_CLICKED=`+t+`;init_colorspalette(COLORS);_$('ColorsPalette').style.top=this.offsetTop;_$('ColorsPalette').style.left=this.offsetLeft;_$('ColorsPalette').style.display='block';">&nbsp;</div>
+		</td>
+		<td class="SeriesCaptionTD" onclick="update_view({fdata:`+t+`});">
+			<div class="SeriesCaptionDiv">`+caption+`</div>
+		</td>
+		<td class="SeriesResultsTD">
+			`+_PARAMS.filter[t].nresults.toLocaleString('en-US')+`
+		</td>
+		<td class="SeriesButtonsTD">
+			`+html_buttons_td+`
+		</td>
+		<td class="SeriesSaveTD">
+			`+html_download_td+`
+		</td>
+	</tr>
+</table>
+`;
+			}
+		}
+		html+=`
+</table>
+`;
+		_$("SeriesDiv").innerHTML=html;
+	}
+}
+
+function toggle_series_view(t) {
+	if (_$("PlotImg_"+t).style.display=="none") {
+		_$("PlotImg_"+t).style.display="block";
+		_PARAMS.ViewSeries[t]=true;
+	}
+	else {
+		_$("PlotImg_"+t).style.display="none";
+		_PARAMS.ViewSeries[t]=false;
+	}
+	
+}
+
+function swap_filters(a,b) {
+	var tmp_params=_PARAMS.filter[a];
+	var tmp_data=_DATA.filter[a];
+	var tmp_view=_PARAMS.ViewSeries[a];
+	
+	_PARAMS.filter[a]=_PARAMS.filter[b];
+	_DATA.filter[a]=_DATA.filter[b];
+	_PARAMS.ViewSeries[a]=_PARAMS.ViewSeries[b];
+	_PARAMS.filter[b]=tmp_params;
+	_DATA.filter[b]=tmp_data;
+	_PARAMS.ViewSeries[b]=tmp_view;
+
+	FILTER_A=a;
+	FILTER_B=b;
+	update_plot(-1);
+	update_view({fdata:b});
+	FILTER_A=-1;
+	FILTER_B=-1;
+}
+
+function remove_filter(a) {
+	FILTER_REMOVED=a;
+	if (a < 10000) {
+		var fs=_PARAMS.filters;
+		for (var f=1;f<fs;f++) {
+			if (f>a) {
+				_PARAMS.filter[f-1]=_PARAMS.filter[f];
+				_DATA.filter[f-1]=_DATA.filter[f];
+				_PARAMS.ViewSeries[f-1]=_PARAMS.ViewSeries[f];
+			}
+		}
+		_PARAMS.filters=_PARAMS.filters-1;
+		delete _PARAMS.filter[_PARAMS.filters];
+		delete _PARAMS.ViewSeries[_PARAMS.filters];
+		delete _DATA.filter[_PARAMS.filters];
+	}
+	else {
+		_PARAMS.filter[a].nresults=0;
+		_DATA.filter[a]=new Array();
+		_DATA.filter[a].filtered=new Array();
+	}
+	update_view({fdata:0});
+	update_plot(-1);
+	FILTER_REMOVED=-1;
+}
+
+function init_plot_canvas(cv) {
+	cv.style.background="transparent";
+	cv.style.position="absolute";
+	cv.style.left="0px";
+	cv.style.top="0px";
+	cv.w=_PARAMS.wplot*_PARAMS.image_factor;
+	cv.h=_PARAMS.hplot*_PARAMS.image_factor;
+	cv.width=_PARAMS.wplot*_PARAMS.image_factor;
+	cv.height=_PARAMS.hplot*_PARAMS.image_factor;
+	cv.style.width=_PARAMS.wplot;
+	cv.style.height=_PARAMS.hplot;
+
+}
+
+function showDetails(table) {
+	_$("DetailsTable").innerHTML=table;
+	_$("Courtain3").style.display="block";
+}
+</script>
+</head>
+	<body onload="main_after_loading();resize();" onresize="resize();">
+		<div id="Courtain"><span id="CourtainSpan">Initializing...</span></div>
+		<div id="MainDiv" style="opacity:0;">
+			<div id="Panel1">
+				<table style="width:100%;" cellpadding=0 cellspacing=0 border=0>
+					<tr>
+						<td id="TitleLeftTD">
+							 <span class="fiesta2_caption">FIESTA Viewer 2.0</span>
+						</td>
+						<td id="TitleCenterTD">
+							<span id="TitleSpan">My_Differential_Expression_Archive.xlsx</span>
+						</td>
+						<td id="TitleRightTD">
+							 <a id="a_details" style="margin-right:2rem;" href="javascript:showDetails(_PARAMS.DETAILS);">Details</a><a style="margin-left:2rem;" href="https://bioinfogp.cnb.csic.es/tools/fiesta2/help" target="FIESTA_help">Help</a>
+							<input style="margin-left:4rem;" type="button" class="SizeControlButton" onclick="if(typeof(document.body.HTMLFS)=='undefined') { document.body.HTMLFS=16; } document.body.HTMLFS=document.body.HTMLFS/1.25; document.getElementsByTagName('html')[0].style['font-size']=document.body.HTMLFS+'px';resize();" value="A-"><input type="button" class="SizeControlButton" onclick="if(typeof(document.body.HTMLFS)=='undefined') { document.body.HTMLFS=16; } document.body.HTMLFS=document.body.HTMLFS*1.25; document.getElementsByTagName('html')[0].style['font-size']=document.body.HTMLFS+'px';resize();" value="A+">
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div id="Panel2">
+				<table id="Panel2Table" cellspacing=0 cellpadding=0 border=0>
+					<tr>
+						<td style="text-align:center;padding-left:1rem;padding-right:0.5rem;">
+							<button id="psize-" class="minibutton5" style="width:1em;height:1em;border-radius:0.5rem;" onclick="_PARAMS.defaultRPoint=_PARAMS.defaultRPoint-1;update_plot(-1000);">&nbsp;</button><button id="psize+" class="minibutton5" style="width:1.5em;height:1.5em;border-radius:0.75rem;" onclick="_PARAMS.defaultRPoint=_PARAMS.defaultRPoint+1;update_plot(-1000);">&nbsp;</button>
+						</td>
+						<td id="PlotSettingsTD">
+							<button class="minibutton" onclick="open_plot_dialog();">Data Source</button>
+							&nbsp;
+							<button id="ResetButton" class="minibutton" onclick="reset_plot();" disabled>Reset Zoom</button>
+							&nbsp;
+							<button class="minibutton" onclick="update_plot(-2000);">Save Plot</button>
+						</td>
+						<td>
+						</td>
+					</tr>
+					<tr>
+						<td style="text-align:center;padding-left:1rem;padding-right:0.5rem;">
+							<a id="yrevbut" class="minibutton3" style="margin-top:4rem;" href="javascript:_PARAMS.yrev=_PARAMS.yrev?false:true;update_plot(-1000);">reverse</a>
+							<br>
+							<a id="ylog10but" class="minibutton2" style="margin-top:1rem;" href="javascript:_PARAMS.ylog='LOG10';update_plot(-1000);">log10</a>
+							<br>
+							<a id="ylog2but" class="minibutton2" style="margin-top:0.2rem;" href="javascript:_PARAMS.ylog='LOG2';update_plot(-1000);">log2</a>
+							<br>
+							<a id="ylogbut" class="minibutton2" style="margin-top:0.2rem;" href="javascript:_PARAMS.ylog='LOG';update_plot(-1000);">log</a>
+							<br>
+							<a id="yrawbut" class="minibutton2" style="margin-top:0.2rem;" href="javascript:_PARAMS.ylog='raw';update_plot(-1000);">raw</a>
+							<br>
+							<a id="yticks-" class="minibutton4" style="margin-top:1.1rem;" href="javascript:_PARAMS.nTicksY=_PARAMS.nTicksY/2;update_plot(-10);">- ticks</a>
+							<br>
+							<a id="yticks+" class="minibutton4" style="margin-top:0.2rem;" href="javascript:_PARAMS.nTicksY=_PARAMS.nTicksY*2;update_plot(-10);">+ ticks</a>
+						</td>
+						<td id="PlotTD">
+							<table id="PlotTable" cellspacing=0 cellpadding=0>
+								<tr>									
+									<td id="PlotContainerTD">
+										<div id="PlotContainer">
+											<img id="PlotImgBase" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" width=300 height=300>
+										</div>
+										<div id="divPoint"></div>
+										<div id="divPlotSelectionBackground"></div>
+										<div id="divPlotSelection"></div>
+										<div id="divOverPlots"
+											onmouseup="plot_mouseup();"
+											onmousedown="plot_mousedown(event.clientX, event.clientY);"
+											onmousemove="plot_mousemove(event.clientX, event.clientY);">
+										</div>
+									</td>
+								</tr>
+							</table>
+						</td>
+						<td id="SeriesTD">
+							<div id="SeriesDiv"></div>
+							<div id="ColorsPalette"></div>
+						</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td style="padding-top:0.5rem;padding-bottom:1.5rem;text-align:right;padding-right:2rem;">
+							<a id="xticks-" class="minibutton4" href="javascript:_PARAMS.nTicksX=_PARAMS.nTicksX/2;update_plot(-10);">- ticks</a>
+							<a id="xticks+" class="minibutton4" href="javascript:_PARAMS.nTicksX=_PARAMS.nTicksX*2;update_plot(-10);">+ ticks</a>
+
+							<a id="xrawbut" class="minibutton2" style="margin-left:1rem;" href="javascript:_PARAMS.xlog='raw';update_plot(-1000);">raw</a>
+							<a id="xlogbut" class="minibutton2" href="javascript:_PARAMS.xlog='LOG';update_plot(-1000);">log</a>
+							<a id="xlog2but" class="minibutton2" href="javascript:_PARAMS.xlog='LOG2';update_plot(-1000);">log2</a>
+							<a id="xlog10but" class="minibutton2" href="javascript:_PARAMS.xlog='LOG10';update_plot(-1000);">log10</a>
+							<a id="xrevbut" class="minibutton2" style="margin-left:1rem;" href="javascript:_PARAMS.xrev=_PARAMS.xrev?false:true;update_plot(-1000);">reverse</a>
+						</td>
+						<td></td>
+					</tr>
+				</table>
+			</div>
+			<div id="Panel3">
+				<div id="TableDataDiv">Reserved div for table data</div>
+				<div id="TablePagesDiv">Reserved div for table page control</div>
+			</div>
+		</div>
+		<div id="Courtain2">		
+			<div id="PlotDataSourceDialog">
+				<TABLE border="0px" cellpadding="0px" cellspacing="0px">
+					<TR>
+						<TD class="DialogTitle" colspan=2>
+							Plot Data Source
+						</TD>
+					</TR>
+					<TR>
+						<TD>
+							<table border="0px" cellpadding="0px" cellspacing="0px">
+								<tr>
+									<td rowspan=3 style="padding-right:1rem;">
+										<canvas class="miniCanvas" id="XaxisCanvas" width="60px" height="60px"></canvas>
+									</td>
+									<td class="DialogOptionsGroup" colspan=2>X Data </td>
+								</tr>
+								<tr>
+									<td style="vertical-align:middle;" colspan=2>
+										<select id="SelectDataColumnX" onchange="setXlimits(this.value, 0, 0);" style="width:100%;">
+											<option value="C1">Ccccccc1</option>
+											<option value="C2">Cccccc2</option>
+											<option value="C3">Ccccccccc3</option>
+										</select>
+									</td
+								</tr>
+								<tr>
+									<td colspan=2>
+										Min: <input class="right" type="textbox" id="XPlotMin" value="0" size=10>
+										Max: <input class="right" type="textbox" id="XPlotMax" value="0" size=10>
+										<button class="resetButton" onclick="setXlimits(_$('SelectDataColumnX').value, 0, 0);">Auto Scale</button>
+									</td>
+								</tr>
+								<tr>
+									<td>&nbsp;</td>
+								</tr>
+								<tr>
+									<td rowspan=3 style="padding-right:1rem;">
+										<canvas class="miniCanvas" id="YaxisCanvas" width="60px" height="60px"></canvas>
+									</td>
+									<td class="DialogOptionsGroup" colspan=2>Y Data</td
+								</tr>
+								<tr>
+									<td style="vertical-align:middle;" colspan=2>
+										<select id="SelectDataColumnY" onchange="setYlimits(this.value, 0, 0);" style="width:100%;">
+											<option value="C1">Ccccccc1</option>
+											<option value="C2">Cccccc2</option>
+											<option value="C3">Ccccccccc3</option>
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td colspan=2>
+										Min: <input class="right" type="textbox" id="YPlotMin" value="0" size=10>
+										Max: <input class="right" type="textbox" id="YPlotMax" value="0" size=10>
+										<button class="resetButton" onclick="setYlimits(_$('SelectDataColumnY').value, 0, 0);">Auto Scale</button>
+									</td>
+								</tr>
+								<tr>
+									<td>&nbsp;</td>
+								</tr>
+								<tr>
+									<td style="padding-right:1rem;" rowspan=2>
+										<canvas class="miniCanvas" id="XerrorCanvas" width="60px" height="60px"></canvas>
+									</td>
+									<td class="DialogOptionsGroup" colspan=2 style="vertical-align:bottom;">X Error</td>
+								</tr>
+								<tr>
+									<td colspan=2 style="vertical-align:top;">
+										<select id="SelectDataColumnEX" onchange="" style="width:100%;">
+											<option value="C1">Ccccccc1</option>
+											<option value="C2">Cccccc2</option>
+											<option value="C3">Ccccccccc3</option>
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td>&nbsp;</td>
+								</tr>
+								<tr>
+									<td style="padding-right:1rem;" rowspan=2>
+										<canvas class="miniCanvas" id="YerrorCanvas" width="60px" height="60px"></canvas>
+									</td>
+									<td class="DialogOptionsGroup" colspan=2 style="vertical-align:bottom;">Y Error</td>
+								</tr>
+								<tr>
+									<td colspan=2 style="vertical-align:top;">
+										<select id="SelectDataColumnEY" onchange="" style="width:100%;">
+											<option value="C1">Ccccccc1</option>
+											<option value="C2">Cccccc2</option>
+											<option value="C3">Ccccccccc3</option>
+										</select>
+									</td>
+								</tr>
+							</table>
+						</TD>
+					</TR>
+					<TR>
+						<TD class="DialogButtonsTD" colspan=2>
+							<button class="DialogButton" id="CancelPlotOptions" onclick="close_plot_dialog()">Cancel</button>
+							<button class="DialogButton" id="ApplyPlotOptions" onclick="apply_plot_dialog(true)">Apply</button>
+						</TD>
+					</TR>			
+				</TABLE>
+			</div>
+		</div>
+		<div id="Courtain3">
+			<div id="DetailsDiv">
+				<div style="padding-bottom:0.5rem;font-size:1.25rem;">Sample's Details</div>
+				<div id="DetailsTable" style="height:300px;overflow:auto;"></div>
+				<div style="width:100%;text-align:right;padding-top:0.5rem:"><button class="DialogButton" onclick='_$("Courtain3").style.display="none";'>Close</button></div>
+			</div>
+		</div>
+	</body>
+</html>

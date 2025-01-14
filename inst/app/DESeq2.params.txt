@@ -1,0 +1,5 @@
+ACTIVE   ID                          Caption1                    Default        SkipIf     Caption2    Type            Editable      Param                         Range                           RangeCaptions   Help
+always   Results_indfilt             Independent Filtering:      Checked        ---        BLANK       Check           YES           independentFiltering          TRUE|FALSE                      TRUE|FALSE      Apply or not apply Independent Filtering
+always   DESeq_betaPrior             Beta Prior:                 Checked        ---        BLANK       Check           YES           betaPrior                     TRUE|FALSE                      TRUE|FALSE      For getting shrunked ratios at low expression levels
+---      ExpressionNumerator_$N      ---                         NULL           ---        ---         File            Array         ---                           Array                           ---             ---
+---      ExpressionDenominator_$N    ---                         NULL           ---        ---         File            Array         ---                           Array                           ---             ---

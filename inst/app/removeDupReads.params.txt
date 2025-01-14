@@ -1,0 +1,5 @@
+ACTIVE   ID                                   Caption1                        Default    SkipIf      Caption2           Type         Editable     Param           Range              RangeCaptions   Help
+YES      removeDupReads_threshold             Remove alignments duplicated         50    ---         times or more      Integer      YES          threshold       0 to 1234567890    ---             Min duplicated reads
+---      removeDupReads_outputFormat          ---                               'BAM'    ---         ---                String       NO           outputFormat    String             ---             ---
+---      ToRemoveDupsBAM_$N                   ---                                 ---    ---         ---                File         Array        inputFile       Array              ---             ---
+---      DupsRemovedBAM_$N                    ---                                 ---    ---         ---                File         Array        outputFile      Array              ---             ---

@@ -1,0 +1,558 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+html { font-family:sans-serif; }
+
+body { overflow:hidden; }
+
+* { margin:0px; padding:0px; font-size:1rem; white-space:nowrap; }
+
+.fiesta2_caption {
+	color: silver;
+	font-size:1.2rem;
+}
+
+td { vertical-align:top; }
+
+.right { text-align:right; }
+
+.resetButton {
+	margin:2px;
+	padding:2px;
+}
+
+.minibutton {
+	font-size:0.8rem;
+	padding:0.25rem 1rem 0.25rem 1rem;
+//	box-shadow:1px 1px 3px black;
+	border-radius:0.8rem;
+	text-decoration:none;
+	background:#EEEEEE;
+	display:inline;
+}
+
+.minibutton2 {
+	display:inline-block;
+	font-size:0.8rem;
+	padding:0.12rem 0rem 0.12rem 0rem;
+//	box-shadow:1px 1px 3px black;
+	border-radius:0.25rem;
+	border:1px solid #D4D0C8;
+	text-decoration:none;
+//	background:#EEEEEE;
+	color:#666666;
+	width:3.5em;
+	text-align:center;
+}
+
+.minibutton2_selected {
+	display:inline-block;
+	font-size:0.8rem;
+	padding:0.12rem 0rem 0.12rem 0rem;
+//	box-shadow:1px 1px 3px black;
+	border-radius:0.25rem;
+	border:1px solid #000000;
+	text-decoration:none;
+	background:#666666;
+	color:#FFFFFF;
+	width:3.5em;
+	text-align:center;
+}
+
+.minibutton3 {
+	display:inline-block;
+	font-size:0.8rem;
+	padding:0.12rem 0rem 0.12rem 0rem;
+//	box-shadow:1px 1px 3px black;
+	border-radius:0.25rem;
+	border:1px solid #336699;
+	text-decoration:none;
+	background:#FFFFFF;
+	color:#336699;
+	width:3.5em;
+	text-align:center;
+}
+
+.minibutton3_selected {
+	display:inline-block;
+	font-size:0.8rem;
+	padding:0.12rem 0rem 0.12rem 0rem;
+//	box-shadow:1px 1px 3px black;
+	border-radius:0.25rem;
+	border:1px solid #000000;
+	text-decoration:none;
+	background:#336699;
+	color:#FFFFFF;
+	width:3.5em;
+	text-align:center;
+}
+
+.minibutton4 {
+	display:inline-block;
+	font-size:0.8rem;
+	padding:0.12rem 0rem 0.12rem 0rem;
+//	box-shadow:1px 1px 3px black;
+	border-radius:0.25rem;
+	border:1px solid #993366;
+	text-decoration:none;
+	background:#FFFFFF;
+	color:#993366;
+	width:3.5em;
+	text-align:center;
+}
+
+.minibutton4:active {
+	display:inline-block;
+	font-size:0.8rem;
+	padding:0.12rem 0rem 0.12rem 0rem;
+//	box-shadow:1px 1px 3px black;
+	border-radius:0.25rem;
+	border:1px solid #000000;
+	text-decoration:none;
+	background:#993366;
+	color:#FFFFFF;
+	width:3.5em;
+	text-align:center;
+}
+
+.minibutton5 {
+	display:inline-block;
+	font-size:1rem;
+	border:2px solid #669933;
+	text-decoration:none;
+	background:#EEEEEE;
+	color:#000000;
+	text-align:center;
+	vertical-align:middle;
+	margin:1px;
+	font-weight:bold;
+	cursor:pointer;
+}
+
+.minibutton5:active {
+	display:inline-block;
+	font-size:1rem;
+	border:2px solid #000000;
+	text-decoration:none;
+	background:#669933;
+	color:#FFFFFF;
+	text-align:center;
+	vertical-align:middle;
+	margin:1px;
+	font-weight:bold;
+}
+
+img {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-touch-callout: none;
+}
+
+.progress_bar {
+	font-size: 14px;
+	color:#000000;
+}
+
+.LoadDialog {
+	margin-left:4rem;
+}
+
+#CancelDialogButton {
+	width:4rem;
+	height:4rem;
+	margin:2rem;
+	border-radius:2rem;
+	cursor:pointer;
+}
+
+#ButtonFiles:hover { background:yellow; }
+
+#ColumnTypeDiv { display:none; position:absolute;left:0px;top:0px; background:white; box-shadow:1px 1px 3px black; border-radius:0.5rem; padding:1rem; }
+
+#divPoint {
+	position:absolute;
+	left:0px;
+	top:0px;
+	width:6px;
+	height:6px;
+	background:yellow;
+//	border-radius:4px;
+	border:1px solid black;
+	margin-top:-4px;
+	margin-left:-4px;
+	z-index:9999;
+	display:none;
+}	
+
+#divPlotSelection {
+	position:absolute;
+	left:0px;
+	top:0px;
+	width:100px;
+	height:100px;
+/*	
+  background: linear-gradient(to right, black 50%, white 0%), linear-gradient(black 50%, white 0%), linear-gradient(to right, black 50%, white 0%), linear-gradient(black 50%, white 0%);
+  background-position: top, right, bottom, left;
+  background-repeat: repeat-x, repeat-y;
+  background-size: 16px 1px, 1px 16px;
+*/
+	background:white;
+  mix-blend-mode:overlay;
+    
+	box-sizing:border-box;
+	display:none;
+}
+
+#divPlotSelectionBackground {
+	background:rgba(0,0,0,0.5);
+	width:100%;
+	height:100%;
+	position:absolute;
+	left:0px;
+	top:0px;
+	display:none;
+}
+
+
+
+#Courtain {
+	position:absolute;
+	left:0px;
+	top:0px;
+	z-index:9999;
+	width:100vw;
+	height:100vh;
+	background:white;
+}
+
+#CourtainSpan {
+	position:absolute;
+	left:50%;
+	top:50%;
+	transform:translateX(-50%) translateY(-50%);
+	font-size:80px;
+	font-weight:bold;
+	color:black;
+	padding:24px;
+	text-align:center;
+}
+
+p {
+	white-space:normal;
+	margin-left:4rem;
+	margin-right:4rem;
+	margin-top:1rem;
+	margin-bottom:1rem;
+}
+
+#Courtain2 { display:none; position:absolute; left:0px; top:0px; width:100vw; height:100vh; background:rgba(255,255,255,0.5); }
+
+#PlotDataSourceDialog { display:none; position:absolute; left:50%; top:50%; transform: translate(-50%, -50%);
+	border-radius:0.25rem; box-shadow:1px 1px 5px black;
+	border:0px solid black; background:lightgray; padding:2rem; box-sizing:border-box; }
+
+#Courtain3 { display:none; position:absolute; left:0px; top:0px; width:100vw; height:100vh; background:rgba(255,255,255,0.5); }
+
+#DetailsDiv { position:absolute; left:50%; top:50%; transform: translate(-50%, -50%);
+	border-radius:0.25rem; box-shadow:1px 1px 5px black;
+	border:0px solid black; background:lightgray; padding:2rem; box-sizing:border-box; }
+
+.DialogTitle { font-weight:bold; font-size:1.5rem; padding-bottom:1rem; }
+.DialogOptionsGroup { vertical-align:middle; }
+.DialogOptionTD1 { }
+.DialogOptionTD2 { }
+.DialogButtonsTD { text-align:right; padding-top:1rem; padding-right:0rem; }
+.DialogButton { font-size:1.25rem; margin-top:1rem; margin-left:0.5rem; border-radius:0.5rem;
+	 padding-left:0.5rem; padding-right:0.5rem; padding-top:0.25rem; padding-bottom:0.25rem; }
+
+.MenuButton { font-size:1rem; border-radius:0.5rem; margin:0.5rem;
+	 padding-left:0.5rem; padding-right:0.5rem; padding-top:0.25rem; padding-bottom:0.25rem; }
+
+.MenuButton:hover {
+	background:yellow;
+}
+
+.miniCanvas {
+	/*box-shadow:1px 1px 3px black;*/
+	border-left:2px solid black;
+	border-top:2px solid black;
+	border-right:2px solid #EFEFEF;
+	border-bottom:2px solid #EFEFEF;
+}
+
+
+#HeaderTable { background:red; }	
+#DataTable { position:relative; }
+.sticky_th { position:sticky; top:0; }
+			
+#MainDiv { width:100vw; height:100vh; padding:0px; margin:0px; background:yellow; }
+
+#Panel1 { width:100%; background:white; position:relative; padding-bottom:1rem; }
+
+#Panel2 { width:100%; background:white; position:relative: }
+
+#Panel3 { width:100%; background:white; position:relative; }
+			
+#PlotContainerTD { position:relative; }		
+#PlotContainer { position:relative; }		
+#PlotControlX { text-align:center; }
+
+#PlotImgBase { background:lightpink; width:800; height:300; border:0px solid red;}
+
+#PlotMax { width:4rem; text-align:right; }
+#PlotMin { width:4rem; text-align:right; }
+
+#SeriesTD { width:100%; vertical-align:top; position:relative; border-right:1rem white solid; }
+#SeriesDiv { padding-left:0rem; margin-right:0rem; padding-top:0px; padding-bottom:0rem; overflow-y:auto; width:100%;  }
+
+.SeriesEyeTD {
+	padding-top:0.5rem;
+	padding-left:0.5rem;
+	padding-bottom:0.5rem;
+	padding-right:0px;
+	vertical-align:middle;
+}
+
+.SeriesEyeDiv {
+	margin-top:0.45rem;
+	text-align:center;
+	font-size:1rem;
+	background:yellow;
+	vertical-align:middle;
+}
+
+.SeriesColorDivTD { padding:0.50rem; vertical-align:middle; }
+.SeriesCaptionTD { width:100%; padding:0.50rem; }
+.SeriesButtonsTD { text-align:right; white-space:nowrap; padding:0rem; vertical-align:middle !important; }
+.SeriesSaveTD { padding:0rem; vertical-align:middle !important; }
+.SeriesButton { cursor:pointer; margin-right:0.25rem; white-space:nowrap; border-radius:4px; border:1px solid black; }
+.SeriesButton:disabled { cursor:default; border:1px solid silver; }
+
+#PlotSettingsTD { text-align:center; vertical-align:bottom; padding-left:80px; padding-right:20px; padding-bottom: 0rem; }
+
+#TitleLeftTD {
+	padding:8px;
+	text-align:left;
+	width:28rem;
+	vertical-align:middle;
+}
+
+#TitleCenterTD {
+	padding:0rem;
+	text-align:center;
+	vertical-align:middle;
+}
+
+#TitleRightTD {
+	padding:8px;
+	text-align:right;
+	width:28rem;
+	vertical-align:top;
+	color:black;
+}
+
+#TitleSpan {
+	display:inline-block;
+	padding:0.5rem 4rem 0.5rem 4rem;
+	font-size:1.25rem;
+	color:black;
+	background:white;
+	font-weight:bold;
+	box-sizing:border-box;
+	border-radius:1.4rem;
+	border:4px solid black;
+}
+
+#ColorsPalette {
+	position:absolute;
+	left:10px;
+	top:10px;
+	display:none;
+	filter: drop-shadow(1px 1px 4px #000000);
+	background:transparent;
+	margin-top:-8px;
+	margin-left:-64px;
+}
+
+#Div { box-sizing:border-box; padding:1rem; overflow-y:auto; }
+
+#TableHeaderDiv { overflow:hidden; background:red; }
+
+#TableDataDiv { overflow:auto; background:lightgray; }
+
+#TablePagesDiv { padding-bottom:24px; padding-top:8px; }
+
+.ArrowUp { color:white; }
+.ArrowDown { color:white; }
+.NoArrow { color:transparent; }
+		
+.OtherPage { margin:0px; background:white; border:1px solid silver; font-size:1rem; font-family:monospace;
+	padding-left:0.5rem; padding-right:0.5rem; padding-top:0rem; padding-bottom:0rem;
+	border-radius:1rem; cursor:pointer; }
+
+.CurrentPage { margin:0px; background:yellow; border:1px solid silver; font-size:1rem; font-family:monospace;
+	padding-left:0.5rem; padding-right:0.5rem; padding-top:0rem; padding-bottom:0rem;
+	border-radius:1rem; cursor:pointer; }
+
+.PagesTD {
+	vertical-align:middle;
+	padding-left:8px;
+	padding-right:8px;
+}	
+	
+.PageButtonTD {
+	vertical-align:middle;
+	padding-left:2px;
+	padding-right:2px;
+}	
+
+.DataCell { white-space:nowrap; cursor:default; font-size:1rem; padding-top:4px; padding-bottom:0px; padding-left:4px; padding-right:4px; text-overflow:ellipsis; overflow:hidden; max-width:600px;
+	border-right: 1px solid lightgray; border-bottom: 1px solid lightgray; background:white; }
+	
+.HeaderFilterCell { white-space:nowrap; cursor:default; font-size:1rem;
+	padding:0px 4px 8px 4px; border-right:1px solid white; }
+	
+.HeaderPlotCell { white-space:nowrap; cursor:default; font-size:0.8rem; font-style:italic; text-align:center;
+	padding:8px 4px 4px 4px; border:1px solid #FFFFFF; background: white; }
+	
+.HeaderCell { white-space:nowrap; cursor:default; font-size:1rem; text-align:center; font-weight:normal; color:#333333;
+	padding:8px 4px 8px 4px; border-right:1px solid #FFFFFF; }
+
+.HeaderCellAnchor { color:white; text-decoration:none;}
+.DataTR { border-bottom:1px solid black; }
+.DataTR:hover td { background:#FFFF00; }
+					
+.ExpanderDiv { width:100%; height:0px; background:red; }
+			
+.ExpanderTD { padding:0px; }
+			
+.FilterBox { min-width:6rem; width:100%; font-size:1rem; border:1px solid white; border-radius:0.25rem; background:lightyellow; text-align:right; }
+	
+.FilterBox[value^=' '] { background:white; }
+
+.PlotImg { background:transparent; }
+
+#divOverPlots { position:absolute; left:0px;top:0px;width:100%;height:100%; background:transparent; }
+
+
+.SeriesResultsTD { vertical-align:middle !important; padding-right:2rem; text-align:right; } 
+.SeriesColorDiv { width:100%; margin:0.25rem;
+	border-radius:1rem; width:1rem; height:1rem; border:1px solid black; position:relative; }
+.SeriesCaptionDiv { white-space:normal; margin:0.25rem;}
+.SeriesRowOLD { white-space:normal; padding:0.5rem; margin:0.5rem; user-select:none; background:linear-gradient(lightgray, 1%, white); }
+.SeriesRow { white-space:normal; padding:0.5rem; user-select:none;  }
+.SeriesRow:hover { background:yellow !important; }
+.SeriesRowSelected { white-space:normal; padding:0.5rem; user-select:none;  background:#EFEFEF !important; }	
+.InputXYLimits { width:4rem; font-size:1rem; }
+
+#filtersTable { width:100%; border-radius:2rem; margin-bottom:0.5rem; }
+#filtersTable td { vertical-align:top; }
+		
+.NumericTD { text-align:right; }
+	
+.SelectPlot { outline:none; font-size:0.8rem; border-radius:0.5rem; border:0px solid silver; padding:0.25rem;
+	background:#AACCDD; color:white; }
+
+.SelectPlotX { outline:none; font-size:0.8rem; border-radius:0.5rem; border:0px solid silver; padding:0.25rem;
+	background:#336699; color:white; }
+
+.SelectPlotY { outline:none; font-size:0.8rem; border-radius:0.5rem; border:0px solid silver; padding:0.25rem;
+	background:#336699; color:white; }
+
+.SelectPlotL2X { outline:none; font-size:0.8rem; border-radius:0.5rem; border:0px solid silver; padding:0.25rem;
+	background:#336699; color:white; }
+
+.SelectPlotL2Y { outline:none; font-size:0.8rem; border-radius:0.5rem; border:0px solid silver; padding:0.25rem;
+	background:#336699; color:white; }
+
+.SelectPlotL10X { outline:none; font-size:0.8rem; border-radius:0.5rem; border:0px solid silver; padding:0.25rem;
+	background:#336699; color:white; }
+
+.SelectPlotL10Y { outline:none; font-size:0.8rem; border-radius:0.5rem; border:0px solid silver; padding:0.25rem;
+	background:#336699; color:white; }
+					
+.SizeControlButton { color:gray; font-weight:bold; font-size:14px; font-family:monospace; margin:2px;
+	border:0px solid gray; border-radius:12px; padding:5px; background:whitesmoke; outline:none; }
+
+.SizeControlButton:hover { background:yellow; cursor:pointer; }
+
+.SizeControlButton:active { background:white; cursor:pointer; }
+			
+.TextTD { text-align:left; }
+
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+		
+@keyframes fadeout { from { opacity: 1; } to { opacity: 0; } }
+</style>
+<script>
+'use strict';
+var _PARAMS = new Object();	
+_PARAMS.nTicksX=8;
+_PARAMS.nTicksY=8;
+_PARAMS.zoomed=false;
+_PARAMS.ViewSeries=new Array();
+_PARAMS.ViewSeries[0]=true;
+_PARAMS.ViewSeries[10000]=true;	
+_PARAMS.max=new Array();
+_PARAMS.min=new Array();
+_PARAMS.max_in_plot=new Array();
+_PARAMS.min_in_plot=new Array();
+_PARAMS.log_plot=new Array();
+_PARAMS.numbers=new Array();
+_PARAMS.NaNs=new Array();
+_PARAMS.min_pos=new Array();
+_PARAMS.min=new Array();
+_PARAMS.X=4;
+_PARAMS.Y=5;
+_PARAMS.XERR=-1;
+_PARAMS.YERR=-1;
+_PARAMS.column=new Array();
+_PARAMS.columns=-1;
+_PARAMS.filters=1; // it is not the same as _PARAMS.filter.length
+_PARAMS.filter=new Array();
+_PARAMS.filter[0]=new Array();
+_PARAMS.filter[0].nresults=-1;
+_PARAMS.filter[0].currentFilter="All values";
+_PARAMS.filter[0].currentFilterReadable="All values";
+_PARAMS.filter[0].column=new Array();
+_PARAMS.filter[0].color=93;
+_PARAMS.filter[10000]=new Array();
+_PARAMS.filter[10000].nresults=0;
+_PARAMS.filter[10000].currentFilter="Selected by Hand";
+_PARAMS.filter[10000].currentFilterReadable="Selected by Hand";
+_PARAMS.filter[10000].color=100;
+_PARAMS.currentFilterView=0;
+_PARAMS.nperpage=4;
+_PARAMS.page=1;
+_PARAMS.sortedBy=-1;
+_PARAMS.sortingSense=1;
+_PARAMS.rpoint=2;
+_PARAMS.defaultRPoint=2;
+_PARAMS.xlog="raw";
+_PARAMS.ylog="raw";
+_PARAMS.xrev=false;
+_PARAMS.yrev=false;
+_PARAMS.wml=80;
+_PARAMS.wmr=20;
+_PARAMS.hmu=10;
+_PARAMS.hmb=48;
+_PARAMS.warea=320;
+_PARAMS.harea=320;
+_PARAMS.wplot=_PARAMS.warea+_PARAMS.wml+_PARAMS.wmr;
+_PARAMS.hplot=_PARAMS.harea+_PARAMS.hmu+_PARAMS.hmb;
+_PARAMS.image_factor=1;
+_PARAMS.plot_acolor="#000000";
+_PARAMS.plot_tcolor="#000000";
+_PARAMS.fdata=0;
+_PARAMS.PX=new Array();
+_PARAMS.PY=new Array();
+_PARAMS.POUT=new Array();
+_PARAMS.fname="not defined";
+
+var _DATA=new Array();
+
