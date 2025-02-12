@@ -26,4 +26,11 @@
 
 * First development version in GitHub
 
+# SeqNjoy 0.5.8
+
+* Added Quality Control report
+
+* Added Short read pre processing with RfastP
+
+* Auto detection and joint management of paired end short read files
 

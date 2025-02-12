@@ -5,13 +5,15 @@
 		<link rel="stylesheet" type="text/css" href="css/fa/all.css">
 		<script src="js/global_variables.js"></script>
 		<script src="js/functions.js"></script>
+		<script src="js/helper_functions.js"></script>
 		<script src="js/functions_steps.js"></script>
 		<script src="js/functions_loading.js"></script>
 		<script src="js/functions_downloadgenomes.js"></script>
+		<script src="js/functions_qc.js"></script>
+		<script src="js/functions_trimming.js"></script>
 		<script src="js/functions_aligning.js"></script>
 		<script src="js/functions_quantifying.js"></script>
 		<script src="js/functions_comparing.js"></script>
-		<script src="js/helper_functions.js"></script>
 		<script src="js/functions_to_server.js"></script>
 		<script src="js/functions_igv.js"></script>
 		<script src="js/functions_download.js"></script>
@@ -21,8 +23,9 @@
 	</head>
 	<body onload="main();close_all_dialogs();" onresize="resize();" onclick="close_all_menus();">
 		<input type="hidden" id="DownloadGenomesTab" class="slash_off">
-		<input type="hidden" id="AlignTab" class="slash_off">
+		<input type="hidden" id="QcTab" class="slash_off">
 		<input type="hidden" id="TrimTab" class="slash_off">
+		<input type="hidden" id="AlignTab" class="slash_off">
 		<input type="hidden" id="QuantifyTab" class="slash_off">
 		<input type="hidden" id="ExpressionTab" class="slash_off">
 		
@@ -64,6 +67,18 @@
 										<!-- <button id="MenuSteps_DownloadGenomes_ensemblgenomes" class="ButtonMenuContent" onclick="open_dialog('DownloadGenomes', 'ensemblgenomes');checkForm();">Download genomes from <span class="spanFunctionName">EnsemblGenomes</span></button>-->
 									</div>
 								</td>
+								<td class="relative">
+									<button id="MenuQc" name="MenuQc" class="ButtonMenu" onclick="open_menu('MenuQcContent','MenuTrim');">Quality Control</button>
+									<div id="MenuQcContent" name="MenuQcContent" class="MenuContent">
+										<button id="MenuSteps_Qc_QC" class="ButtonMenuContent" onclick="open_dialog('Qc', 'QC');checkForm();">Quality Control with <span class="spanFunctionName">Rqc</span> and <span class="spanFunctionName">FastP</span></button>
+									</div>
+								</td>
+								<td class="relative">
+									<button id="MenuTrim" name="MenuTrim" class="ButtonMenu" onclick="open_menu('MenuTrimContent','MenuTrim');">Preprocess reads</button>
+									<div id="MenuTrimContent" name="MenuTrimContent" class="MenuContent">
+										<button id="MenuSteps_Trim_FastP" class="ButtonMenuContent" onclick="open_dialog('Trim', 'fastP');checkForm();">Preprocess reads with <span class="spanFunctionName">FastP</span></button>
+									</div>
+								</td>								
 								<td class="relative">
 									<button id="MenuAlign" name="MenuAlign" class="ButtonMenu" onclick="open_menu('MenuAlignContent','MenuAlign');">Align Reads</button>
 									<div id="MenuAlignContent" name="MenuAlignContent" class="MenuContent">
@@ -173,16 +188,22 @@
 
 	
 		<div id="ModalCourtainDialogs"></div>
-		<div id="TrimDiv" class="CenteredDialog largeshadow border radius" style="display:none">
-			<div class="CenteredDialogTitle"><table cellpadding=0 cellspacing=0 border=0><tr><td class="DialogTitle" style="width:100%;padding:1rem;">Preprocess Reads </td><td><button class="closeButtonDialog" onclick="close_all_dialogs()">X</button></td></tr></table></div>
-			<div id="TrimFormDiv" class="borderbox w100 h100">
-				<div id="TrimFormTable" class="medipadded h100 borderbox"></div>
-			</div>
-		</div>
 		<div id="DownloadGenomesDiv" class="CenteredDialog largeshadow border radius" style="display:none">
 			<div class="CenteredDialogTitle"><table cellpadding=0 cellspacing=0 border=0><tr><td class="DialogTitle" style="width:100%;padding:1rem;">Download Genomes from Ensembl</td><td><button class="closeButtonDialog" onclick="close_all_dialogs()">X</button></td></tr></table></div>
 			<div id="DownloadGenomesFormDiv" style="width:100%;height:40%;">
 				<div id="DownloadGenomesFormTable" class="medipadded h100 borderbox" style="min-width:700px"></div>
+			</div>
+		</div>
+		<div id="QcDiv" class="CenteredDialog largeshadow border radius" style="display:none">
+			<div class="CenteredDialogTitle"><table cellpadding=0 cellspacing=0 border=0><tr><td class="DialogTitle" style="width:100%;padding:1rem;">Quality Control of Reads </td><td><button class="closeButtonDialog" onclick="close_all_dialogs()">X</button></td></tr></table></div>
+			<div id="QcFormDiv" class="borderbox w100 h100">
+				<div id="QcFormTable" class="medipadded h100 borderbox"></div>
+			</div>
+		</div>
+		<div id="TrimDiv" class="CenteredDialog largeshadow border radius" style="display:none">
+			<div class="CenteredDialogTitle"><table cellpadding=0 cellspacing=0 border=0><tr><td class="DialogTitle" style="width:100%;padding:1rem;">Preprocess Reads </td><td><button class="closeButtonDialog" onclick="close_all_dialogs()">X</button></td></tr></table></div>
+			<div id="TrimFormDiv" class="borderbox w100 h100">
+				<div id="TrimFormTable" class="medipadded h100 borderbox"></div>
 			</div>
 		</div>
 		<div id="AlignDiv" class="CenteredDialog largeshadow border radius" style="display:none">

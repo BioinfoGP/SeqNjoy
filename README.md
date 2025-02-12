@@ -49,7 +49,16 @@ Some of the steps performed by **SeqNjoy** may take many hours to complete. It i
 
 Connection to the internet is NOT required (it is a stand-alone application), as long as all the libraries and packages needed for the analysis reside on the file system (your computer or a external hard disk, for example) where the installation is done.
 
-### Bowtie2 aligner on Windows 
+## Software requirements
+
+### Windows
+#### Rtools on Windows
+
+RTools is necessary to install SeqNjoy on Windows because some neccesary R packages are not available as precompiled Windows binaries and must be built from source.
+
+Download the appropriate version of RTools for your R installation from the official website: [https://cloud.r-project.org/bin/windows/Rtools/](https://cloud.r-project.org/bin/windows/Rtools/).
+
+#### Bowtie2 aligner
 
 To use the feature "Align reads with **Bowtie2**" on Windows, ensure the following software is installed:
 
@@ -57,17 +66,20 @@ To use the feature "Align reads with **Bowtie2**" on Windows, ensure the followi
     - Python 3 is required for genome indexing.
     - If Python 3 is not already installed:
         - **Recommended Option:** Download and install Python 3 from the official website: [https://www.python.org/downloads/](https://www.python.org/downloads/).
-        - Ensure that you check the option to **Add Python to PATH** during installation.
+        - During installation, check the option to **Add Python to PATH**.
     - **Alternative Option:** Install Python 3 from the Microsoft Store. 
-    - After installing Python, verify its installation by running the following command in a terminal: 
+    - After installation, verify Python is working by running the following command in a terminal: 
      ```cmd
          python3 --version
      ```
-    - If python3 does not work and instead opens the Microsoft Store, you may need to adjust your system configuration:
-        - Check **App Execution Aliases** settings: Open **Manage App Execution Aliases** in the Control panel and disable the python3 alias for the Microsoft Store.
-        - Ensure that the installation path for Python is correctly added to your PATH environment variable. 
-
-
+    - If the `python3` command is not recognized or opens the Microsoft Store instead of showing the version, follow these steps:
+        1. Check if Python is added to your system’s PATH:
+            - Open a terminal and try running `python` or `python3`.
+            - If neither command works, locate the installation directory of Python (e.g., `C:\Python39\`) and add it to your PATH environment variable.
+            - For instructions on modifying PATH, refer to [Python’s documentation](https://docs.python.org/3/using/windows.html#installation-steps).  
+        2. If `python3` opens the Microsoft Store, disable the `python3` alias for the Microsoft Store:  
+            - Open **Manage App Execution Aliases** in the Control Panel.  
+            - Disable the alias for `python3` and/or `python`.  
 
 2. **Perl** 
     - Perl is required for sequence aligning
@@ -75,11 +87,56 @@ To use the feature "Align reads with **Bowtie2**" on Windows, ensure the followi
     - After installing Perl, verify its installation by running the following command in a terminal:
     ```cmd
         perl --version
-    ```
+     ```
+    
+#### Pandoc
+
+Pandoc is required to build the vignettes used within the app. If you do not already have Pandoc installed.
+
+- Download Pandoc from the official website: [https://pandoc.org/installing.html](https://pandoc.org/installing.html).
+- Follow the installation instructions for Windows.
+- After installation, verify it by running the following command in a terminal:
+```cmd
+    pandoc --version
+```
+
+### Linux
+
+Installing SeqNjoy dependencies from source requires several system libraries. The package names vary depending on the Linux distribution. Ensure the appropriate libraries are installed by running the commands below.
+
+#### Debian-based Distributions (e.g., Debian, Ubuntu)
+
+```bash
+    sudo apt-get install $i -y \
+        build-essential gfortran libreadline-dev libx11-dev libxt-dev \
+        libbz2-dev liblzma-dev libpcre2-dev libcurl4 libcurl4-openssl-dev \
+        libpng-dev libjpeg-dev libxml2-dev libssl-dev librsvg2-dev
+```
+    
+#### Fedora-based (e.g., Fedora, Red Hat, Rocky Linux)
+```bash
+    sudo yum install -y \
+        make gcc-c++ gcc-gfortran readline-devel libX11 libX11-devel \
+        libXt libXt-devel bzip2-devel pcre2-devel libcurl-devel \
+        libxml2-devel openssl-devel libpng-devel libjpeg-turbo-devel \
+        librsvg2-devel
+```
+
+#### Suse -based (e.g., openSUSE, SUSE Linux Enterprise)
+
+```bash
+    sudo zypper install -y  \
+        make gcc-c++ gcc-fortran readline-devel libX11-devel libXt-devel \
+        libbz2-devel lzma-sdk-devel pcre2-devel libcurl-devel \
+        openjpeg-devel libxml2-devel libopenssl-devel libjpeg8-devel \
+        libpng16-devel librsvg-devel
+```
 
 ## Installation
 
 <!--- 
+
+### From Bioconductor
 
 SeqNjoy is currently available in [Bioconductor](https://bioconductor.org/packages/SeqNjoy). To install the current release use:
 ```R
@@ -91,21 +148,36 @@ if (!requireNamespace("BiocManager", quietly = TRUE)){
 BiocManager::install("SeqNjoy")
 ```
 -->
+### From GitHub
 
-The most recent release, avalaible on GitHub, can be installed using devtools. 
+The most recent release, avalaible on GitHub, can be installed using the `remotes` package. 
+Pandoc is required to build vignettes on Windows (see Software requirements). 
+You can disable this option, but some help pages will not be available.
 
 ```{r, eval=FALSE}
-if (!requireNamespace("devtools", quietly = TRUE)){
-    install.packages("devtools")
+
+## Install Bioconductor
+if (!requireNamespace("BiocManager", quietly = TRUE)){
+    install.packages("BiocManager")
 }
 
-devtools::install_github("BioinfoGP/SeqNjoy", dependencies=TRUE, build_vignettes = TRUE)
+## Install remotes
+if (!requireNamespace("remotes", quietly = TRUE)){
+    install.packages("remotes")
+}
+
+## Install SeqNjoy with vignettes
+remotes::install_github("BioinfoGP/SeqNjoy", dependencies=TRUE, build_vignettes = TRUE, bioc_version = BiocManager::version(),ref="development")
+
+## Install SeqNjoy without vignettes
+remotes::install_github("BioinfoGP/SeqNjoy", dependencies=TRUE, bioc_version = BiocManager::version(),ref="development")
 
 ```
+### From Source
 
 Installation from source can also be done using devtools.
 
-   - Download the gzipped package source code SeqNjoy_0.5.6.tar.gz available at [BioinfoGP’s GitHub repository](https://github.com/BioinfoGP/SeqNjoy).
+   - Download the latest gzipped package source code SeqNjoy_0.5.X.tar.gz available at [BioinfoGP’s GitHub repository](https://github.com/BioinfoGP/SeqNjoy).
    - Open R.
 
 ```{r, eval=FALSE}
@@ -125,7 +197,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE)){
 
 # Create a temporary directory and extract the package contents
 d <- tempdir()
-untar("SeqNjoy_0.5.6.tar.gz", exdir=d)
+untar("SeqNjoy_0.5.X.tar.gz", exdir=d)
 
 # Install SeqNjoy
 devtools::install(file.path(d, "SeqNjoy"), dependencies=TRUE, repos=BiocManager::repositories())
@@ -144,19 +216,18 @@ Launch the application. The browser will automatically start.
 SeqNjoy()
 ```
 
-
 ## How to use SeqNjoy?
 
-SeqNjoy includes vignettes with detailed help intructions and a Quick Guide.
-To access the vignettes, please use:
+SeqNjoy provides detailed documentation and a Quick Guide to help you get started. 
+You can access the vignettes directly in R using the following commands:
 
 ```R
 vignette('SeqNjoy')
 vignette('SeqNjoy_Tutorial')
 vignette('SeqNjoy_QuickGuide')
 ```
-
-Additional information will be available at [BioinfoGP's website](https://bioinfogp.cnb.csic.es/tools/seqnjoy)
+These resources are also available through the About menu within the application 
+and online at [BioinfoGP's website](https://bioinfogp.cnb.csic.es/tools/seqnjoy), 
 
 ## Authors
 

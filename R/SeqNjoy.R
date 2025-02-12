@@ -9,6 +9,7 @@
 #' @importFrom BiocIO export import
 #' @importFrom DESeq2 DESeq DESeqDataSetFromHTSeqCount results
 #' @importFrom dplyr group_by left_join relocate summarise
+#' @importFrom dplyr mutate arrange
 #' @importFrom edgeR estimateCommonDisp estimateTagwiseDisp 
 #' @importFrom edgeR exactTest readDGE topTags
 #' @importFrom fs dir_delete file_delete file_exists file_move path_home
@@ -21,8 +22,8 @@
 #' @importFrom Rsubread align buildindex featureCounts removeDupReads
 #' @importFrom shinyjs runjs
 #' @importFrom shinyFiles getVolumes parseDirPath shinyDirChoose
-#' @importFrom ShortRead countFastq
-#' @importFrom tools file_ext file_path_sans_ext md5sum
+#' @importFrom ShortRead countFastq readFastq sread width
+#' @importFrom tools file_ext file_path_sans_ext md5sum toTitleCase
 #' @importFrom zip zipr zipr_append
 #' @importFrom cli cli_alert_info cli_end cli_h2 cli_par cli_text cli_ul
 #' @importFrom httpuv decodeURIComponent startServer stopServer 
@@ -37,6 +38,11 @@
 #' @importFrom DiagrammeRsvg export_svg
 #' @importFrom rsvg rsvg_png
 #' @importFrom magrittr %>%
+#' @importFrom Rfastp rfastp
+#' @importFrom Rqc rqcQA rqcCycleAverageQualityCalc
+#' @importFrom Rqc rqcCycleQualityBoxCalc rqcReadFrequencyCalc
+#' @importFrom knitr knit opts_chunk
+#' @importFrom markdown markdownToHTML
 #'
 #' @examples
 #' # This example runs only in interactive sessions:

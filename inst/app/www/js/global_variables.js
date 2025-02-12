@@ -24,6 +24,7 @@ const MyNumberFormat = new Intl.NumberFormat('en-US');
 /// Global objects to send data to the Shiny server
 var JSShinyDetails=new Object();
 var AlignmentQueue=new Object();
+var QcQueue=new Object();
 var TrimQueue=new Object();
 var QuantifyQueue=new Object();
 var ExpressionQueue=new Object();
@@ -51,6 +52,8 @@ var genomeSelect=new Array();
 var DownloadGenomeFiles=new Object();
 
 var fastqSelect=new Array();
+var fastqSelect1=new Array();
+var fastqSelect2=new Array();
 var fastaSelect=new Array();
 var bamSelect=new Array();
 var gffSelect=new Array();

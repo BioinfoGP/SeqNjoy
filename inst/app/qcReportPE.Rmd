@@ -1,0 +1,535 @@
+---
+title: Quality report for `r qcData['File Name']` and `r qcData2['File Name']`
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(dplyr)
+library(reshape2)
+knitr::opts_chunk$set(dpi=300)
+```
+
+# Basic statistics
+
+`r knitr::kable(summaryData, align="lrr")`
+
+
+
+# Per base sequence quality boxplot
+
+## Read 1
+
+```{r, echo=FALSE,out.width="100%", fig.width=10,fig.height=5, fig.cap=""}
+# Quality per cycle box plot 
+boxplotData<-rqcData$CycleQualityHist 
+boxplotData$cycle<-as.numeric(boxplotData$cycle)
+maxQuality<-max(DEFAULT_MAXQUALITY,max(boxplotData$ymax))
+plotData_even <- subset(boxplotData, cycle %% 2 == 0)
+plotData_odd <- subset(boxplotData, cycle %% 2 == 1)
+p<-ggplot(boxplotData) +
+  # Draw background of low quality region
+  geom_rect(data=plotData_even, aes(xmin = cycle - 0.5, xmax = cycle + 0.5, ymin = 0,ymax = 20),
+    fill = rgb(1, 0, 0, alpha = 0.2)
+  )+
+  geom_rect(data=plotData_odd, aes(xmin = cycle - 0.5, xmax = cycle + 0.5, ymin = 0,ymax = 20),
+    fill = rgb(1, 0, 0, alpha = 0.5)
+  )+
+  # Draw background of mid quality region
+  geom_rect(data=plotData_even, aes(xmin = cycle - 0.5, xmax = cycle + 0.5, ymin = 20,ymax = 28),
+    fill = rgb(1, 1, 0, alpha = 0.2)
+  )+
+  geom_rect(data=plotData_odd, aes(xmin = cycle - 0.5, xmax = cycle + 0.5, ymin = 20,ymax = 28),
+    fill = rgb(1, 1, 0, alpha = 0.5)
+  )+
+  # Draw background of high quality region
+  geom_rect(data=plotData_even, aes(xmin = cycle - 0.5, xmax = cycle + 0.5, ymin = 28,ymax = maxQuality),
+    fill = rgb(0, 1, 0, alpha = 0.2)
+  )+
+  geom_rect(data=plotData_odd, aes(xmin = cycle - 0.5, xmax = cycle + 0.5, ymin = 28,ymax = maxQuality),
+    fill = rgb(0, 1, 0, alpha = 0.5) 
+  )+
+  # Draw the line across median (REMOVED)
+  #  geom_line(aes(x = cycle, y = middle), color = "blue", linewidth = 1) +
+  # Draw the lower whisker (min to Q1)
+  geom_segment(aes(x = cycle, xend = cycle, y = ymin, yend = lower), 
+               color = "black") +
+  # Draw the lower whisker end at min
+  geom_segment(aes(x = cycle - 0.3, xend = cycle + 0.3, y = ymin, yend = ymin), 
+               color = "black") +
+
+  # Draw the upper whisker (Q3 to max)
+  geom_segment(aes(x = cycle, xend = cycle, y = upper, yend = ymax), 
+               color = "black") +
+  # Draw the upper whisker end at max
+  geom_segment(aes(x = cycle - 0.3, xend = cycle + 0.3, y = ymax, yend = ymax), 
+               color = "black") +
+  # Draw the box (Q1 to Q3)
+  geom_rect(aes(xmin = cycle - 0.3, xmax = cycle + 0.3, ymin = lower, ymax = upper), 
+            fill = "yellow", color = "black") +
+  # Draw the median line
+  geom_segment(aes(x = cycle - 0.3, xend = cycle + 0.3, y = middle, yend = middle), 
+               color = "red", linewidth = 1) +
+  # Draw the line across average
+  geom_line(data=rqcData$ReadQuality,aes(x = as.numeric(cycle), y = quality), color = "blue", linewidth = 0.5) +  
+  # Add labels and theme
+  labs(x = "Cycle", y = "Quality", title = "Per cycle Quality") +
+  theme_classic()+
+#  theme(axis.text.x = element_text(angle = -45))+
+  scale_y_continuous(name="Quality", breaks=seq(0,maxQuality,2), labels=seq(0,maxQuality,2), limits=c(0, maxQuality),expand = c(0, 0))+
+  scale_x_continuous(name="Position in read (bp)", breaks=c(1,seq(5,max(boxplotData$cycle),5)), labels=c(1,seq(5,max(boxplotData$cycle),5)), limits=c(0.5,max(boxplotData$cycle)+0.5),expand = c(0, 0))
+#  scale_x_continuous(name="Position in read (bp)", breaks=1:max(boxplotData$cycle), labels=1:max(boxplotData$cycle), limits=c(0.5,max(boxplotData$cycle)+0.5),expand = c(0, 0))
+  
+print(p)
+```
+
+
+## Read 2
+
+```{r, echo=FALSE,out.width="100%", fig.width=10,fig.height=5, fig.cap=""}
+# Quality per cycle box plot 
+boxplotData<-rqcData2$CycleQualityHist 
+boxplotData$cycle<-as.numeric(boxplotData$cycle)
+maxQuality<-max(DEFAULT_MAXQUALITY,max(boxplotData$ymax))
+plotData_even <- subset(boxplotData, cycle %% 2 == 0)
+plotData_odd <- subset(boxplotData, cycle %% 2 == 1)
+p<-ggplot(boxplotData) +
+  # Draw background of low quality region
+  geom_rect(data=plotData_even, aes(xmin = cycle - 0.5, xmax = cycle + 0.5, ymin = 0,ymax = 20),
+    fill = rgb(1, 0, 0, alpha = 0.2)
+  )+
+  geom_rect(data=plotData_odd, aes(xmin = cycle - 0.5, xmax = cycle + 0.5, ymin = 0,ymax = 20),
+    fill = rgb(1, 0, 0, alpha = 0.5)
+  )+
+  # Draw background of mid quality region
+  geom_rect(data=plotData_even, aes(xmin = cycle - 0.5, xmax = cycle + 0.5, ymin = 20,ymax = 28),
+    fill = rgb(1, 1, 0, alpha = 0.2)
+  )+
+  geom_rect(data=plotData_odd, aes(xmin = cycle - 0.5, xmax = cycle + 0.5, ymin = 20,ymax = 28),
+    fill = rgb(1, 1, 0, alpha = 0.5)
+  )+
+  # Draw background of high quality region
+  geom_rect(data=plotData_even, aes(xmin = cycle - 0.5, xmax = cycle + 0.5, ymin = 28,ymax = maxQuality),
+    fill = rgb(0, 1, 0, alpha = 0.2)
+  )+
+  geom_rect(data=plotData_odd, aes(xmin = cycle - 0.5, xmax = cycle + 0.5, ymin = 28,ymax = maxQuality),
+    fill = rgb(0, 1, 0, alpha = 0.5) 
+  )+
+  # Draw the line across median (REMOVED)
+  # geom_line(aes(x = cycle, y = middle), color = "blue", linewidth = 1) +
+  # Draw the lower whisker (min to Q1)
+  geom_segment(aes(x = cycle, xend = cycle, y = ymin, yend = lower), 
+               color = "black") +
+  # Draw the lower whisker end at min
+  geom_segment(aes(x = cycle - 0.3, xend = cycle + 0.3, y = ymin, yend = ymin), 
+               color = "black") +
+
+  # Draw the upper whisker (Q3 to max)
+  geom_segment(aes(x = cycle, xend = cycle, y = upper, yend = ymax), 
+               color = "black") +
+  # Draw the upper whisker end at max
+  geom_segment(aes(x = cycle - 0.3, xend = cycle + 0.3, y = ymax, yend = ymax), 
+               color = "black") +
+  # Draw the box (Q1 to Q3)
+  geom_rect(aes(xmin = cycle - 0.3, xmax = cycle + 0.3, ymin = lower, ymax = upper), 
+            fill = "yellow", color = "black") +
+  # Draw the median line
+  geom_segment(aes(x = cycle - 0.3, xend = cycle + 0.3, y = middle, yend = middle), 
+               color = "red", linewidth = 1) +
+  # Draw the line across average
+  geom_line(data=rqcData2$ReadQuality,aes(x = as.numeric(cycle), y = quality), color = "blue", linewidth = 0.5) +  
+  # Add labels and theme
+  labs(x = "Cycle", y = "Quality", title = "Per cycle Quality") +
+  theme_classic()+
+#  theme(axis.text.x = element_text(angle = -45))+
+  scale_y_continuous(name="Quality", breaks=seq(0,maxQuality,2), labels=seq(0,maxQuality,2), limits=c(0, maxQuality),expand = c(0, 0))+
+  scale_x_continuous(name="Position in read (bp)", breaks=c(1,seq(5,max(boxplotData$cycle),5)), labels=c(1,seq(5,max(boxplotData$cycle),5)), limits=c(0.5,max(boxplotData$cycle)+0.5),expand = c(0, 0))
+#  scale_x_continuous(name="Position in read (bp)", breaks=1:max(boxplotData$cycle), labels=1:max(boxplotData$cycle), limits=c(0.5,max(boxplotData$cycle)+0.5),expand = c(0, 0))
+  
+print(p)
+```
+  
+
+
+# Per base sequence content 
+
+## Read 1
+
+```{r, echo=FALSE,out.width="100%", fig.width=10,fig.height=5, fig.cap=""}
+# Nucleotide content per cycle line plot  (before filtering)
+ntContent <- qcData$NucleotideContent %>% select(-c("GC"))
+ntContent$POSITION=seq_along(ntContent$A)
+meltDf<-reshape2::melt(ntContent,id.vars="POSITION", variable.name = "NT", value.name = "PERCENT")
+
+if(showFiltered){  
+
+	# Nucleotide content per cycle line plot  (after filtering)
+	filteredNtContent <- qcData$FilteredNucleotideContent %>% select(-c("GC"))
+	filteredNtContent$POSITION=seq_along(filteredNtContent$A)
+	filteredMeltDf<-reshape2::melt(filteredNtContent,id.vars="POSITION", variable.name = "NT", value.name = "PERCENT")
+
+	meltDf$Filtered="NO"
+	filteredMeltDf$Filtered="YES"
+	combinedDf<-rbind(meltDf,filteredMeltDf)
+} else {
+	combinedDf<-meltDf
+}
+
+maxY<-max(0.5,max(combinedDf$PERCENT))
+rectData<-subset(ntContent, POSITION %% 2 == 1)
+p<-ggplot(data=combinedDf) +
+  geom_rect(data=rectData, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 0,ymax = maxY), fill = rgb(0.7, 0.7, 0.7, alpha = 0.5))+
+  labs(x = "Cycle") +
+  scale_color_manual(name="",breaks = c("A","C","G","T","N"), labels=c("%A","%C","%G","%T","%N"), values=c(A="red",C="blue",G="green",T="black",N="purple"))+
+  theme_classic()+
+  theme(axis.line.x=element_line(linewidth = 0.5, colour = "lightgrey"),axis.line.y.right=element_line(linewidth = 0.5, colour = "lightgrey"),axis.ticks.y.right = element_line(linewidth = 0.5, colour = "lightgrey"),panel.grid.major.y = element_line(linewidth = 0.5, colour = "lightgrey"))+
+  scale_y_continuous(name="Nucleotide content", limits=c(0, maxY),sec.axis = dup_axis(name = NULL, labels = NULL),expand = c(0, 0.001))+
+  scale_x_continuous(name="Position in read (bp)", breaks=c(1,seq(5,max(ntContent$POSITION),5)), labels=c(1,seq(5,max(ntContent$POSITION),5)), limits=c(0.5,max(ntContent$POSITION)+0.5),expand = c(0, 0))
+
+
+if(showFiltered){  
+  p<-p+geom_line(aes(x=POSITION,y=PERCENT, color=NT, linetype=Filtered))
+} else {
+  p<-p+geom_line(aes(x=POSITION,y=PERCENT, color=NT))
+}
+
+
+print(p)
+```
+
+
+
+## Read 2
+
+
+```{r, echo=FALSE,out.width="100%", fig.width=10,fig.height=5, fig.cap=""}
+# Nucleotide content per cycle line plot  (before filtering)
+ntContent <- qcData2$NucleotideContent %>% select(-c("GC"))
+ntContent$POSITION=seq_along(ntContent$A)
+meltDf<-reshape2::melt(ntContent,id.vars="POSITION", variable.name = "NT", value.name = "PERCENT")
+
+if(showFiltered){
+	# Nucleotide content per cycle line plot  (after filtering)
+	filteredNtContent <- qcData2$FilteredNucleotideContent %>% select(-c("GC"))
+	filteredNtContent$POSITION=seq_along(filteredNtContent$A)
+	filteredMeltDf<-reshape2::melt(filteredNtContent,id.vars="POSITION", variable.name = "NT", value.name = "PERCENT")
+
+	meltDf$Filtered="NO"
+	filteredMeltDf$Filtered="YES"
+	combinedDf<-rbind(meltDf,filteredMeltDf)
+} else {
+	combinedDf<-meltDf
+}
+
+maxY<-max(0.5,max(combinedDf$PERCENT))
+rectData<-subset(ntContent, POSITION %% 2 == 1)
+p<-ggplot(data=combinedDf) +
+  geom_rect(data=rectData, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 0,ymax = maxY), fill = rgb(0.7, 0.7, 0.7, alpha = 0.5))+
+  labs(x = "Cycle") +
+  scale_color_manual(breaks = c("A","C","G","T","N"), labels=c("%A","%C","%G","%T","%N"), values=c(A="red",C="blue",G="green",T="black",N="purple"))+
+  theme_classic()+
+  theme(axis.line.x=element_line(linewidth = 0.5, colour = "lightgrey"),axis.line.y.right=element_line(linewidth = 0.5, colour = "lightgrey"),axis.ticks.y.right = element_line(linewidth = 0.5, colour = "lightgrey"),panel.grid.major.y = element_line(linewidth = 0.5, colour = "lightgrey"))+
+  scale_y_continuous(name="Nucleotide content", limits=c(0, maxY),sec.axis = dup_axis(name = NULL, labels = NULL),expand = c(0, 0.001))+
+  scale_x_continuous(name="Position in read (bp)", breaks=c(1,seq(5,max(ntContent$POSITION),5)), labels=c(1,seq(5,max(ntContent$POSITION),5)), limits=c(0.5,max(ntContent$POSITION)+0.5),expand = c(0, 0))
+
+if(showFiltered){  
+  p<-p+geom_line(aes(x=POSITION,y=PERCENT, color=NT, linetype=Filtered))
+} else {
+  p<-p+geom_line(aes(x=POSITION,y=PERCENT, color=NT))
+}
+
+print(p)
+```
+
+# Sequence Duplication Levels
+
+## Read 1
+
+```{r, echo=FALSE,out.width="100%", fig.width=10,fig.height=5, fig.cap=""}
+# Duplication rate
+duplicationBreaks<-c(1:9,10,50,100,500,1000,5000,10000,Inf)
+dupIntervals<-data.frame(INTERVAL=cut(duplicationBreaks[-length(duplicationBreaks)], breaks = duplicationBreaks, right = FALSE))
+duplicationNames<-c(as.character(1:9),">10",">50",">100",">500",">1k",">5k",">10k")
+duplicationNames<-factor(duplicationNames,levels = unique(duplicationNames))
+plotData<-rqcData$DuplicationFrequencies
+dupRateData<-plotData %>%
+  mutate(INTERVAL = cut(occurrence, breaks = duplicationBreaks, right = FALSE)) %>%
+  group_by(INTERVAL) %>%
+  summarise(TOTAL = sum(percentage),DEDUPLICATED = sum(deduplicated))
+
+dupRateData<-dupIntervals %>% dplyr::left_join(dupRateData,by=c("INTERVAL")) %>% mutate(TOTAL = ifelse(is.na(TOTAL), 0, TOTAL)) %>% mutate(DEDUPLICATED = ifelse(is.na(DEDUPLICATED), 0, DEDUPLICATED))
+
+meltDf<-reshape2::melt(dupRateData, id.vars="INTERVAL", variable.name = "SEQUENCES", value.name = "PERCENTAGE")
+oddColumns <-dupRateData[c(TRUE,FALSE), ]
+
+p<-ggplot(data=meltDf,aes(x=INTERVAL,y=PERCENTAGE,color=SEQUENCES, group=SEQUENCES)) +
+  geom_line(linewidth=1)+  
+  geom_tile(data=oddColumns, aes(x = INTERVAL, y = 50, width=1, height=100),fill = rgb(0.7, 0.7, 0.7, alpha = 0.5), inherit.aes = FALSE)+  
+  geom_line(linewidth=1)+    
+  labs(title = paste0("Percent of sequences remaining if deduplicated: ",rqcData$DuplicationRate ,"%")) +
+  scale_x_discrete(name="Number of repetitions", breaks=levels(meltDf$INTERVAL), labels=duplicationNames,expand = c(0, 0.5))+
+  scale_y_continuous(name="Percentage", breaks=seq(0,100,10), labels=seq(0,100,10),sec.axis = dup_axis(name = NULL, labels = NULL),expand = c(0, 0))  +
+  scale_color_manual(name="", breaks=levels(meltDf$SEQUENCES), labels=levels(meltDf$SEQUENCES), values=c(TOTAL="blue",DEDUPLICATED="red"))  +
+  guides(colour = guide_legend(position = "inside"))+
+  theme_classic()+
+  theme(axis.line.x=element_blank(),axis.line.y.right=element_line(linewidth = 0.5, colour = "lightgrey"),axis.ticks.y.right = element_line(linewidth = 0.5, colour = "lightgrey"),panel.grid.major.y = element_line(linewidth = 0.5, colour = "lightgrey"),legend.position.inside = c(0.85, 0.9),legend.background = element_blank(), legend.key = element_blank())
+
+  
+print(p)
+
+```
+
+
+## Read 2
+
+```{r, echo=FALSE,out.width="100%", fig.width=10,fig.height=5, fig.cap=""}
+# Duplication rate
+duplicationBreaks<-c(1:9,10,50,100,500,1000,5000,10000,Inf)
+dupIntervals<-data.frame(INTERVAL=cut(duplicationBreaks[-length(duplicationBreaks)], breaks = duplicationBreaks, right = FALSE))
+duplicationNames<-c(as.character(1:9),">10",">50",">100",">500",">1k",">5k",">10k")
+duplicationNames<-factor(duplicationNames,levels = unique(duplicationNames))
+plotData<-rqcData2$DuplicationFrequencies
+dupRateData<-plotData %>%
+  mutate(INTERVAL = cut(occurrence, breaks = duplicationBreaks, right = FALSE)) %>%
+  group_by(INTERVAL) %>%
+  summarise(TOTAL = sum(percentage),DEDUPLICATED = sum(deduplicated))
+
+dupRateData<-dupIntervals %>% dplyr::left_join(dupRateData,by=c("INTERVAL")) %>% mutate(TOTAL = ifelse(is.na(TOTAL), 0, TOTAL)) %>% mutate(DEDUPLICATED = ifelse(is.na(DEDUPLICATED), 0, DEDUPLICATED))
+
+meltDf<-reshape2::melt(dupRateData, id.vars="INTERVAL", variable.name = "SEQUENCES", value.name = "PERCENTAGE")
+oddColumns <-dupRateData[c(TRUE,FALSE), ]
+
+p<-ggplot(data=meltDf,aes(x=INTERVAL,y=PERCENTAGE,color=SEQUENCES, group=SEQUENCES)) +
+  geom_line(linewidth=1)+  
+  geom_tile(data=oddColumns, aes(x = INTERVAL, y = 50, width=1, height=100),fill = rgb(0.7, 0.7, 0.7, alpha = 0.5), inherit.aes = FALSE)+  
+  geom_line(linewidth=1)+    
+  labs(title = paste0("Percent of sequences remaining if deduplicated: ",rqcData2$DuplicationRate ,"%")) +
+  scale_x_discrete(name="Number of repetitions", breaks=levels(meltDf$INTERVAL), labels=duplicationNames,expand = c(0, 0.5))+
+  scale_y_continuous(name="Percentage", breaks=seq(0,100,10), labels=seq(0,100,10),sec.axis = dup_axis(name = NULL, labels = NULL),expand = c(0, 0))  +
+  scale_color_manual(name="", breaks=levels(meltDf$SEQUENCES), labels=levels(meltDf$SEQUENCES), values=c(TOTAL="blue",DEDUPLICATED="red"))  +
+  guides(colour = guide_legend(position = "inside"))+
+  theme_classic()+
+  theme(axis.line.x=element_blank(),axis.line.y.right=element_line(linewidth = 0.5, colour = "lightgrey"),axis.ticks.y.right = element_line(linewidth = 0.5, colour = "lightgrey"),panel.grid.major.y = element_line(linewidth = 0.5, colour = "lightgrey"),legend.position.inside = c(0.85, 0.9),legend.background = element_blank(), legend.key = element_blank())
+
+  
+print(p)
+```
+
+
+# Overrepresented sequences 
+
+## Read 1
+
+`r if(overrepresented1) knitr::kable(overrepresentedDataSummary, align="lrr")  else "No overrepresented sequences found in read 1"`
+
+## Read 2
+
+`r if(overrepresented2) knitr::kable(overrepresentedDataSummary2, align="lrr")  else "No overrepresented sequences found in read 2"`
+
+# Adapter content
+
+## Read 1
+
+```{r,eval=adapter1, echo=FALSE,out.width="100%", fig.width=10,fig.height=5, fig.cap=""}
+# Cumulative percentage of occurrences of the adapter at each position: 
+if(adapter1){
+	plotData<-data.frame(POSITION=seq_along(adapter_cumsum),CUMSUM=adapter_cumsum)
+	rectData<-subset(plotData, POSITION %% 2 == 1)
+	maxY<-100
+	p<-ggplot(data=plotData) +
+	  geom_rect(data=rectData, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 0,ymax = maxY), fill = rgb(0.7, 0.7, 0.7, alpha = 0.5))+
+	  geom_line(aes(x=POSITION,y=CUMSUM))+
+	  labs(title = paste0("Percentage of reads with adapter: ",round(seqAdapterPercent*100,2),"%")) +
+	  theme_classic()+
+	  theme(axis.line.x=element_line(linewidth = 0.5, colour = "lightgrey"),axis.line.y.right=element_line(linewidth = 0.5, colour = "lightgrey"),axis.ticks.y.right = element_line(linewidth = 0.5, colour = "lightgrey"),panel.grid.major.y = element_line(linewidth = 0.5, colour = "lightgrey"))+
+	  scale_y_continuous(name="Cumulative percent (adapter found)", breaks=seq(0,maxY,10), limits=c(0, maxY),sec.axis = dup_axis(name = NULL, labels = NULL),expand = c(0, 0.1))+
+	  scale_x_continuous(name="Position in read (bp)", breaks=c(1,seq(5,max(plotData$POSITION),5)), labels=c(1,seq(5,max(plotData$POSITION),5)), limits=c(0.5,max(plotData$POSITION)+0.5),expand = c(0, 0))
+
+
+	print(p)
+}
+```
+`r if(adapter1) knitr::kable(AdapterStats, align="lr") else "Adapter not found"`
+
+
+## Read 2
+
+```{r,eval=adapter2, echo=FALSE, out.width="100%", fig.width=10,fig.height=5, fig.cap=""}
+# Cumulative percentage of occurrences of the adapter at each position: 
+if(adapter2){
+	plotData<-data.frame(POSITION=seq_along(adapter_cumsum2),CUMSUM=adapter_cumsum2)
+	rectData<-subset(plotData, POSITION %% 2 == 1)
+	maxY<-100
+	p<-ggplot(data=plotData) +
+	  geom_rect(data=rectData, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 0,ymax = maxY), fill = rgb(0.7, 0.7, 0.7, alpha = 0.5))+
+	  geom_line(aes(x=POSITION,y=CUMSUM))+
+	  labs(title = paste0("Percentage of reads with adapter: ",round(seqAdapterPercent*100,2),"%")) +
+	  theme_classic()+
+	  theme(axis.line.x=element_line(linewidth = 0.5, colour = "lightgrey"),axis.line.y.right=element_line(linewidth = 0.5, colour = "lightgrey"),axis.ticks.y.right = element_line(linewidth = 0.5, colour = "lightgrey"),panel.grid.major.y = element_line(linewidth = 0.5, colour = "lightgrey"))+
+	  scale_y_continuous(name="Cumulative percent (adapter found)", breaks=seq(0,maxY,10), limits=c(0, maxY),sec.axis = dup_axis(name = NULL, labels = NULL),expand = c(0, 0.1))+
+	  scale_x_continuous(name="Position in read (bp)", breaks=c(1,seq(5,max(plotData$POSITION),5)), labels=c(1,seq(5,max(plotData$POSITION),5)), limits=c(0.5,max(plotData$POSITION)+0.5),expand = c(0, 0))
+
+
+	print(p)
+}
+```
+
+`r if(adapter2) knitr::kable(AdapterStats2, align="lr") else "Adapter not found"`
+
+
+```{r, insersize-heading, eval=insertSizeDetected,echo=FALSE}
+	if(insertSizeDetected){
+		knitr::asis_output("# Insert size estimation")
+	}
+```
+
+
+```{r,eval=insertSizeDetected, echo=FALSE, out.width="100%", fig.width=10,fig.height=5, fig.cap=""}
+if(insertSizeDetected){
+	rectData<-data.frame(FROM=seq(0, max(insertSizeData$Size), by = 5))
+	rectData$TO<-pmin(rectData$FROM + 5, max(insertSizeData$Size))    
+	rectData<-rectData[seq(1, nrow(rectData), by = 2), ]
+
+	p<-ggplot(insertSizeData, aes(x=Size, y=Frequency)) +
+	  geom_rect(data=rectData, aes(xmin = FROM, xmax = TO, ymin = 0,ymax = max(insertSizeData$Frequency)), fill = rgb(0.7, 0.7, 0.7, alpha = 0.5), inherit.aes = FALSE)+ 
+	  geom_line(color="blue")+
+	  geom_vline(xintercept=insertSizePeak, color = "red", linetype = "dashed", linewidth = 1)+  
+	  theme_classic()+
+	  scale_y_continuous(name="Read Percent", sec.axis = dup_axis(name = NULL, labels = NULL), expand = c(0, 0))+  
+	  scale_x_continuous(name="Insert size", breaks=c(lineTicks), labels=c(lineTicks), sec.axis = dup_axis(name = NULL, labels = NULL),expand = c(0, 0))+   
+	  labs(title = paste0("Insert size distribution (",unknownFreq,"%  reads are of unknown length)")) + 
+	  theme(axis.line.x=element_line(linewidth = 0.5, colour = "lightgrey"),
+		axis.line.y.right=element_line(linewidth = 0.5, colour = "lightgrey"),
+		axis.ticks.y.right = element_line(linewidth = 0.5, colour = "lightgrey"),
+		panel.grid.major.y = element_line(linewidth = 0.5, colour = "lightgrey"),
+		panel.grid.major.x = element_line(linewidth = 0.5, colour = "lightgrey"))+
+	  geom_text(data=as.data.frame(insertSizePeak), aes(x = insertSizePeak, y = insertSizeData[insertSizePeak,]$Frequency/2, label = insertSizePeak), color = "red", vjust = 0.5, hjust = -0.1,size = 4)
+
+	print(p)
+}
+```
+
+
+
+
+
+
+
+
+```{r, filtered-heading, eval=showFiltered,echo=FALSE}
+	if(showFiltered){
+		knitr::asis_output("# Estimated filtering statistics")
+	}
+```
+
+`r if (showFiltered) knitr::kable(filteredData, align="lr")`
+
+
+
+```{r, average-quality-heading, eval=showFiltered,echo=FALSE}
+	if(showFiltered){
+		knitr::asis_output("# Average per base sequence quality")
+	}
+```	
+
+```{r, average-quality-heading1, eval=showFiltered,echo=FALSE}
+	if(showFiltered){
+		knitr::asis_output("## Read 1")
+	}
+```	
+
+
+
+```{r,eval=showFiltered,echo=FALSE,out.width="100%", fig.width=10,fig.height=5, fig.cap=""}
+if(showFiltered){
+	# Per cycle Quality (before and after filtering)
+	meltDf<-reshape2::melt(qcData$Quality,id.vars="POSITION", variable.name = "GROUP", value.name = "QUALITY")
+	maxQuality<-max(DEFAULT_MAXQUALITY,max(meltDf$QUALITY))
+	plotData_even <- subset(meltDf, POSITION %% 2 == 0)
+	plotData_odd <- subset(meltDf, POSITION %% 2 == 1)
+	p<-ggplot(data=meltDf, aes(x=POSITION,y=QUALITY, linetype=GROUP)) +
+	  # Draw background of low quality region
+	  geom_rect(data=plotData_even, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 0,ymax = 20),
+	    fill = rgb(1, 0, 0, alpha = 0.2),color = NA
+	  )+
+	  geom_rect(data=plotData_odd, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 0,ymax = 20),
+	    fill = rgb(1, 0, 0, alpha = 0.5),color = NA
+	  )+
+	  # Draw background of mid quality region
+	  geom_rect(data=plotData_even, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 20,ymax = 28),
+	    fill = rgb(1, 1, 0, alpha = 0.2),color = NA
+	  )+
+	  geom_rect(data=plotData_odd, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 20,ymax = 28),
+	    fill = rgb(1, 1, 0, alpha = 0.5),color = NA
+	  )+
+	  # Draw background of high quality region
+	  geom_rect(data=plotData_even, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 28,ymax = maxQuality),
+	    fill = rgb(0, 1, 0, alpha = 0.2),color = NA
+	  )+
+	  geom_rect(data=plotData_odd, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 28,ymax = maxQuality),
+	    fill = rgb(0, 1, 0, alpha = 0.5),color = NA
+	  )+  
+	  geom_line()+
+	  #labs(x = "Position", y = "Average Quality", title = "Per cycle Quality") +
+	  labs(title = "Per cycle Quality") +
+	  #ylim(0, maxQuality)+  
+	  theme_classic()+
+	  guides(linetype=guide_legend(title="Filtered",override.aes=list(fill=NA)))+
+	  theme(legend.background=element_blank())+
+	  scale_y_continuous(name="Quality", breaks=seq(0,maxQuality,2), labels=seq(0,maxQuality,2), limits=c(0, maxQuality),expand = c(0, 0))+
+	#  scale_x_continuous(name="Position in read (bp)", breaks=1:max(meltDf$POSITION), labels=1:max(meltDf$POSITION), limits=c(0.5,max(meltDf$POSITION)+0.5),expand = c(0, 0))
+	  scale_x_continuous(name="Position in read (bp)", breaks=c(1,seq(5,max(meltDf$POSITION),5)), labels=c(1,seq(5,max(meltDf$POSITION),5)), limits=c(0.5,max(meltDf$POSITION)+0.5),expand = c(0, 0)) 
+
+	print(p)
+}
+```
+
+```{r, average-quality-heading2, eval=showFiltered,echo=FALSE}
+	if(showFiltered){
+		knitr::asis_output("## Read 2")
+	}
+```	
+
+
+```{r,eval=showFiltered,echo=FALSE,out.width="100%", fig.width=10,fig.height=5, fig.cap=""}
+if(showFiltered){
+	# Per cycle Quality (before and after filtering)
+	meltDf<-reshape2::melt(qcData2$Quality,id.vars="POSITION", variable.name = "GROUP", value.name = "QUALITY")
+	maxQuality<-max(DEFAULT_MAXQUALITY,max(meltDf$QUALITY))
+	plotData_even <- subset(meltDf, POSITION %% 2 == 0)
+	plotData_odd <- subset(meltDf, POSITION %% 2 == 1)
+	p<-ggplot(data=meltDf, aes(x=POSITION,y=QUALITY, linetype=GROUP)) +
+	  # Draw background of low quality region
+	  geom_rect(data=plotData_even, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 0,ymax = 20),
+	    fill = rgb(1, 0, 0, alpha = 0.2),color = NA
+	  )+
+	  geom_rect(data=plotData_odd, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 0,ymax = 20),
+	    fill = rgb(1, 0, 0, alpha = 0.5),color = NA
+	  )+
+	  # Draw background of mid quality region
+	  geom_rect(data=plotData_even, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 20,ymax = 28),
+	    fill = rgb(1, 1, 0, alpha = 0.2),color = NA
+	  )+
+	  geom_rect(data=plotData_odd, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 20,ymax = 28),
+	    fill = rgb(1, 1, 0, alpha = 0.5),color = NA
+	  )+
+	  # Draw background of high quality region
+	  geom_rect(data=plotData_even, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 28,ymax = maxQuality),
+	    fill = rgb(0, 1, 0, alpha = 0.2),color = NA
+	  )+
+	  geom_rect(data=plotData_odd, aes(xmin = POSITION - 0.5, xmax = POSITION + 0.5, ymin = 28,ymax = maxQuality),
+	    fill = rgb(0, 1, 0, alpha = 0.5),color = NA
+	  )+  
+	  geom_line()+
+	  #labs(x = "Position", y = "Average Quality", title = "Per cycle Quality") +
+	  labs(title = "Per cycle Quality") +
+	  #ylim(0, maxQuality)+  
+	  theme_classic()+
+	  guides(linetype=guide_legend(title="Filtered",override.aes=list(fill=NA)))+
+	  theme(legend.background=element_blank())+
+	  scale_y_continuous(name="Quality", breaks=seq(0,maxQuality,2), labels=seq(0,maxQuality,2), limits=c(0, maxQuality),expand = c(0, 0))+
+	#  scale_x_continuous(name="Position in read (bp)", breaks=1:max(meltDf$POSITION), labels=1:max(meltDf$POSITION), limits=c(0.5,max(meltDf$POSITION)+0.5),expand = c(0, 0))
+	  scale_x_continuous(name="Position in read (bp)", breaks=c(1,seq(5,max(meltDf$POSITION),5)), labels=c(1,seq(5,max(meltDf$POSITION),5)), limits=c(0.5,max(meltDf$POSITION)+0.5),expand = c(0, 0)) 
+
+	print(p)
+}
+```

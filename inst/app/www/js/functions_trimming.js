@@ -1,7 +1,8 @@
 'use strict';
 
-function renderTrimTab(){
-	fastqSelect='';
+function renderTrimTab(option){
+	fastqSelect1=''
+	fastqSelect2=''
 	fastaSelect='';
 	for (var key in DataTable) {
 		if (DataTable.hasOwnProperty(key)) {
@@ -11,11 +12,21 @@ function renderTrimTab(){
 				if(myObj["hidden"][i]=="NO"){				
 					var color="#0000FF";
 					if(myObj["ftype"][i]=="fastq"){
-						fastqSelect+='<option value="'+myObj["datapath"][i]+'" style="color:#000000;">'+myObj["fname"][i]+'</option>';
+						var viewFilesInfo=parseData(myObj["viewfiles"][i],"@@",";;")
+						if(viewFilesInfo.hasOwnProperty("PAIR")){
+							if(viewFilesInfo["PAIR"] ==2){
+								fastqSelect2+='<option value="'+myObj["datapath"][i]+'" style="color:#000000;">'+myObj["fname"][i]+'</option>';
+							} else {
+								fastqSelect1+='<option value="'+myObj["datapath"][i]+'" style="color:#000000;">'+myObj["fname"][i]+'</option>';
+							}
+							
+						}
+						else{
+							fastqSelect1+='<option value="'+myObj["datapath"][i]+'" style="color:#000000;">'+myObj["fname"][i]+'</option>';
+							fastqSelect2+='<option value="'+myObj["datapath"][i]+'" style="color:#000000;">'+myObj["fname"][i]+'</option>';
+						}
+						
 					}
-//					if(myObj["ftype"][i]=="fasta"){
-//						fastaSelect+='<option value="'+myObj["datapath"][i]+'" style="color:#000000;">'+myObj["fname"][i]+'</option>';
-//					}
 				}
 			}
 		}
@@ -26,7 +37,8 @@ function renderTrimTab(){
 		<table cellpadding="0px" cellspacing="0px" border="0px" style="margin:1rem;">
 			<tr>
 				<td class="medipadded" colspan=2>
-					<div class="nowrap" style="display:inline;margin:1rem;margin-left:0rem;">Output Suffix: <input type="textbox" id="TRIM_OUT_SUFFIX" placeholder="" value="" oninput="this.value=this.value.replace(/[^a-z\.A-Z0-9\-\+\(\)_ ]/g,'');checkTrimmingForm();"></div>
+					<input type="hidden" name="trimprogram" id="trimprogram" value="`+option+`"/>
+					<div class="nowrap" style="display:inline;margin:1rem;margin-left:0rem;">Output Prefix: <input type="textbox" id="TRIM_OUT_PREFIX" placeholder="" value="" oninput="this.value=this.value.replace(/[^a-z\.A-Z0-9\-\+\(\)_ ]/g,'');checkTrimmingForm();"></div>
 					<div class="nowrap" style="display:inline;opacity:0;">
 						Genome:
 						<select disabled id="DUMMY" onchange="checkForm();">
@@ -39,18 +51,18 @@ function renderTrimTab(){
 				<td id="trimsQueueTD" class="medipadded" style="height:16rem;">
 				</td>
 				<td class="medipadded" style="height:16rem;">
-					<div class="borderbox h100 medipadded shadow bsilver radius">
+					<div class="borderbox medipadded shadow bsilver radius">
 						<table cellpadding="0px" cellspacing="0px" border="0px" height="100%" style="min-width:16rem;">
 							<tr>
 								<td class="medipadded" style="border-bottom:1px solid #000000;">
 									<b> Function:</b>
-									filterAndTrim (dada2)
+									`+option+`									
 								</td>
 							</tr>
 							<tr>
 								<td class="medipadded top" style="border-top:1px solid #EFEFEF;">
-									<div id="trimming_options" name="trimming_options" class="medipadded" style="height:12rem;overflow-y:auto;">
-									`+populateFunctionOptions("filter_with_filterAndTrim")+`
+									<div id="trimming_options" name="trimming_options" class="medipadded" style="height:12rem;overflow-y:auto;overflow-x:hidden">
+									`+populateFunctionOptions("filter_with_"+option)+`
 									</div>
 								</td>
 							</tr>	
@@ -68,25 +80,25 @@ function renderTrimTab(){
 		</table>
 	</form>`;
 	document.getElementById('TrimFormTable').innerHTML=htmlOut;
-	addTrimRow(fastqSelect);
-	addTrimRow(fastqSelect);
-	addTrimRow(fastqSelect);
-	addTrimRow(fastqSelect);
-	addTrimRow(fastqSelect);
-	addTrimRow(fastqSelect);
-	addTrimRow(fastqSelect);
-	addTrimRow(fastqSelect);
-	addTrimRow(fastqSelect);
-	addTrimRow(fastqSelect);
-	addTrimRow(fastqSelect);
-	addTrimRow(fastqSelect);
-	addTrimRow(fastqSelect);
-	addTrimRow(fastqSelect);
-	addTrimRow(fastqSelect);
-	addTrimRow(fastqSelect);
+	addTrimRow(fastqSelect1,fastqSelect2);
+	addTrimRow(fastqSelect1,fastqSelect2);
+	addTrimRow(fastqSelect1,fastqSelect2);
+	addTrimRow(fastqSelect1,fastqSelect2);
+	addTrimRow(fastqSelect1,fastqSelect2);
+	addTrimRow(fastqSelect1,fastqSelect2);
+	addTrimRow(fastqSelect1,fastqSelect2);
+	addTrimRow(fastqSelect1,fastqSelect2);
+	addTrimRow(fastqSelect1,fastqSelect2);
+	addTrimRow(fastqSelect1,fastqSelect2);
+	addTrimRow(fastqSelect1,fastqSelect2);
+	addTrimRow(fastqSelect1,fastqSelect2);
+	addTrimRow(fastqSelect1,fastqSelect2);
+	addTrimRow(fastqSelect1,fastqSelect2);
+	addTrimRow(fastqSelect1,fastqSelect2);
+	addTrimRow(fastqSelect1,fastqSelect2);
 }
 
-//function removeTrimRow(n, fastqSelect) {
+//function removeTrimRow(n, fastqSelect1,fastqSelect2) {
 //	var myTrims=new Array();
 //	var t=0;
 //	var tt=0;
@@ -99,11 +111,11 @@ function renderTrimTab(){
 //		}
 //		t++;
 //	}
-//	populateTrimQueueTD(myTrims, fastqSelect);
+//	populateTrimQueueTD(myTrims, fastqSelect1,fastqSelect2);
 //	if (tt<2) { _$("removeTrim_0").disabled=true; }
 //}
 
-function addTrimRow(fastqSelect) {
+function addTrimRow(fastqSelect1,fastqSelect2) {
 	var myTrims=new Array();
 	var t=0;
 	while (_$("ToTrimFQ1_"+t)) {
@@ -116,10 +128,10 @@ function addTrimRow(fastqSelect) {
 	myTrims[t]=new Array();
 	myTrims[t].fq1=NOT_SELECTED;
 	myTrims[t].fq2=NOT_SELECTED;
-	populateTrimQueueTD(myTrims, fastqSelect);
+	populateTrimQueueTD(myTrims, fastqSelect1,fastqSelect2);
 }
 
-function populateTrimQueueTD(myTrims, fastqSelect) {
+function populateTrimQueueTD(myTrims, fastqSelect1,fastqSelect2) {
 	var html=`<table cellpadding="0px" cellspacing="0px" border="0px" class="borderbox">
 	<tr>
 		<td class="medipadded center borderbox" id="fastq1_trim_HTD">Fastq 1</td>
@@ -134,22 +146,22 @@ function populateTrimQueueTD(myTrims, fastqSelect) {
 		</tr>
 `;
 
-	if (fastqSelect=="") { var isdisabled="disabled"; } else { var isdisabled=""; }
+	if (fastqSelect1=="") { var isdisabled="disabled"; } else { var isdisabled=""; }
 
 	for (var t=0;t<myTrims.length;t++) {
 		html+=`
 		<tr>
 			<td class="tinypadded">
-				<select `+isdisabled+` id="ToTrimFQ1_`+t+`" class="w100" style="min-width:16rem;" onchange="checkTrimmingForm();">
+				<select `+isdisabled+` id="ToTrimFQ1_`+t+`" class="w100" style="min-width:16rem;" onchange="autoPairSelection('ToTrimFQ1_`+t+`','ToTrimFQ2_`+t+`',1);checkTrimmingForm();">
 					<option value="`+NOT_SELECTED+`" style="color:#000000;">Select FASTQ</option>
-					`+fastqSelect+`
+					`+fastqSelect1+`
 				</select>
 				<input type="hidden" id="TrimmedFQ1_`+t+`" value="`+NOT_SELECTED+`">
 			</td>
 			<td class="tinypadded">
-				<select id="ToTrimFQ2_`+t+`" class="w100" style="min-width:16rem;" onchange="checkTrimmingForm();">
+				<select id="ToTrimFQ2_`+t+`" class="w100" style="min-width:16rem;" onchange="autoPairSelection('ToTrimFQ1_`+t+`', 'ToTrimFQ2_`+t+`', 2);checkTrimmingForm();">
 					<option value="`+NOT_SELECTED+`" style="color:#000000;">Select FASTQ (paired)</option>
-					`+fastqSelect+`
+					`+fastqSelect2+`
 				</select>
 				<input type="hidden" id="TrimmedFQ2_`+t+`" value="`+NOT_SELECTED+`">
 			</td>
@@ -175,8 +187,9 @@ function launchTrimQueue() {
 	CURRENT_TASKS=new Array();
 	CURRENT_TASK_STEP=0;
 	CURRENT_TASK_SAMPLE=0;
+	var TRIMFUN=_$("trimprogram").value;
 
-	var common_params_trimmer=getCommonParams(PARAMS["filter_with_filterAndTrim"]);
+	var common_params_trimmer=getCommonParams(PARAMS["filter_with_"+TRIMFUN]);
 
 	var t=0;
 	while (_$("ToTrimFQ1_"+t)) {
@@ -186,7 +199,7 @@ function launchTrimQueue() {
 			var nn=0;
 
 			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]=new Object();
-			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["command"]="filter_with_filterAndTrim";
+			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["command"]="filter_with_"+TRIMFUN;
 			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]=new Object();
 			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]["input1"]=basename(_$("ToTrimFQ1_"+t).value);
 			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]["input2"]=basename(_$("ToTrimFQ2_"+t).value);
@@ -200,7 +213,8 @@ function launchTrimQueue() {
 			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["command"]="initialize_FASTQ_file";
 			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]=new Object();
 			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]["fname"]=basename(_$("TrimmedFQ1_"+t).value);		
-			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]["dependencies"]=_$("ToTrimFQ1_"+t).value;		
+			// CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]["dependencies"]=_$("ToTrimFQ1_"+t).value;		
+			// CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]["viewfiles"]=basename(_$("TrimmedFQ1_"+t).value)+".html";
 			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["bottomMessage"]="Initializing FASTQ...";
 			nn++;
 
@@ -211,13 +225,21 @@ function launchTrimQueue() {
 			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["bottomMessage"]="Creating accessory files for FASTQ...";
 			nn++;
 
+			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]=new Object();
+			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["command"]="add_FASTQ_to_project";
+			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]=new Object();
+			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]["fname"]=basename(_$("TrimmedFQ1_"+t).value);		
+			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["bottomMessage"]="Adding FASTQ file to project...";
+			nn++;
+
 			
 			if (_$("TrimmedFQ2_"+t).value!==NOT_SELECTED) {
 				CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]=new Object();
 				CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["command"]="initialize_FASTQ_file";
 				CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]=new Object();
 				CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]["fname"]=basename(_$("TrimmedFQ2_"+t).value);		
-				CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]["dependencies"]=_$("ToTrimFQ2_"+t).value;		
+				// CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]["dependencies"]=_$("ToTrimFQ2_"+t).value;		
+				// CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]["viewfiles"]=basename(_$("TrimmedFQ2_"+t).value)+".html";	
 				CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["bottomMessage"]="Initializing mate FASTQ...";
 				nn++;
 
@@ -229,12 +251,6 @@ function launchTrimQueue() {
 				nn++;
 			}
 			
-			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]=new Object();
-			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["command"]="add_FASTQ_to_project";
-			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]=new Object();
-			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["data"]["fname"]=basename(_$("TrimmedFQ1_"+t).value);		
-			CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]["bottomMessage"]="Adding FASTQ file to project...";
-			nn++;
 
 			if (_$("TrimmedFQ2_"+t).value!==NOT_SELECTED) {
 				CURRENT_TASKS[CURRENT_TASK_SAMPLE][nn]=new Object();
@@ -286,26 +302,27 @@ function launchTrimQueue() {
 
 
 function checkTrimmingForm() {
-	_$("TRIM_OUT_SUFFIX").className="ValidInput";
+	_$("TRIM_OUT_PREFIX").className="ValidInput";
+	var TRIMFUN=_$("trimprogram").value;
 	var errors=0;
 	var inputfiles=0;
 	var duplicatedfiles=0;
-	for (var o=0;o<PARAMS['filter_with_filterAndTrim']['ID'].length;o++) {
-		var Editable=PARAMS['filter_with_filterAndTrim']["Editable"][o];
+	for (var o=0;o<PARAMS['filter_with_'+TRIMFUN]['ID'].length;o++) {
+		var Editable=PARAMS['filter_with_'+TRIMFUN]["Editable"][o];
 		if (Editable=="YES") {
-			var Caption1=PARAMS['filter_with_filterAndTrim']["Caption1"][o];
-			var Caption2=PARAMS['filter_with_filterAndTrim']["Caption2"][o];
-			var Default=PARAMS['filter_with_filterAndTrim']["Default"][o];
-			var ID=PARAMS['filter_with_filterAndTrim']["ID"][o];
-			var Type=PARAMS['filter_with_filterAndTrim']["Type"][o];
-			var Range=PARAMS['filter_with_filterAndTrim']["Range"][o];	
+			var Caption1=PARAMS['filter_with_'+TRIMFUN]["Caption1"][o];
+			var Caption2=PARAMS['filter_with_'+TRIMFUN]["Caption2"][o];
+			var Default=PARAMS['filter_with_'+TRIMFUN]["Default"][o];
+			var ID=PARAMS['filter_with_'+TRIMFUN]["ID"][o];
+			var Type=PARAMS['filter_with_'+TRIMFUN]["Type"][o];
+			var Range=PARAMS['filter_with_'+TRIMFUN]["Range"][o];	
 			if (!validParam(ID, Type, Range)) { errors++;  }
 		}
 	}
 	
-	if (!_$("TRIM_OUT_SUFFIX").value.match(/\w/)) {
+	if (!_$("TRIM_OUT_PREFIX").value.match(/\w/)) {
 		errors++;
-		_$("TRIM_OUT_SUFFIX").className="WrongInput";
+		_$("TRIM_OUT_PREFIX").className="WrongInput";
 	}
 	
 	var t=0;
@@ -333,7 +350,7 @@ function checkTrimmingForm() {
 				var sample=basename(_$("ToTrimFQ1_"+t).value).replace(/(\.[^\.]+)$/,"");
 				var extension=basename(_$("ToTrimFQ1_"+t).value).replace(/^.+\.([^\.]+)$/,"$1");
 			}
-			var out1=dirname(_$("ToTrimFQ1_"+t).value)+sample+"."+_$("TRIM_OUT_SUFFIX").value+"."+extension+".gz";
+			var out1=dirname(_$("ToTrimFQ1_"+t).value)+_$("TRIM_OUT_PREFIX").value+"_"+sample+"."+extension+".gz";
 			out1=out1.replace(/\.\./,".");
 			_$("TrimmedFQ1_"+t).value=out1;
 			if (typeof(alreadyHere[out1])=="undefined") {
@@ -355,7 +372,7 @@ function checkTrimmingForm() {
 					var sample=basename(_$("ToTrimFQ2_"+t).value).replace(/(\.[^\.]+$)/,"");
 					var extension=basename(_$("ToTrimFQ2_"+t).value).replace(/^.+\.([^\.]+)$/,"$1");
 				}
-				var out2=dirname(_$("ToTrimFQ2_"+t).value)+sample+"."+_$("TRIM_OUT_SUFFIX").value+"."+extension+".gz";
+				var out2=dirname(_$("ToTrimFQ2_"+t).value)+_$("TRIM_OUT_PREFIX").value+"_"+sample+"."+extension+".gz";
 				out2=out2.replace(/\.\./,".");
 
 				_$("TrimmedFQ2_"+t).value=out2;
@@ -374,12 +391,12 @@ function checkTrimmingForm() {
 				if (basename(out1)==DataTable["files"]["fname"][f] && typeof(alreadyFile[f])=="undefined") {
 					alreadyFile[f]=1;
 					errors++;
-					_$("TRIM_OUT_SUFFIX").className="WrongInput";
+					_$("TRIM_OUT_PREFIX").className="WrongInput";
 				}	
 				if (basename(out2)==DataTable["files"]["fname"][f] && typeof(alreadyFile[f])=="undefined") {
 					alreadyFile[f]=1;
 					errors++;
-					_$("TRIM_OUT_SUFFIX").className="WrongInput";
+					_$("TRIM_OUT_PREFIX").className="WrongInput";
 				}	
 			}
 		}

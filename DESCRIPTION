@@ -1,6 +1,6 @@
 Package: SeqNjoy
 Title: Complete RNA-Seq Workflows in your Desktop
-Version: 0.5.7
+Version: 0.5.8
 Authors@R: c(
     person("Juan Antonio", "Garcia-Martin", 
            email  = "ja.garcia@cnb.csic.es", role = c("cre","aut"),
@@ -25,7 +25,7 @@ Description: A stand-alone application for generating and analyzing
 License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 biocViews: ShinyApps, RNASeq, Software, 
            DifferentialExpression, GeneExpression
 URL: https://github.com/BioinfoGP/SeqNjoy
@@ -60,10 +60,13 @@ Imports:
     DiagrammeRsvg (>= 0.1),
     DiagrammeR (>= 1.0.6.1),
     rsvg,            
-    magrittr    
-Suggests:
-    rmarkdown (>= 2.11),
+    magrittr,
     knitr (>= 1.36),
+    markdown,
+    Rfastp,
+    Rqc    
+Suggests:
+    rmarkdown (>= 2.11),    
     shinytest2,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr

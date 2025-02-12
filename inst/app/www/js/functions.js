@@ -138,6 +138,8 @@ function main() {
 	JSShinyDetails["data"]=new Object();
 	AlignmentQueue["action"]="processAlignmentQueue";
 	AlignmentQueue["data"]=new Object();
+	QcQueue["action"]="processQcQueue";
+	QcQueue["data"]=new Object();
 	TrimQueue["action"]="processTrimQueue";
 	TrimQueue["data"]=new Object();
 	QuantifyQueue["action"]="processQuantifyQueue";
@@ -435,6 +437,23 @@ function toggleFileChecks() {
 					selectedFileTypes[thetype]++;
 				}
 				selectedFiles[i]=true;
+				// Apply selection to partners
+				var viewFilesInfo=parseData(DataTable["files"]["viewfiles"][i],"@@",";;")
+				var isPair = false;
+				var partnerIndex = -1;
+				var pairValue = "";
+				if(DataTable["files"]["ftype"][i]=="fastq" && viewFilesInfo.hasOwnProperty("PARTNER") && viewFilesInfo.hasOwnProperty("PAIR")){
+					isPair = true;
+					pairValue = viewFilesInfo["PAIR"];
+					partnerIndex=DataTable["files"]["fname"].indexOf(viewFilesInfo["PARTNER"]);
+				}
+				if(isPair == true && pairValue  == "1" && partnerIndex != -1){
+					if (selectedFiles[partnerIndex]==false) {
+						selectedFileTypes[thetype]++;
+					}
+					selectedFiles[partnerIndex]=true;
+				}
+				
 			}
 		}
 	}
@@ -450,6 +469,23 @@ function toggleFileChecks() {
 					selectedFileTypes[thetype]--;
 				}
 				selectedFiles[i]=false;
+
+				// Apply selection to partners
+				var viewFilesInfo=parseData(DataTable["files"]["viewfiles"][i],"@@",";;")
+				var isPair = false;
+				var partnerIndex = -1;
+				var pairValue = "";
+				if(DataTable["files"]["ftype"][i]=="fastq" && viewFilesInfo.hasOwnProperty("PARTNER") && viewFilesInfo.hasOwnProperty("PAIR")){
+					isPair = true;
+					pairValue = viewFilesInfo["PAIR"];
+					partnerIndex=DataTable["files"]["fname"].indexOf(viewFilesInfo["PARTNER"]);
+				}
+				if(isPair == true && pairValue  == "1" && partnerIndex != -1){
+					if (selectedFiles[partnerIndex]==true) {
+						selectedFileTypes[thetype]--;
+					}
+					selectedFiles[partnerIndex]=false;
+				}
 			}
 		}
 
@@ -461,6 +497,7 @@ function toggleFileChecks() {
 // Change tab
 function selectTab(tabName){
 	$("div[name='FunctionTab']").attr("class","slash_off");
+	_$("QcTab").style.zIndex=450;
 	_$("TrimTab").style.zIndex=400;
 	_$("AlignTab").style.zIndex=350;
 	_$("QuantifyTab").style.zIndex=300;
@@ -474,6 +511,10 @@ function selectTab(tabName){
 	$("#"+containerFullName).show();
 	
 	switch (tabName) {
+		case "Qc":
+			renderQcTab();
+			checkForm();
+			break;
 		case "Trim":
 			renderTrimTab();
 			checkForm();
@@ -565,6 +606,7 @@ function renderProject() {
 function checkForm() {
 	if (_$("DownloadGenomesTab").className=="slash_on") { checkDownloadGenomesForm(); }
 	if (_$("AlignTab").className=="slash_on") { checkAligningForm(); }
+	if (_$("QcTab").className=="slash_on") { checkQcForm(); }
 	if (_$("TrimTab").className=="slash_on") { checkTrimmingForm(); }
 	if (_$("QuantifyTab").className=="slash_on") { checkQuantifyForm(); }
 	if (_$("ExpressionTab").className=="slash_on") { checkExpressionForm(); }
@@ -667,60 +709,104 @@ function renderFileTable(sortBy, sense) {
 					else {
 						var color=SeqNjoy.FileTypeColor[myObj["ftype"][i]];
 					}
-				
-					showingFile[i]=true;
-					if (selectedFiles[i]) { var trClass="trFileSelected"; var isChecked="checked"; nselected++; } else {  var trClass="trFile"; var isChecked=""; }
-					//if(allFileChecks == true) { var isChecked="checked";  }
-					htmlOut+=`<tr class='`+trClass+`'>`;
-					htmlOut+=`<td class="tinypadded middle"><input name="fileChecked" id="checked_`+myObj["datapath"][i]+`" type="checkbox" `+isChecked+` onchange="if(selectedFiles['`+i+`']==true) { nselected--; selectedFiles['`+i+`']=false; selectedFileTypes['`+myObj["ftype"][i]+`']--; } else { nselected++; selectedFiles['`+i+`']=true; selectedFileTypes['`+myObj["ftype"][i]+`']++; }checkSelectedFiles();renderFileTable(currentSortBy,'current');"></td>`;
-					var viewLink="";
-					if (myObj["ftype"][i]=="bam" && !myObj["description"][i].match(/by user/)) {
-						var deps=myObj["dependencies"][i].split(" @@ ");
-						var fastaFile="none";
-						var annotsFile="none";
-						for (var d=0;d<deps.length;d++) {
-							if (deps[d].match(/\.f[an][^\.]*$/)) { var fastaFile="PROJECTS/"+deps[d].replace(/&.+/,""); }
-						}
-						if (myObj["description"][i].match(/single-end/)) { var bamType="single"; } else { var bamType="paired"; }
-						var bamFiles="PROJECTS/"+myObj["datapath"][i]+"&type="+bamType;
-						//htmlOut+=`<td class="bgradient nowrap center middle" onclick="open_browser('igv-div','`+bamFiles+`','`+fastaFile+`','`+annotsFile+`');">`+myObj["ftype"][i]+`</td>`;
-						var viewLink=`<button class="buttonIcon" style="background:`+color+`;" onclick="open_browser('igv-div','`+bamFiles+`','`+fastaFile+`','`+annotsFile+`');"><i class="fa fa-chart-area left buttonIconPadding fa-fw" style="color:white;background:transparent;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';"></i></button>`;
-					}
-					else if (myObj["ftype"][i]=="fasta") {
-						var annotsFile="none";
-						var bamFiles="none";
-						var fastaFile="PROJECTS/"+myObj["datapath"][i];
-						//htmlOut+=`<td class="bgradient nowrap center middle"  onclick="open_browser('igv-div','`+bamFiles+`','`+fastaFile+`','`+annotsFile+`');">`+myObj["ftype"][i]+`</td>`;
-						var viewLink=`<button class="buttonIcon" style="background:`+color+`;" onclick="open_browser('igv-div','`+bamFiles+`','`+fastaFile+`','`+annotsFile+`');"><i class="fa fa-chart-area left buttonIconPadding fa-fw" style="color:white;background:transparent;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';"></i></button>`;
-					}
-					else if (myObj["ftype"][i]=="gff") {
-						var pngFile="PROJECTS/"+myObj["datapath"][i]+".png";
-						//htmlOut+=`<td class="bgradient nowrap center middle"  onclick="open_browser('igv-div','`+bamFiles+`','`+fastaFile+`','`+annotsFile+`');">`+myObj["ftype"][i]+`</td>`;
-						var viewLink=`<button class="buttonIcon" style="color:white;background:`+color+`;" onclick="window.open('`+pngFile+`','gff','toolbar=no, menubar=no, resizable=yes');"><i class="fa fa-project-diagram left buttonIconPadding fa-fw" style="background:transparent;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';"></i></button>`;
-					}
-					else if (myObj["ftype"][i]=="diffexp") {
-						var htmlFile="PROJECTS/"+myObj["datapath"][i]+".FIESTA.html";
-						var viewLink=`<button class="buttonIcon" style="background:`+color+`;" onclick="window.open('`+htmlFile+`');"><i class="fa fa-table left buttonIconPadding fa-fw" style="color:white;background:transparent;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';"></i></button>`;
+					var viewFilesInfo=parseData(myObj["viewfiles"][i],"@@",";;")
+					var isPair = false;
+					var partnerIndex = -1;
+					var pairValue = "";
+					if(myObj["ftype"][i]=="fastq" && viewFilesInfo.hasOwnProperty("PARTNER") && viewFilesInfo.hasOwnProperty("PAIR")){
+						isPair = true;
+						pairValue = viewFilesInfo["PAIR"];
+						partnerIndex=myObj["fname"].indexOf(viewFilesInfo["PARTNER"])
 					}
 
-					htmlOut+=`<td class="tinypadded bgradient nowrap center middle">`+myObj["ftype"][i]+`</td>`;
-					//var rcode=` (download <a href="`+window.location.origin+`/PROJECTS/`+ProjectData['session']['datapath'][0]+`/`+myObj["datapath"][i]+`.R">R code</a>)`;
-					htmlOut+=`<td class="tinypadded bgradient left middle w100 nowrap">`+`<table cellpadding=0 cellspacing=0 border=0><tr><td style="padding-right:0.5rem;"><span class="FileTypeSpan" style="background:`+color+`;color:white;">`+myObj["fname"][i]+`</span> `+`</td><td class="w100"><span class="wrap font08">`+myObj["description"][i]+`</span></td><td class="right" style="padding-left:1rem;">`+viewLink+`</td></tr></table>`;
-					htmlOut+=`</td>`;
-					htmlOut+=`<td class="tinypadded bgradient nowrap right middle">`+MyNumberFormat.format(myObj["fsize"][i])+`&nbsp;&nbsp;</td>`;
-					htmlOut+=`<td class="tinypadded bgradient nowrap left middle">`+myObj["fcreated"][i]+`&nbsp;&nbsp;</td>`;
-					htmlOut+=`<td class="tinypadded  nowrap center middle">`
-					htmlOut+=`<button class="buttonIcon" onclick="launchDownloadingSingleFile('`+myObj["datapath"][i]+`','`+myObj["ftype"][i]+`')"><i class="fa fa-download left buttonIconPadding"></i></button>`;
-					//htmlOut+=`<button onclick="`+window.location.origin+`/PROJECTS/`+ProjectData['session']['datapath'][0]+`/`+myObj["datapath"][i]+`"><i class="fa fa-download"></i></button>`;
-					if (isParent[myObj["datapath"][i]]) {
-						var isDisabled=" disabled";
-						if (isChecked=="checked") { nSelectedWithChildren++; }
-					} else {
-						var isDisabled="";
-						if (isChecked=="checked") { nSelectedWithNoChildren++; }
+					if(isPair == false || (pairValue  == "1" && partnerIndex != -1)){
+						showingFile[i]=true;
+						if (selectedFiles[i]) { var trClass="trFileSelected"; var isChecked="checked"; nselected++; } else {  var trClass="trFile"; var isChecked=""; }
+						//if(allFileChecks == true) { var isChecked="checked";  }
+						htmlOut+=`<tr class='`+trClass+`'>`;
+						if(isPair && pairValue  == "1"){
+							htmlOut+=`<td class="tinypadded middle">
+							              <input name="fileChecked" id="checked_`+myObj["datapath"][i]+`" type="checkbox" `+isChecked+` onchange="_$('checked_`+myObj["datapath"][partnerIndex]+`').checked=this.checked; if(selectedFiles['`+i+`']==true) { nselected--; selectedFiles['`+i+`']=false; selectedFileTypes['`+myObj["ftype"][i]+`']--; } else { nselected++; selectedFiles['`+i+`']=true; selectedFileTypes['`+myObj["ftype"][i]+`']++; } if(selectedFiles['`+partnerIndex+`']==true) { nselected--; selectedFiles['`+partnerIndex+`']=false; selectedFileTypes['`+myObj["ftype"][partnerIndex]+`']--; } else { nselected++; selectedFiles['`+partnerIndex+`']=true; selectedFileTypes['`+myObj["ftype"][partnerIndex]+`']++; }checkSelectedFiles();renderFileTable(currentSortBy,'current');">
+							              <input name="fileChecked" id="checked_`+myObj["datapath"][partnerIndex]+`" style="display:none" type="checkbox" `+isChecked+`>
+							          </td>`;							
+						} else {
+							// Edit to add check for both pairs
+							htmlOut+=`<td class="tinypadded middle"><input name="fileChecked" id="checked_`+myObj["datapath"][i]+`" type="checkbox" `+isChecked+` onchange="if(selectedFiles['`+i+`']==true) { nselected--; selectedFiles['`+i+`']=false; selectedFileTypes['`+myObj["ftype"][i]+`']--; } else { nselected++; selectedFiles['`+i+`']=true; selectedFileTypes['`+myObj["ftype"][i]+`']++; }checkSelectedFiles();renderFileTable(currentSortBy,'current');"></td>`;
+						}
+						var viewLink="";
+						if (myObj["ftype"][i]=="bam" && !myObj["description"][i].match(/by user/)) {
+							var deps=myObj["dependencies"][i].split(" @@ ");
+							var fastaFile="none";
+							var annotsFile="none";
+							for (var d=0;d<deps.length;d++) {
+								if (deps[d].match(/\.f[an][^\.]*$/)) { var fastaFile="PROJECTS/"+deps[d].replace(/&.+/,""); }
+							}
+							if (myObj["description"][i].match(/single-end/)) { var bamType="single"; } else { var bamType="paired"; }
+							var bamFiles="PROJECTS/"+myObj["datapath"][i]+"&type="+bamType;
+							//htmlOut+=`<td class="bgradient nowrap center middle" onclick="open_browser('igv-div','`+bamFiles+`','`+fastaFile+`','`+annotsFile+`');">`+myObj["ftype"][i]+`</td>`;
+							var viewLink=`<button class="buttonIcon" style="background:`+color+`;" onclick="open_browser('igv-div','`+bamFiles+`','`+fastaFile+`','`+annotsFile+`');"><i class="fa fa-chart-area left buttonIconPadding fa-fw" style="color:white;background:transparent;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';" title="Open in IGV"></i></button>`;
+						}
+						else if (myObj["ftype"][i]=="fasta") {
+							var annotsFile="none";
+							var bamFiles="none";
+							var fastaFile="PROJECTS/"+myObj["datapath"][i];
+							//htmlOut+=`<td class="bgradient nowrap center middle"  onclick="open_browser('igv-div','`+bamFiles+`','`+fastaFile+`','`+annotsFile+`');">`+myObj["ftype"][i]+`</td>`;
+							var viewLink=`<button class="buttonIcon" style="background:`+color+`;" onclick="open_browser('igv-div','`+bamFiles+`','`+fastaFile+`','`+annotsFile+`');"><i class="fa fa-chart-area left buttonIconPadding fa-fw" style="color:white;background:transparent;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';" title="Open in IGV"></i></button>`;
+						}
+						else if (myObj["ftype"][i]=="fastq") {
+							var viewFilesInfo=parseData(myObj["viewfiles"][i],"@@",";;")
+							var reportFile="";
+							if(viewFilesInfo.hasOwnProperty("REPORT")){
+								//reportFile=viewFilesInfo["REPORT"];
+								reportFile="PROJECTS/"+viewFilesInfo["REPORT"];
+								var viewLink=`<button class="buttonIcon" style="color:white;background:`+color+`;" onclick="window.open('`+reportFile+`','fastq`+i+`','toolbar=no, menubar=no, resizable=yes');"><i class="fa fa-chart-bar left buttonIconPadding  fa-fw" style="background:transparent;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';" title="Quality Control Report"></i></button>`;
+							} else {
+								var viewLink=`<button class="buttonIcon" disabled ><i class="fa fa-chart-bar left buttonIconPadding  fa-fw" style="background:transparent;" title="Generate quality control report first"></i></button>`;
+							}						
+						}
+						else if (myObj["ftype"][i]=="gff") {
+							var pngFile="PROJECTS/"+myObj["datapath"][i]+".png";
+							//htmlOut+=`<td class="bgradient nowrap center middle"  onclick="open_browser('igv-div','`+bamFiles+`','`+fastaFile+`','`+annotsFile+`');">`+myObj["ftype"][i]+`</td>`;
+							var viewLink=`<button class="buttonIcon" style="color:white;background:`+color+`;" onclick="window.open('`+pngFile+`','gff','toolbar=no, menubar=no, resizable=yes');"><i class="fa fa-project-diagram left buttonIconPadding fa-fw" style="background:transparent;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';"></i></button>`;
+						}
+						else if (myObj["ftype"][i]=="diffexp") {
+							var htmlFile="PROJECTS/"+myObj["datapath"][i]+".FIESTA.html";
+							var viewLink=`<button class="buttonIcon" style="background:`+color+`;" onclick="window.open('`+htmlFile+`');"><i class="fa fa-table left buttonIconPadding fa-fw" style="color:white;background:transparent;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';"></i></button>`;
+						}
+
+						htmlOut+=`<td class="tinypadded bgradient nowrap center middle">`+myObj["ftype"][i]+`</td>`;
+						//var rcode=` (download <a href="`+window.location.origin+`/PROJECTS/`+ProjectData['session']['datapath'][0]+`/`+myObj["datapath"][i]+`.R">R code</a>)`;
+						if(isPair && pairValue  == "1"){
+							htmlOut+=`<td class="tinypadded bgradient left middle w100 nowrap">`+`<table cellpadding=0 cellspacing=0 border=0><tr><td style="padding-right:0.5rem;"><span class="FileTypeSpan" style="background:`+color+`;color:white;">`+myObj["fname"][i]+`</span>  <span class="FileTypeSpan" style="background:`+color+`;color:white;">`+viewFilesInfo["PARTNER"]+`</span> `+`</td><td class="w100"><span class="wrap font08">`+myObj["description"][i]+`</span></td><td class="right" style="padding-left:1rem;">`+viewLink+`</td></tr></table>`;	
+						} else {						
+							htmlOut+=`<td class="tinypadded bgradient left middle w100 nowrap">`+`<table cellpadding=0 cellspacing=0 border=0><tr><td style="padding-right:0.5rem;"><span class="FileTypeSpan" style="background:`+color+`;color:white;">`+myObj["fname"][i]+`</span> `+`</td><td class="w100"><span class="wrap font08">`+myObj["description"][i]+`</span></td><td class="right" style="padding-left:1rem;">`+viewLink+`</td></tr></table>`;
+						}
+						htmlOut+=`</td>`;
+						htmlOut+=`<td class="tinypadded bgradient nowrap right middle">`+MyNumberFormat.format(myObj["fsize"][i])+`&nbsp;&nbsp;</td>`;
+						htmlOut+=`<td class="tinypadded bgradient nowrap left middle">`+myObj["fcreated"][i]+`&nbsp;&nbsp;</td>`;
+						htmlOut+=`<td class="tinypadded  nowrap center middle">`
+						if(isPair && pairValue  == "1"){
+							htmlOut+=`<button class="buttonIcon" onclick="launchDownloadingMultipleFiles('PAIR-END_`+myObj["fname"][i].split('.')[0]+`','`+myObj["datapath"][i]+`','`+myObj["ftype"][i]+`','`+myObj["datapath"][partnerIndex]+`','`+myObj["ftype"][partnerIndex]+`')"><i class="fa fa-download left buttonIconPadding"></i></button>`;
+						} else {
+							htmlOut+=`<button class="buttonIcon" onclick="launchDownloadingSingleFile('`+myObj["datapath"][i]+`','`+myObj["ftype"][i]+`')"><i class="fa fa-download left buttonIconPadding"></i></button>`;							
+						}
+						//htmlOut+=`<button onclick="`+window.location.origin+`/PROJECTS/`+ProjectData['session']['datapath'][0]+`/`+myObj["datapath"][i]+`"><i class="fa fa-download"></i></button>`;
+						if (isParent[myObj["datapath"][i]]) {
+							var isDisabled=" disabled";
+							if (isChecked=="checked") { nSelectedWithChildren++; }
+						} else {
+							var isDisabled="";
+							if (isChecked=="checked") { nSelectedWithNoChildren++; }
+						}
+						var viewFilesInfo=parseData(myObj["viewfiles"][i],"@@",";;")
+						if(viewFilesInfo.hasOwnProperty("PARTNER")){
+							htmlOut+=`<button class="buttonIcon" onclick="if(confirm('Delete file `+myObj["fname"][i]+` and its pair `+viewFilesInfo["PARTNER"]+`?')) { launchDeletingQueue('`+myObj["datapath"][i]+`','`+myObj["datapath"][i].substring(0, myObj["datapath"][i].lastIndexOf("/")+1)+viewFilesInfo["PARTNER"]+`'); }"`+isDisabled+`><i class="fa fa-trash left buttonIconPadding"></i></button>`;
+						} else {
+							htmlOut+=`<button class="buttonIcon" onclick="if(confirm('Delete file `+myObj["fname"][i]+`?')) { launchDeletingQueue('`+myObj["datapath"][i]+`'); }"`+isDisabled+`><i class="fa fa-trash left buttonIconPadding"></i></button>`;
+						}
+
+						htmlOut+=`</td></tr>`;	
 					}
-					htmlOut+=`<button class="buttonIcon" onclick="if(confirm('Delete this file?')) { launchDeletingQueue('`+myObj["datapath"][i]+`'); }"`+isDisabled+`><i class="fa fa-trash left buttonIconPadding"></i></button>`;
-					htmlOut+=`</td></tr>`;	
 				}
 			}
 		}

@@ -20,11 +20,13 @@ function close_all_menus() {
 
 function close_all_dialogs() {
 	_$("ModalCourtainDialogs").style.display="none";
+	_$("QcDiv").style.display="none";
 	_$("TrimDiv").style.display="none";
 	_$("DownloadGenomesDiv").style.display="none";
 	_$("AlignDiv").style.display="none";
 	_$("QuantifyDiv").style.display="none";
 	_$("ExpressionDiv").style.display="none";
+	_$("QcTab").className="slash_off";
 	_$("TrimTab").className="slash_off";
 	_$("AlignTab").className="slash_off";
 	_$("ExpressionTab").className="slash_off";
@@ -39,6 +41,11 @@ function open_dialog(id, option) {
 	_$(containerFullName).style.display="block";
 	
 	switch (id) {
+		case "Qc":
+			_$("QcTab").className="slash_on";
+			renderQcTab(option);
+			checkForm();
+			break;
 		case "Trim":
 			_$("TrimTab").className="slash_on";
 			renderTrimTab(option);

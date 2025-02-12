@@ -8,10 +8,8 @@ function disableBowtie2(){
 }
 
 function renderAlignmentTab(option){
-	fastqSelectHTML='';
-	fastaSelectHTML='';
-	fastqSelect=new Array();
-	fastaSelect=new Array();
+	fastqSelect1=''
+	fastqSelect2=''
 	for (var key in DataTable) {
 		if (DataTable.hasOwnProperty(key)) {
 			var myObj=DataTable[key];
@@ -20,8 +18,19 @@ function renderAlignmentTab(option){
 				if(myObj["hidden"][i]=="NO"){
 					var color="#0000FF";
 					if(myObj["ftype"][i]=="fastq"){
-						fastqSelect.push(myObj["datapath"][i]);
-						fastqSelect.sort();
+						var viewFilesInfo=parseData(myObj["viewfiles"][i],"@@",";;")
+						if(viewFilesInfo.hasOwnProperty("PAIR")){
+							if(viewFilesInfo["PAIR"] ==2){
+								fastqSelect2+='<option value="'+myObj["datapath"][i]+'" style="color:#000000;">'+myObj["fname"][i]+'</option>';
+							} else {
+								fastqSelect1+='<option value="'+myObj["datapath"][i]+'" style="color:#000000;">'+myObj["fname"][i]+'</option>';
+							}
+							
+						}
+						else{
+							fastqSelect1+='<option value="'+myObj["datapath"][i]+'" style="color:#000000;">'+myObj["fname"][i]+'</option>';
+							fastqSelect2+='<option value="'+myObj["datapath"][i]+'" style="color:#000000;">'+myObj["fname"][i]+'</option>';
+						}
 					}
 					if(myObj["ftype"][i]=="fasta"){
 						fastaSelect.push(myObj["datapath"][i]);
@@ -30,9 +39,6 @@ function renderAlignmentTab(option){
 				}
 			}
 		}
-	}
-	for (var t=0;t<fastqSelect.length;t++) {
-		fastqSelectHTML+='<option value="'+fastqSelect[t]+'" style="color:#000000;">'+basename(fastqSelect[t])+'</option>';
 	}
 	for (var t=0;t<fastaSelect.length;t++) {
 		fastaSelectHTML+='<option style="font-size:inherit;" value="'+fastaSelect[t]+'" class="ValidInput">'+basename(fastaSelect[t])+'</option>';
@@ -109,23 +115,23 @@ function renderAlignmentTab(option){
 	</form>`;
 
 	document.getElementById('AlignFormTable').innerHTML=htmlOut;
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
-	addAlignment(fastqSelectHTML);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
+	addAlignment(fastqSelect1,fastqSelect2);
 	if (option=="bowtie2") {
 		_$("aligner_bowtie2").setAttribute("checked", "checked");
 		_$("aligner_hisat2").removeAttribute("checked");
@@ -247,7 +253,7 @@ function launchAlignmentQueue() {
 	nextStepInShiny(ShinyObject);
 }
 
-function addAlignment(fastqSelectHTML) {
+function addAlignment(fastqSelect1,fastqSelect2) {
 	var myAlignments=new Array();
 	var t=0;
 	while (_$("ToAlignFQ1_"+t)) {
@@ -262,12 +268,12 @@ function addAlignment(fastqSelectHTML) {
 	myAlignments[t].fq1=NOT_SELECTED;
 	myAlignments[t].fq2=NOT_SELECTED;
 	myAlignments[t].label="";
-	populateAlignmentsQueueTD(myAlignments, fastqSelectHTML);
+	populateAlignmentsQueueTD(myAlignments, fastqSelect1,fastqSelect2);
 }
 
-function populateAlignmentsQueueTD(myAlignments, fastqSelectHTML) {
+function populateAlignmentsQueueTD(myAlignments, fastqSelect1,fastqSelect2) {
 
-	var html=`<div id="alignmentsDIV" class="borderbox" style="border-bottom:1px solid silver;height:22rem;overflow-y:scroll;" onscroll="SCT=this.scrollTop;if (this.scrollHeight-this.scrollTop < this.clientHeight+2) { addAlignment(fastqSelectHTML);_$('alignmentsDIV').scrollTop=SCT;checkAligningForm(); }">
+	var html=`<div id="alignmentsDIV" class="borderbox" style="border-bottom:1px solid silver;height:22rem;overflow-y:scroll;" onscroll="SCT=this.scrollTop;if (this.scrollHeight-this.scrollTop < this.clientHeight+2) { addAlignment(fastqSelect1,fastqSelect2);_$('alignmentsDIV').scrollTop=SCT;checkAligningForm(); }">
 <table cellpadding="0px" cellspacing="0px" border="0px" class="borderbox" style="height:100%;">
 	<tr style="position:sticky;top:0px;background:#EFEFEF;z-index:9999">
 		<th class="medipadded center" id="fastq1_HTD">Fastq 1</td>
@@ -276,22 +282,22 @@ function populateAlignmentsQueueTD(myAlignments, fastqSelectHTML) {
 	</tr>
 `;
 
-	if (fastqSelect=="") { var isdisabled="disabled"; } else { var isdisabled=""; }
+	if (fastqSelect1=="") { var isdisabled="disabled"; } else { var isdisabled=""; }
 
 	for (var t=0;t<myAlignments.length;t++) {
 		html+=`
 	<tr>
 		<td class="tinypadded">
-			<select `+isdisabled+` id="ToAlignFQ1_`+t+`" class="w100" style="min-width:16rem;" onchange="checkAligningForm();">
+			<select `+isdisabled+` id="ToAlignFQ1_`+t+`" class="w100" style="min-width:16rem;" onchange="autoPairSelection('ToAlignFQ1_`+t+`','ToAlignFQ2_`+t+`',1);checkAligningForm();">
 				<option value="`+NOT_SELECTED+`" style="color:#000000;">Select FASTQ</option>
-				`+fastqSelectHTML+`
+				`+fastqSelect1+`
 			</select>
 			<input type="hidden" id="AlignedBAM_`+t+`" value="`+NOT_SELECTED+`">
 		</td>
 		<td class="tinypadded">
-			<select id="ToAlignFQ2_`+t+`" class="w100" style="min-width:16rem;" onchange="checkAligningForm();">
+			<select id="ToAlignFQ2_`+t+`" class="w100" style="min-width:16rem;" onchange="autoPairSelection('ToAlignFQ1_`+t+`','ToAlignFQ2_`+t+`',2);checkAligningForm();">
 				<option value="`+NOT_SELECTED+`" style="color:#000000;">Select FASTQ (paired)</option>
-				`+fastqSelectHTML+`
+				`+fastqSelect2+`
 			</select>
 		</td>
 		<td class="tinypadded">

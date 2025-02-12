@@ -1,6 +1,6 @@
 
-
 server <- function(input,output, session) {
+	`%>%` <- magrittr::`%>%`
 	source("staticServer.R")
 ### Globals and reactive
 	systemVolumes <<- c(Home = fs::path_home(), shinyFiles::getVolumes()())
@@ -42,7 +42,9 @@ server <- function(input,output, session) {
 		,"loadGFFfeatures"
 		,"processQuantifyQueue"     # to be removed
 		,"processExpressionQueue"   # to be removed
+		,"QC"
 		,"filter_with_filterAndTrim"
+		,"filter_with_fastP"
 		,"align_with_bowtie2"
 		,"align_with_hisat2"
 		,"align_with_alignRsubread"
@@ -92,6 +94,14 @@ server <- function(input,output, session) {
 	PARAMS_filterAndTrim<<-setFunctionParams("filterAndTrim.params.txt")
 	json<-RJSONIO::toJSON(PARAMS_filterAndTrim,.escapeEscapes = FALSE)
 	shinyjs::runjs(paste0("PARAMS[`filter_with_filterAndTrim`]=",json,";PARAMS[`filter_with_filterAndTrim`][`FORM_ERRORS`]=0;PARAMS[`filter_with_filterAndTrim`][`INPUT_FILES`]=0;"))
+
+	PARAMS_fastP<<-setFunctionParams("fastP.params.txt")
+	json<-RJSONIO::toJSON(PARAMS_fastP,.escapeEscapes = FALSE)
+	shinyjs::runjs(paste0("PARAMS[`filter_with_fastP`]=",json,";PARAMS[`filter_with_fastP`][`FORM_ERRORS`]=0;PARAMS[`filter_with_fastP`][`INPUT_FILES`]=0;"))
+
+	PARAMS_QC<<-setFunctionParams("QC.params.txt")
+	json<-RJSONIO::toJSON(PARAMS_QC,.escapeEscapes = FALSE)
+	shinyjs::runjs(paste0("PARAMS[`QC`]=",json,";PARAMS[`QC`][`FORM_ERRORS`]=0;PARAMS[`QC`][`INPUT_FILES`]=0;"))
 
 	PARAMS_bowtie2<<-setFunctionParams("bowtie2.params.txt")
 	json<-RJSONIO::toJSON(PARAMS_bowtie2,.escapeEscapes = FALSE)
@@ -154,7 +164,7 @@ server <- function(input,output, session) {
 	}
 
 
-	myDfFiles <- reactiveValues(
+	myDfFiles <- shiny::reactiveValues(
 		files=data.frame(fname=character()
 			,fsize=character()
 			,ftype=character()
@@ -548,7 +558,10 @@ server <- function(input,output, session) {
         if (file.exists(vignette_path)) {
             utils::browseURL(vignette_path)
         } else {
-            showNotification("Vignette not found!", type = "error")
+			## showNotification(paste0("Vignette ",newData[["vignette"]]," not found!. Redirecting to website."), type = "error")
+			message(paste0("Vignette ",newData[["vignette"]]," not found!. Redirecting to website."))
+			vignette_path <- paste0("https://bioinfogp.cnb.csic.es/tools/seqnjoy/",newData[["vignette"]])
+			utils::browseURL(vignette_path)
         }
 		
 	}
@@ -716,7 +729,62 @@ server <- function(input,output, session) {
 
 	}
 
+### Helper functions
+	stringToList <- function(myData, sep1, sep2) {
+		pairs <- strsplit(myData, sep1)[[1]]  # Split by sep1
+		vals <- list()
+		for (pair in pairs) {
+			key_value <- strsplit(pair, sep2)[[1]]  # Split by sep2
+			if (length(key_value) == 2) {
+				vals[[key_value[1]]] <- key_value[2]  # Assign key-value to list
+			}
+		}
+		return(vals)
+	}
 
+	listToString <- function(vals, sep1, sep2) {
+		pairs <- sapply(names(vals), function(key) {
+			paste(key, vals[[key]], sep = sep2)  # Combine key and value with sep2
+		})
+
+		return(paste(pairs, collapse = sep1))  # Join pairs with sep1
+	}
+
+	read_nonempty_lines <- function(inputTextFile, n) {
+		# Open connection as gzipped or uncompressed file
+		if(endsWith(inputTextFile,".gz")){
+			fileHandler <- gzfile(inputTextFile, "rt") 
+
+		} else {
+			fileHandler <- file(inputTextFile, "rt") 
+		}
+
+		# on.exit(close(fileHandler))      # Ensure closure
+
+		reportLines<-readLines(fileHandler, n = n)
+		
+		# If the file has less lines than specified in n, all lines have been retrieved
+		if(length(reportLines) == n){
+			# If there are empty lines
+			if(sum(nzchar(reportLines)<n)){
+				reportLines<-reportLines[nzchar(reportLines)]
+				remainingLines<-(n-sum(nzchar(reportLines)))
+				while(remainingLines>0){
+					additionalLines<-readLines(fileHandler, n = remainingLines)
+					if(length(additionalLines)==remainingLines){
+						remainingLines<-(remainingLines-sum(nzchar(additionalLines)))
+						reportLines<-c(reportLines,additionalLines[nzchar(additionalLines)])						
+
+					} else {
+						reportLines<-c(reportLines,additionalLines)
+						remainingLines<-0
+					}					
+				}
+			}
+		}
+		close(fileHandler)
+		return(reportLines)
+	}
 	
 ### Project management functions
 
@@ -1005,6 +1073,671 @@ server <- function(input,output, session) {
 	}
 	
 
+
+	QC<-function(newData) {
+		delete_temp_folder() 
+		tryCatch({
+			CURRENT_COMMAND <<- ""
+
+			if("QC_showFiltered" %in% names(newData$common_params)){
+				showFiltered<-eval(parse(text=newData$common_params["QC_showFiltered"]))
+			} else {
+				showFiltered<-FALSE
+			}
+
+
+			### Read sampleSize param
+			sampleReads<-as.numeric(newData$common_params["QC_sampleReads"])
+			if(sampleReads >0){
+				message(paste0("Sampling ", sampleReads, " for QC"))
+			} else {
+				message("Using the entire file for report")
+			}
+			
+			fastqExtensions<-strsplit(fileTypes[fileTypes$ftype=="fastq",]$extensions," +")[[1]]
+
+			
+			input1=paste0(projectDir,"/FASTQ/",basename(newData$input1))
+			
+			outExtension="fastq.gz"
+			if(any(endsWith(newData$input1,fastqExtensions))){
+				outExtension<-fastqExtensions[endsWith(newData$input1,fastqExtensions)]
+			} else {
+				message(paste0("Warning: Input file ",basename(newData$input1)," does not have any known FASTQ file extension"))
+			}
+			
+			fastqPattern <- paste0("\\.(", paste(fastqExtensions, collapse = "|"), ")$")
+			reportBaseInput<-paste0(projectDir,"/temp/",basename(newData$input1))
+			reportInput1=reportBaseInput
+			reportOutput=sub(fastqPattern, "_Report",reportBaseInput)
+
+			if(sampleReads >0){
+				# Read the first sampleReads lines for creating the report
+				reportLines <- read_nonempty_lines(input1, n = sampleReads*4)
+				if(endsWith(reportInput1,".gz")){				
+					output_file <- gzfile(reportInput1, "wt")  # Open for writing text
+				} else {
+					output_file <- file(reportInput1, "wt")  # Open for writing text					
+				}
+				writeLines(reportLines, output_file)                # Write the lines
+				close(output_file)
+			} else {
+				reportInput1<-input1
+			}
+
+
+			input2=paste0(projectDir,"/FASTQ/",basename(newData$input2))
+
+			if (file.exists(input2)) {			
+				if(any(endsWith(newData$input2,fastqExtensions))){
+					outExtension<-fastqExtensions[endsWith(newData$input2,fastqExtensions)]
+				} else {
+					message(paste0("Warning: Input file ",basename(newData$input2)," does not have any known FASTQ file extension"))
+				}
+				
+				fastqPattern <- paste0("\\.(", paste(fastqExtensions, collapse = "|"), ")$")
+				reportInput2=paste0(projectDir,"/temp/",basename(newData$input2))
+				if(sampleReads >0){
+					# Read the first sampleReads lines for creating the report
+					reportLines <- read_nonempty_lines(input2, n = sampleReads*4)
+					if(endsWith(reportInput2,".gz")){				
+						output_file <- gzfile(reportInput2, "wt")  # Open for writing text
+					} else {
+						output_file <- file(reportInput2, "wt")  # Open for writing text					
+					}
+					writeLines(reportLines, output_file)                # Write the lines
+					close(output_file)
+				} else {
+					reportInput2<-input2
+				}
+
+				sinkOutFile = paste0(reportBaseInput,"_stdout.txt")
+				sinkErrFile = paste0(reportBaseInput,"_stderr.txt")
+
+				connOutFile = file(sinkOutFile, open="wt")
+				connErrFile = file(sinkErrFile, open="wt")
+				
+				sink(file=connOutFile, append=TRUE, type="output")
+				sink(file=connErrFile, append=TRUE, type="message")
+				
+				rfastpOut<-Rfastp::rfastp(read1=reportInput1,  read2=reportInput2, outputFastq=reportOutput , adapterTrimming=TRUE, qualityFiltering=TRUE, overrepresentationAnalysis=TRUE, overrepresentationSampling=1, qualityFilterPercent=40, qualityFilterPhred=15, lowComplexityFiltering=FALSE, trimTailRead1=0, trimFrontRead1=0)
+				sink(type="output")
+				sink(type="message")
+				
+				close(connOutFile)
+				close(connErrFile)
+
+				if(sampleReads>0){				
+					qa<-Rqc::rqcQA(as.list(input1), n=sampleReads)
+					qa2<-Rqc::rqcQA(as.list(input2), n=sampleReads)
+				} else{
+					qa<-Rqc::rqcQA(as.list(input1), sample=FALSE)
+					qa2<-Rqc::rqcQA(as.list(input2), sample=FALSE)
+				}
+			} else {
+				sinkOutFile = paste0(reportBaseInput,"_stdout.txt")
+				sinkErrFile = paste0(reportBaseInput,"_stderr.txt")
+
+				connOutFile = file(sinkOutFile, open="wt")
+				connErrFile = file(sinkErrFile, open="wt")
+				
+				sink(file=connOutFile, append=TRUE, type="output")
+				sink(file=connErrFile, append=TRUE, type="message")
+
+				rfastpOut<-Rfastp::rfastp(read1=reportInput1,  outputFastq=reportOutput , adapterTrimming=TRUE, qualityFiltering=TRUE, overrepresentationAnalysis=TRUE, overrepresentationSampling=1, qualityFilterPercent=40, qualityFilterPhred=15, lowComplexityFiltering=FALSE, trimTailRead1=0, trimFrontRead1=0)
+
+				sink(type="output")
+				sink(type="message")
+
+				close(connOutFile)
+				close(connErrFile)
+				
+				if(sampleReads>0){
+					qa<-Rqc::rqcQA(as.list(input1), n=sampleReads)
+				} else {
+					qa<-Rqc::rqcQA(as.list(input1), sample=FALSE)				
+				}
+			}
+
+			rfastpErr<-readLines(sinkErrFile)
+			if (any(grepl("Detecting adapter",rfastpErr))){
+				adapterNames<-rfastpErr[grep("Detecting adapter",rfastpErr)+1]
+				if(grepl("^[ACGT]+$",adapterNames[1])){
+					adapterName1<-"Unknown adapter"
+				} else{
+					adapterName1<-sub(">", "",adapterNames[1])
+				}
+				if (file.exists(input2) && length(adapterNames)>1) {
+					if(grepl("^[ACGT]+$",adapterNames[2])){
+						adapterName2<-"Unknown adapter"
+					} else{
+						adapterName2<-sub(">", "",adapterNames[2])
+					}
+				} else {
+					adapterName2<-"NONE"
+				}
+				
+			} else {
+				adapterName1<-"NONE"
+				adapterName2<-"NONE"
+			}
+			
+			
+			### Collect file info from props.json files
+			JSONfile<-paste0(input1,".props.json")
+			propText=paste(readLines(JSONfile), collapse="\n")
+			props<-RJSONIO::fromJSON(propText, asText=TRUE, na="null", null="null")
+			fastq1Reads<-props$NREADS
+			
+			if (file.exists(input2)) {
+				JSONfile2<-paste0(input2,".props.json")
+				propText2=paste(readLines(JSONfile2), collapse="\n")
+				props2<-RJSONIO::fromJSON(propText2, asText=TRUE, na="null", null="null")
+				fastq2Reads<-props2$NREADS
+			}
+			
+			adapterDetected=!is.null(rfastpOut$adapter_cutting)
+			
+			totalSampleReads<-rfastpOut$summary$before_filtering$total_reads
+			if (file.exists(input2)) {
+				totalSampleReads<-totalSampleReads/2
+			}
+
+
+			### Collect summary data from Rfastp
+			qcData<-list()
+			qcData[['File Name']]<-basename(input1)
+			qcData[['Number Of Reads']]<-base::format(fastq1Reads, big.mark=",", scientific=FALSE)
+			qcData[['Sample Size']]<-base::format(totalSampleReads, big.mark=",", scientific=FALSE) ## Replaced by input, this is the number of reads used for creating the report
+			qcData[['Average Read Length']]<- paste0(rfastpOut$summary$before_filtering$read1_mean_length,"nt")
+			qcData[['GC content']]<-round(rfastpOut$summary$before_filtering$gc_content,2)
+			if(adapterDetected && rfastpOut$adapter_cutting$read1_adapter_sequence != "unspecified"){
+				qcData[['Adapter Sequence']]<-rfastpOut$adapter_cutting$read1_adapter_sequence
+			} else {
+				qcData[['Adapter Sequence']]<-"None"
+			}
+			qcData[['Adapter Name']]<-adapterName1
+
+
+			if (file.exists(input2)) {
+				qcData2<-list()
+				qcData2[['File Name']]<-basename(input2)
+				qcData2[['Number Of Reads']]<-base::format(fastq2Reads, big.mark=",", scientific=FALSE)
+				qcData2[['Sample Size']]<-base::format(totalSampleReads, big.mark=",", scientific=FALSE) ## Replaced by input, this is the number of reads used for creating the report
+				qcData2[['Average Read Length']]<- paste0(rfastpOut$summary$before_filtering$read2_mean_length,"nt")
+				qcData2[['GC content']]<-round(rfastpOut$summary$before_filtering$gc_content,2)
+				if(adapterDetected && rfastpOut$adapter_cutting$read2_adapter_sequence != "unspecified"){
+					qcData2[['Adapter Sequence']]<-rfastpOut$adapter_cutting$read2_adapter_sequence
+				} else {
+					qcData2[['Adapter Sequence']]<-"None"
+				}
+				qcData2[['Adapter Name']]<-adapterName2
+				summaryData<-data.frame(Feature=names(qcData),R1=unlist(qcData,use.names=F),R2=unlist(qcData2,use.names=F))			
+			
+			} else {
+				summaryData<-data.frame(Feature=names(qcData),Value=unlist(qcData,use.names=F))
+			}
+
+			### Collect filtered stats from Rfastp
+			if(showFiltered){
+				filteredData<-data.frame(Feature=names(rfastpOut$filtering_result),Value=paste0(round((unlist(rfastpOut$filtering_result,use.names=F)/totalSampleReads)*100,2),"%"))
+				filteredData$Feature<-tools::toTitleCase(sub("_", " ",filteredData$Feature))
+				if (file.exists(input2)) {
+					filteredData<- rbind(filteredData,c('Average Read Length',paste0(round(rfastpOut$summary$after_filtering$read1_mean_length,2),"nt / ",round(rfastpOut$summary$after_filtering$read2_mean_length,2),"nt")))
+				} else {
+					filteredData<- rbind(filteredData,c('Average Read Length',paste0(round(rfastpOut$summary$after_filtering$read1_mean_length,2),"nt")))
+				}
+
+				filteredData<- rbind(filteredData,c('GC content',round(rfastpOut$summary$after_filtering$gc_content,2)))
+			}
+			
+			### Collect per position Sequence Quality boxplot stats from Rqc
+			rqcData<-list()
+			rqcData[['ReadQuality']]<-Rqc::rqcCycleAverageQualityCalc(qa) # Average quality per cycle (line plot)
+			rqcData[['CycleQualityHist']] <- Rqc::rqcCycleQualityBoxCalc(qa) # Quality per cycle box plot information
+
+			if (file.exists(input2)) {
+				rqcData2<-list()
+				rqcData2[['ReadQuality']]<-Rqc::rqcCycleAverageQualityCalc(qa2) # Average quality per cycle (line plot)
+				rqcData2[['CycleQualityHist']] <- Rqc::rqcCycleQualityBoxCalc(qa2) # Quality per cycle box plot information
+			}
+
+
+
+			### Collect per position Sequence Quality stats from Rfastp
+			qcData[['Quality']]<-data.frame(YES=rfastpOut$read1_before_filtering$quality_curves$mean,NO=rfastpOut$read1_after_filtering$quality_curves$mean, POSITION=seq_along(rfastpOut$read1_before_filtering$quality_curves$mean))
+			
+			if (file.exists(input2)) {
+				qcData2[['Quality']]<-data.frame(YES=rfastpOut$read2_before_filtering$quality_curves$mean,NO=rfastpOut$read2_after_filtering$quality_curves$mean, POSITION=seq_along(rfastpOut$read2_before_filtering$quality_curves$mean))
+			}
+			
+			### Collect per position Nucleotide Content from Rfastp
+			qcData[['NucleotideContent']]<-as.data.frame(rfastpOut$read1_before_filtering$content_curves)
+			if(showFiltered){
+				qcData[['FilteredNucleotideContent']]<-as.data.frame(rfastpOut$read1_after_filtering$content_curves)
+			}
+
+			if (file.exists(input2)) {
+				qcData2[['NucleotideContent']]<-as.data.frame(rfastpOut$read2_before_filtering$content_curves)
+				if(showFiltered){
+					qcData2[['FilteredNucleotideContent']]<-as.data.frame(rfastpOut$read2_after_filtering$content_curves)
+				}
+			}
+
+			### Collect Duplication levels from Rqc
+			rqcData[['DuplicationFrequencies']]<-Rqc::rqcReadFrequencyCalc(qa)
+			rqcData[['DuplicationRate']]<-formatC(sum(rqcData$DuplicationFrequencies$count/rqcData$DuplicationFrequencies$occurrence)*100/totalSampleReads, format = "f", digits = 2)
+			rqcData$DuplicationFrequencies$deduplicated<-(rqcData$DuplicationFrequencies$count/rqcData$DuplicationFrequencies$occurrence)*100/sum(rqcData$DuplicationFrequencies$count/rqcData$DuplicationFrequencies$occurrence)
+
+			if (file.exists(input2)) {
+				rqcData2[['DuplicationFrequencies']]<-Rqc::rqcReadFrequencyCalc(qa2)
+				rqcData2[['DuplicationRate']]<-formatC(sum(rqcData2$DuplicationFrequencies$count/rqcData2$DuplicationFrequencies$occurrence)*100/totalSampleReads, format = "f", digits = 2)
+				rqcData2$DuplicationFrequencies$deduplicated<-(rqcData2$DuplicationFrequencies$count/rqcData2$DuplicationFrequencies$occurrence)*100/sum(rqcData2$DuplicationFrequencies$count/rqcData2$DuplicationFrequencies$occurrence)
+			}
+
+			
+			
+			### Collect Overrepresented Sequences data from Rfastp
+			if(length(rfastpOut$read1_before_filtering$overrepresented_sequences)==0){
+					overrepresented1<-FALSE
+			
+			} else {
+				qcData[['OverrepresentedSequences']]<-data.frame(SEQUENCE=names(rfastpOut$read1_before_filtering$overrepresented_sequences), COUNTS=unlist(rfastpOut$read1_before_filtering$overrepresented_sequences,use.names=F), PERCENT=(unlist(rfastpOut$read1_before_filtering$overrepresented_sequences,use.names=F)/totalSampleReads)*100) %>% dplyr::arrange(desc(PERCENT))
+				if(showFiltered){
+					filteredNumberReads<-rfastpOut$summary$after_filtering$total_reads			
+					if (file.exists(input2)) {
+						filteredNumberReads<-filteredNumberReads/2
+					}
+					qcData[['FilteredOverrepresentedSequences']]<-data.frame(SEQUENCE=names(rfastpOut$read1_after_filtering$overrepresented_sequences), FILTERED_COUNTS=unlist(rfastpOut$read1_after_filtering$overrepresented_sequences,use.names=F), FILTERED_PERCENT=(unlist(rfastpOut$read1_after_filtering$overrepresented_sequences,use.names=F)/filteredNumberReads)*100) %>% dplyr::arrange(desc(FILTERED_PERCENT))
+
+					# Overrepresented sequences
+					overrepresentedData<-qcData$OverrepresentedSequences %>% dplyr::left_join(qcData$FilteredOverrepresentedSequences, by=c("SEQUENCE")) %>% dplyr::mutate(FILTERED_COUNTS = ifelse(is.na(FILTERED_COUNTS), 0, FILTERED_COUNTS),FILTERED_PERCENT = ifelse(is.na(FILTERED_PERCENT), 0, FILTERED_PERCENT))
+
+					overrepresentedDataSummary<-overrepresentedData[overrepresentedData$PERCENT>0.1 | overrepresentedData$FILTERED_PERCENT>0.1 ,c("SEQUENCE", "PERCENT", "FILTERED_PERCENT")]
+					if(nrow(overrepresentedDataSummary) >0){
+						overrepresentedDataSummary$PERCENT<-paste0(formatC(overrepresentedDataSummary$PERCENT, format = "f", digits = 2), "%")
+						overrepresentedDataSummary$FILTERED_PERCENT<-paste0(formatC(overrepresentedDataSummary$FILTERED_PERCENT, format = "f", digits = 2), "%")
+					}
+					colnames(overrepresentedDataSummary)<-c("SEQUENCE", "%READS", "%FILTERED_READS")
+				} else {
+					overrepresentedDataSummary<-qcData$OverrepresentedSequences[qcData$OverrepresentedSequences$PERCENT>0.1 ,c("SEQUENCE", "PERCENT")]
+					if(nrow(overrepresentedDataSummary) >0){
+						overrepresentedDataSummary$PERCENT<-paste0(formatC(overrepresentedDataSummary$PERCENT, format = "f", digits = 2), "%")
+					}
+					colnames(overrepresentedDataSummary)<-c("SEQUENCE", "%READS")
+				
+				}
+				overrepresented1<-(nrow(overrepresentedDataSummary) >0)
+			}
+
+			if (file.exists(input2)) {
+				if(length(rfastpOut$read2_before_filtering$overrepresented_sequences)==0){
+						overrepresented2<-FALSE
+				
+				} else {
+					qcData2[['OverrepresentedSequences']]<-data.frame(SEQUENCE=names(rfastpOut$read2_before_filtering$overrepresented_sequences), COUNTS=unlist(rfastpOut$read2_before_filtering$overrepresented_sequences,use.names=F), PERCENT=(unlist(rfastpOut$read2_before_filtering$overrepresented_sequences,use.names=F)/totalSampleReads)*100) %>% dplyr::arrange(desc(PERCENT))
+					if(showFiltered){
+						qcData2[['FilteredOverrepresentedSequences']]<-data.frame(SEQUENCE=names(rfastpOut$read2_after_filtering$overrepresented_sequences), FILTERED_COUNTS=unlist(rfastpOut$read2_after_filtering$overrepresented_sequences,use.names=F), FILTERED_PERCENT=(unlist(rfastpOut$read2_after_filtering$overrepresented_sequences,use.names=F)/filteredNumberReads)*100) %>% dplyr::arrange(desc(FILTERED_PERCENT))
+
+						# Overrepresented sequences
+						overrepresentedData2<-qcData2$OverrepresentedSequences %>% dplyr::left_join(qcData2$FilteredOverrepresentedSequences, by=c("SEQUENCE")) %>% dplyr::mutate(FILTERED_COUNTS = ifelse(is.na(FILTERED_COUNTS), 0, FILTERED_COUNTS),FILTERED_PERCENT = ifelse(is.na(FILTERED_PERCENT), 0, FILTERED_PERCENT))
+
+						overrepresentedDataSummary2<-overrepresentedData2[overrepresentedData2$PERCENT>0.1 | overrepresentedData2$FILTERED_PERCENT>0.1 ,c("SEQUENCE", "PERCENT", "FILTERED_PERCENT")]
+						if(nrow(overrepresentedDataSummary2) >0){
+							overrepresentedDataSummary2$PERCENT<-paste0(formatC(overrepresentedDataSummary2$PERCENT, format = "f", digits = 2), "%")
+							overrepresentedDataSummary2$FILTERED_PERCENT<-paste0(formatC(overrepresentedDataSummary2$FILTERED_PERCENT, format = "f", digits = 2), "%")
+						}
+						colnames(overrepresentedDataSummary2)<-c("SEQUENCE", "%READS", "%FILTERED_READS")
+					} else {
+						overrepresentedDataSummary2<-qcData2$OverrepresentedSequences[qcData2$OverrepresentedSequences$PERCENT>0.1 ,c("SEQUENCE", "PERCENT")]
+						if(nrow(overrepresentedDataSummary2) >0){
+							overrepresentedDataSummary2$PERCENT<-paste0(formatC(overrepresentedDataSummary2$PERCENT, format = "f", digits = 2), "%")
+						}
+						colnames(overrepresentedDataSummary2)<-c("SEQUENCE", "%READS")
+					
+					}
+					overrepresented2<-(nrow(overrepresentedDataSummary2) >0)
+				}
+			}
+
+
+
+			### Collect Adapter stats from Rfastp
+			if (adapterDetected && rfastpOut$adapter_cutting$read1_adapter_sequence != "unspecified") {
+				adapter1<-TRUE
+			} else {
+				adapter1<-FALSE
+			}
+
+			if (file.exists(input2) &&  adapterDetected && rfastpOut$adapter_cutting$read2_adapter_sequence != "unspecified") {
+				adapter2<-TRUE
+			} else {
+				adapter2<-FALSE
+			}
+			
+
+
+			if(adapter1){
+				qcData[['AdapterStats']]<-data.frame(SEQUENCE=names(rfastpOut$adapter_cutting$read1_adapter_counts),COUNTS=unlist(rfastpOut$adapter_cutting$read1_adapter_counts,use.names=F), PERCENT=(unlist(rfastpOut$adapter_cutting$read1_adapter_counts,use.names=F)/totalSampleReads)*50) #  %>% dplyr::arrange(desc(PERCENT))
+			}				
+			
+			if(adapter2){
+				qcData2[['AdapterStats']]<-data.frame(SEQUENCE=names(rfastpOut$adapter_cutting$read2_adapter_counts),COUNTS=unlist(rfastpOut$adapter_cutting$read2_adapter_counts,use.names=F), PERCENT=(unlist(rfastpOut$adapter_cutting$read2_adapter_counts,use.names=F)/totalSampleReads)*50) #  %>% dplyr::arrange(desc(PERCENT))
+			}
+
+
+			### Calculate Adapter content per position from Rfastp and Rqc
+			if(adapter1){
+				adapter<-rfastpOut$adapter_cutting$read1_adapter_sequence			
+				# Adapter Occurrences
+				adapterMatchLength<-11
+				# Define the adapter sequence
+				adapterMatch <- substr(rfastpOut$adapter_cutting$read1_adapter_sequence,1,adapterMatchLength)
+
+				# Open the zipped FASTQ file
+				fastq <- ShortRead::readFastq(dirname(reportInput1),paste0(basename(reportInput1),"$"))
+
+				# Extract the sequences from the FASTQ file
+				sequences <- ShortRead::sread(fastq)
+
+				# Initialize counters
+				adapter_count <- 0
+				longestSeq<-max(ShortRead::width(sequences))
+				position_counts <- integer(longestSeq-nchar(adapterMatch)+1)
+
+				# Loop through each sequence
+				for (seq in as.character(sequences)) {
+				  # Search for the adapter sequence
+				  match <- gregexpr(adapter, seq, fixed = TRUE)[[1]]
+				  
+				  # If the adapter is found
+				  if (match[1] != -1) {
+					adapter_count <- adapter_count + 1
+					position_counts[match[1]] <- position_counts[match[1]] + 1
+				#     for (pos in match) {
+				#         position_counts[pos] <- position_counts[pos] + 1
+				#     }
+				  }
+				}
+				# Occurrences of sequences with adapter :adapter_count
+				seqAdapterPercent<-adapter_count/totalSampleReads
+
+				# Percentage of occurrences of the adapter at each position: 
+				adapter_percent<-(position_counts/totalSampleReads)*100
+
+				# Cumulative percentage of occurrences of the adapter at each position: 
+				adapter_cumsum<-cumsum(adapter_percent)
+
+				# Adapter stats
+				AdapterStats<-data.frame(SEQUENCE=qcData$AdapterStats$SEQUENCE,CONTENT=paste0(formatC(qcData$AdapterStats$PERCENT, format = "f", digits = 2), "%"))
+			} else {
+				AdapterStats<-data.frame(SEQUENCE=character(),CONTENT=character())
+				adapter_cumsum<-0
+			}
+			
+			if(adapter2){
+
+				adapter<-rfastpOut$adapter_cutting$read2_adapter_sequence			
+				# Adapter Occurrences
+				adapterMatchLength<-11
+				# Define the adapter sequence
+				adapterMatch <- substr(rfastpOut$adapter_cutting$read2_adapter_sequence,1,adapterMatchLength)
+
+				# Open the zipped FASTQ file
+				fastq <- ShortRead::readFastq(dirname(reportInput2),paste0(basename(reportInput2),"$"))
+
+				# Extract the sequences from the FASTQ file
+				sequences <- ShortRead::sread(fastq)
+
+				# Initialize counters
+				adapter_count <- 0
+				longestSeq<-max(ShortRead::width(sequences))
+				position_counts <- integer(longestSeq-nchar(adapterMatch)+1)
+
+				# Loop through each sequence
+				for (seq in as.character(sequences)) {
+				  # Search for the adapter sequence
+				  match <- gregexpr(adapter, seq, fixed = TRUE)[[1]]
+				  
+				  # If the adapter is found
+				  if (match[1] != -1) {
+					adapter_count <- adapter_count + 1
+					position_counts[match[1]] <- position_counts[match[1]] + 1
+				#     for (pos in match) {
+				#         position_counts[pos] <- position_counts[pos] + 1
+				#     }
+				  }
+				}
+				# Occurrences of sequences with adapter :adapter_count
+				seqAdapterPercent<-adapter_count/totalSampleReads
+
+				# Percentage of occurrences of the adapter at each position: 
+				adapter_percent<-(position_counts/totalSampleReads)*100
+
+				# Cumulative percentage of occurrences of the adapter at each position: 
+				adapter_cumsum2<-cumsum(adapter_percent)
+
+
+				# Adapter stats
+				AdapterStats2<-data.frame(SEQUENCE=qcData2$AdapterStats$SEQUENCE,CONTENT=paste0(formatC(qcData2$AdapterStats$PERCENT, format = "f", digits = 2), "%"))				
+			
+			} else {
+				AdapterStats2<-data.frame(SEQUENCE=character(),CONTENT=character())				
+				adapter_cumsum2 = 0
+
+			}
+
+			### Collect Insert Size data
+			if (file.exists(input2) && !is.null(rfastpOut$insert_size)  && !is.null(rfastpOut$insert_size$histogram) &&  !is.null(rfastpOut$insert_size$unknown) && !is.null(rfastpOut$insert_size$peak)) {
+				insertSizeDetected<-TRUE
+
+				histData<-rfastpOut$insert_size$histogram[1:min(length(rfastpOut$insert_size$histogram),max(which(rfastpOut$insert_size$histogram!=0)+1))]
+
+				totalFreq<-(sum(histData)+rfastpOut$insert_size$unknown)
+				unknownFreq<-round((rfastpOut$insert_size$unknown*100)/totalFreq,2)
+				insertSizeData<-data.frame(Size=seq_along(histData)-1, Frequency=(histData*100)/totalFreq)
+				lineTicks<-seq(0,max(insertSizeData$Size),10)
+				insertSizePeak<-rfastpOut$insert_size$peak
+			} else {
+				insertSizeDetected<-FALSE			
+			}
+			
+
+			DEFAULT_MAXQUALITY=40		
+			### END COLLECT RFASTP and RQC DATA
+
+
+			# Generate report in temporary directory
+			reportTemplatePath<-paste0(reportBaseInput,".Rmd")
+			reportMD<-paste0(reportBaseInput,".md")
+			reportFigs<-paste0(reportBaseInput,"_figures/")
+			reportHTML<-paste0(reportBaseInput,".html")
+			reportCSS<-paste0(reportBaseInput,".css")
+			if (file.exists(input2)){
+				fs::file_copy('qcReportPE.Rmd',reportTemplatePath,overwrite=T)
+			} else {
+				fs::file_copy('qcReportSE.Rmd',reportTemplatePath,overwrite=T)
+			}
+			fs::file_copy('qcReport.css',reportCSS,overwrite=T)
+
+			if (!dir.exists(reportFigs)) { dir.create(reportFigs,showWarnings = FALSE,recursive=T) }
+			knitr::opts_chunk$set(fig.path = reportFigs)
+			#knitr::opts_knit$set(header='<style> body .main-container { max-width: "90%";}</style>')
+
+			knitr::knit(reportTemplatePath, output=reportMD)
+			markdown::markdownToHTML(reportMD, output = reportHTML,stylesheet=reportCSS)
+
+			# Copy report to final location and update file info and from props.json file
+			fs::file_move(reportHTML,paste0(input1,".html"))
+			fq1ViewFiles<-stringToList(props$VIEWFILES,"@@",";;")
+			fq1ViewFiles$REPORT<-paste0("./FASTQ/",basename(newData$input1),".html")
+			props$VIEWFILES<-listToString(fq1ViewFiles,"@@",";;")
+			propText<-RJSONIO::toJSON(props,.escapeEscapes = FALSE)
+			writeLines(propText, JSONfile)						
+
+			myDfFiles$files[myDfFiles$files$fname==props["NAME"],]$viewfiles <- props$VIEWFILES
+			# print(myDfFiles$files[myDfFiles$files$fname==props["NAME"],]$viewfiles)
+
+			if (file.exists(input2)) {		
+				fs::file_copy(paste0(input1,".html"),paste0(input2,".html"),overwrite=T)
+				fq2ViewFiles<-stringToList(props2$VIEWFILES,"@@",";;")
+				fq2ViewFiles$REPORT<-paste0("./FASTQ/",basename(newData$input2),".html")
+				props2$VIEWFILES<-listToString(fq2ViewFiles,"@@",";;")
+				propText2<-RJSONIO::toJSON(props2,.escapeEscapes = FALSE)
+				writeLines(propText2, JSONfile2)						
+				
+				myDfFiles$files[myDfFiles$files$fname==props2["NAME"],]$viewfiles <- props2$VIEWFILES
+			}	
+			saveFileTable()
+			
+			## Update file table
+			outText<-RJSONIO::toJSON(list(files=myDfFiles$files),.escapeEscapes = FALSE)
+			shinyjs::runjs(paste0("DataTable = ",outText,";renderFileTable(currentSortBy,'current');resize();"))
+			
+			
+			to_eval='## ## 00050 Creating quality report\n'			
+
+			CURRENT_COMMAND <<- to_eval		
+			#showNotification(toString(to_eval))
+			stepDone("success","OK")
+		},
+		error=function(cond) {
+			print(cond)
+			showNotification(toString(cond))
+			stepDone("fail",cond)
+		},
+		warning=function(cond) {
+			print(cond)
+			showNotification(toString(cond))
+			stepDone("fail",cond)
+		},
+		finally={
+		})
+	}		
+	
+	filter_with_fastP<-function(newData) {
+		delete_temp_folder()
+		tryCatch({
+			CURRENT_COMMAND <<- ""
+			input1=paste0(projectDir,"/FASTQ/",basename(newData$input1))
+			input2=paste0(projectDir,"/FASTQ/",basename(newData$input2))
+
+			fastqExtensions<-strsplit(fileTypes[fileTypes$ftype=="fastq",]$extensions," +")[[1]]
+			
+			outExtension="fastq.gz"
+			if(any(endsWith(newData$input1,fastqExtensions))){
+				outExtension<-fastqExtensions[endsWith(newData$input1,fastqExtensions)]
+			} else {
+				message(paste0("Warning: Input file ",basename(newData$input1)," does not have any known FASTQ file extension"))
+			}
+			if(!endsWith(outExtension,".gz")){
+				outExtension<-paste0(outExtension,".gz")
+			}
+				
+			fastqPattern <- paste0("\\.(", paste(fastqExtensions, collapse = "|"), ")$")
+
+			output1=paste0(projectDir,"/temp/",sub(fastqPattern, "",basename(newData$output1)))
+			output2=paste0(projectDir,"/temp/",sub(fastqPattern, "",basename(newData$output2)))
+			stringParams_fastP=""
+			for(sp in names(newData$common_params)) {
+				if (grepl("^fastP_",sp)) {
+					theparam=subset(PARAMS_fastP[["Param"]], PARAMS_fastP["ID"]==sp)
+					if (theparam=="BLANK") { theparam="" }
+				
+					stringParams_fastP=paste0(stringParams_fastP,", ",theparam,"=",newData$common_params[sp])
+				}
+			}
+			
+
+			print(stringParams_fastP)
+			to_eval='## ## 00000 Load libraries\nlibrary(Rfastp)\n'
+			if (file.exists(input2)) {
+				outputFastq=output1
+				to_eval=paste0(to_eval,'## ## 00050 Apply filters to FASTQ files
+
+sinkOutFile = paste0(output1,"_stdout.txt")
+sinkErrFile2 = paste0(output1,"_stderr.txt")
+
+connOutFile = file(sinkOutFile, open="wt")
+connErrFile = file(sinkErrFile2, open="wt")
+
+sink(file=connOutFile, append=TRUE, type="output")
+sink(file=connErrFile, append=TRUE, type="message")
+				
+Rfastp::rfastp(read1="',input1,'",  read2="',input2,'", outputFastq="',outputFastq,'" ',stringParams_fastP,')
+
+if(file.exists("',output1,'_R1.fastq.gz")) {
+	fs::file_move("',output1,'_R1.fastq.gz", "',output1,'.',outExtension,'") 
+} else if(file.exists("',output1,'_R1.fastq")) {
+	fs::file_move("',output1,'_R1.fastq", "',output1,'.',sub("\\.gz$","",outExtension),'") 
+}
+
+if(file.exists("',output1,'_R2.fastq.gz")) {
+	fs::file_move("',output1,'_R2.fastq.gz", "',output2,'.',outExtension,'") 
+} else if(file.exists("',output1,'_R2.fastq")) {
+	fs::file_move("',output2,'_R2.fastq", "',output2,'.',sub("\\.gz$","",outExtension),'") 
+}
+
+
+sink(type="output")
+sink(type="message")
+
+close(connOutFile)
+close(connErrFile)
+
+')
+			}
+			else {
+				outputFastq=output1
+				to_eval=paste0(to_eval,'## ## 00050 Apply filters to FASTQ files
+
+sinkOutFile = paste0(output1,"_stdout.txt")
+sinkErrFile = paste0(output1,"_stderr.txt")
+
+connOutFile = file(sinkOutFile, open="wt")
+connErrFile = file(sinkErrFile, open="wt")
+
+sink(file=connOutFile, append=TRUE, type="output")
+sink(file=connErrFile, append=TRUE, type="message")
+
+
+Rfastp::rfastp(read1="',input1,'", outputFastq="',outputFastq,'" ',stringParams_fastP,')
+
+if(file.exists("',output1,'_R1.fastq.gz")) {
+	fs::file_move("',output1,'_R1.fastq.gz", "',output1,'.',outExtension,'") 
+} else if(file.exists("',output1,'_R1.fastq")) {
+	fs::file_move("',output1,'_R1.fastq", "',output1,'.',sub("\\.gz$","",outExtension),'") 
+}
+
+sink(type="output")
+sink(type="message")
+
+close(connOutFile)
+close(connErrFile)
+
+
+')
+			}
+			#print(to_eval)
+			eval(parse(text=to_eval))
+			CURRENT_COMMAND <<- to_eval		
+			#showNotification(toString(to_eval))
+			stepDone("success","OK")
+		},
+		error=function(cond) {
+			print(cond)
+			showNotification(toString(cond))
+			stepDone("fail",cond)
+		},
+		warning=function(cond) {
+			print(cond)
+			showNotification(toString(cond))
+			stepDone("fail",cond)
+		},
+		finally={
+		})
+	}	
+
 		
 	align_with_bowtie2<-function(newData) {
 		delete_temp_folder()
@@ -1179,7 +1912,6 @@ if (file.exists("_SEQ1_.gz") && !file.exists("_SEQ1_")) { R.utils::gunzip("_SEQ1
 			}
 
 		}
-		
 	}
 	
 	align_with_hisat2<-function(newData) {
@@ -2107,6 +2839,11 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 		tryCatch({
 			newData=as.list(newData)
 			tmpProject=paste0(projectDir,"/temp/",newData$fname)
+			# Check if file is gzipped, not bam and it has an incorrect extension
+			if(!endsWith(newData$fname,".gz") && !endsWith(newData$fname,".bam") && summary(file(newData$datapath))$class == "gzfile"){
+					stop("Unable to load gzipped file with wrong extension. Add .gz extension to this file.");
+			}
+			
 			fs::file_move(newData$datapath,tmpProject)
 			knowFileType<-apply(fileTypes,1,function(x){listexp=unlist(strsplit(c(x[4])," ")); any(sapply(listexp,function(x){grepl(paste0("\\.",x,"$"),newData$fname,perl=T)}))})
 			newData$fname=tmpProject;
@@ -2360,25 +3097,31 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 	}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	check_fastq_pair <- function(file_name){
+		candidates<-list()
+		sortedFileNames<-myDfFiles$files[myDfFiles$files$ftype=="fastq",]$fname
+		sortedFileNames<-sortedFileNames[order(sortedFileNames)]
+		if(!(file_name %in% sortedFileNames)){
+			sortedFileNamesWithFile<-c(file_name,sortedFileNames)
+			sortedFileNamesWithFile<-sortedFileNamesWithFile[order(sortedFileNamesWithFile)]
+			filePos<-which(file_name == sortedFileNamesWithFile)
+			for (candidate in sortedFileNames){
+				# Check that the file names differ only in one character
+				if(adist(candidate,file_name)==1){
+						## If alphabetically is before the new file, the candidate is assumed to be the first pair
+						if(filePos < which(candidate == sortedFileNamesWithFile)){
+							candidates[[candidate]]<-list(PAIR = 1,PARTNER = candidate)
+						## If alphabetically is before the new file, the candidate is assumed to be the second pair
+						} else {
+							candidates[[candidate]]<-list(PAIR = 2,PARTNER = candidate)
+						}
+				}
+			}
+		} 
+		
+		return(candidates)
+	}
+	
 	initialize_FASTQ_file<-function(newData) {
 		tryCatch({	
 			newData=as.list(newData)
@@ -2396,13 +3139,58 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 
 			currentDesc <- paste0(base::format(nreads, big.mark=",", scientific=FALSE)," short reads")
 
+			## Find if there is a valid pair name
+			firstRead<-read_nonempty_lines(tempPath,1)
+ 
+			pairCandidates<-check_fastq_pair(basename(newData$fname))
+			matchingPair<- NULL
+			for(pairCandidate in pairCandidates){				
+				otherPair<-list(PAIR=ifelse(pairCandidate$PAIR == "1","2","1"),PARTNER=basename(newData$fname))
+				pairData<-myDfFiles$files[myDfFiles$files$fname==pairCandidate$PARTNER,]
+				pairJSONfile<-paste0(projectDir,"/",pairData$datapath,".props.json")
+				pairPropText=paste(readLines(pairJSONfile), collapse="\n")
+				pairProp<-RJSONIO::fromJSON(pairPropText, asText=TRUE, na="null", null="null")
+				if(nreads == pairProp$NREADS && pairProp$PARTNER == "") { ## If the candidate does not have a PARTNER assigned
+					firstPairRead<-read_nonempty_lines(paste0(projectDir,"/",pairData$datapath),1)
+					## Check first read name in each pair. It must be either equal or differ only in the last character
+					if(adist(firstRead,firstPairRead) == 0 ||  (adist(firstRead,firstPairRead) == 1 && adist(substr(firstRead,nchar(firstRead),nchar(firstRead)),substr(firstPairRead,nchar(firstPairRead),nchar(firstPairRead)))== 1)){
+						if(is.null(matchingPair)){
+							message(paste0("Found pair of loaded file: ",pairCandidate$PARTNER, " of ",basename(newData$fname)))
+							## If the partner meets the criteria, create a new props file for it and modify the description of this file														
+							pairProp$PAIR = ifelse(pairCandidate$PAIR == "1","2","1")
+							pairProp$PARTNER = basename(newData$fname)
+							pairProp$DESCRIPTION = paste0(base::format(pairProp$NREADS, big.mark=",", scientific=FALSE)," short read pairs")
+							pairProp$VIEWFILES =  listToString(otherPair,"@@",";;")
+							pairPropText<-RJSONIO::toJSON(pairProp,.escapeEscapes = FALSE)
+							tempPairJSONfile = paste0(projectDir,"/temp/",pairCandidate$PARTNER,".props.json")
+							writeLines(pairPropText, tempPairJSONfile)						
+							currentDesc <-paste0(base::format(nreads, big.mark=",", scientific=FALSE)," short read pairs")
+							# Asign matching pair candidate and break the loop
+							matchingPair<-pairCandidate							
+						} else {
+							message("Warning! More than one compatible paired end files!!!!!")
+						}
+					}
+				}
+			}
+			
+			
 			prop <-list()
 			prop["NAME"]         = basename(tempPath)
 			prop["DATAPATH"]    = relativePath
 			prop["SIZE"]         = base::file.info(tempPath)$size
 			prop["TYPE"]         = "fastq"
 			prop["NREADS"]       = nreads
-			prop["VIEWFILES"]    = "ND"
+			
+			if(!is.null(matchingPair)){
+				prop["PAIR"]       = matchingPair$PAIR
+				prop["PARTNER"]      = matchingPair$PARTNER
+				prop["VIEWFILES"]    = listToString(matchingPair,"@@",";;")
+			} else{
+				prop["PAIR"]       = ""
+				prop["PARTNER"]    = ""
+				prop["VIEWFILES"]    = "ND"
+			}
 			prop["DEPENDENCIES"] = "ND"
 			prop["DESCRIPTION"]  = currentDesc
 			prop["HIDDEN"]      = "NO"
@@ -2413,7 +3201,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 				newData$dependencies=paste0(newData$dependencies," @@ REMOVETHIS")
 				prop["DEPENDENCIES"]   = strsplit(newData$dependencies," @@ ")
 			}
-
+  
 			outText<-RJSONIO::toJSON(prop,.escapeEscapes = FALSE)
 			writeLines(outText, propsFile)
 		
@@ -2450,6 +3238,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 	
 
 
+
 	create_accessory_files_for_FASTQ<-function(newData) {
 		tryCatch({	
 			newData=as.list(newData)
@@ -2462,26 +3251,6 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			relativePath = paste0("./FASTQ/",basename(tempPath))
 			propsFile    = paste0(tempPath,".props.json")
 					
-#			qc <- viewFastq(tempPath)
-#			pairs <- unique(perFileInformation(qc)$pair)
-#			for(pair in pairs) {
-#				qc.sub <- subsetByPair(qc, pair)
-#				png(filename=paste0(tempPath,".RQC.1.png"), width=400, height=225)
-#				dev.off()
-#				png(filename=paste0(tempPath,".RQC.2.png"), width=400, height=225)
-#				dev.off()
-			
-#				png(filename=paste0(tempPath,".RQC.3.png"), width=400, height=225)
-#				dev.off()
-						
-#				png(filename=paste0(tempPath,".RQC.4.png"), width=400, height=225)
-#				df <- rqcCycleAverageQualityCalc(qc.sub)
-#				cycle <- as.numeric(levels(df$cycle))[df$cycle]
-#				plot(cycle, df$quality, col = df$filename, xlab='Cycle', ylab='Quality Score')
-#				dev.off()	
-#			}
-
-
 
 			stepDone("success","OK")
 		},
@@ -2540,9 +3309,27 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 
 			if (file.exists(paste0(tempPath,".Raw"))) { fs::file_move(paste0(tempPath,".Raw"), paste0(newPath,".Raw")) }
 			if (file.exists(paste0(tempPath,".R"))) { fs::file_move(paste0(tempPath,".R"), paste0(newPath,".R")) }
-
+			
 			fs::file_move(paste0(tempPath,".props.json"), paste0(newPath,".props.json"))
+			## Overwrite partner props file		
+			if(prop["PARTNER"]!= ""){	
+				partnerTempProps<-paste0(projectDir,"/temp/",prop["PARTNER"],".props.json")
+				partnerProps=paste0(projectDir,"/FASTQ/",prop["PARTNER"],".props.json")
+				if(fs::file_exists(partnerTempProps) && fs::is_file(partnerTempProps) && fs::file_exists(partnerProps) && fs::is_file(partnerProps)){
+					pairPropText=paste(readLines(partnerTempProps), collapse="\n")
+					pairProp<-RJSONIO::fromJSON(pairPropText, asText=TRUE, na="null", null="null")
+					fs::file_copy(partnerTempProps, partnerProps,overwrite=T)
+					fs::file_delete(partnerTempProps)
 
+					## Replace partner info in files data frame
+					myDfFiles$files[myDfFiles$files$fname==prop["PARTNER"],]$description <- pairProp$DESCRIPTION
+					myDfFiles$files[myDfFiles$files$fname==prop["PARTNER"],]$viewfiles <- pairProp$VIEWFILES
+					saveFileTable()
+				}					
+			}
+			# Copy quality control report file (now it has to be done on demand)
+			#if (file.exists(paste0(tempPath,".html"))) { fs::file_move(paste0(tempPath,".html"), paste0(newPath,".html")) }
+			
 			addFileToProject(c(NAME, SIZE, TYPE, DATAPATH, CREATED, VIEWFILES, DEPENDENCIES, DESCRIPTION, HIDDEN, MD5))
 			outText<-RJSONIO::toJSON(list(files=myDfFiles$files),.escapeEscapes = FALSE)
 			shinyjs::runjs(paste0("DataTable = ",outText,";renderFileTable('fcreated','up');resize();"))
@@ -3146,7 +3933,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			} 
 			else{
 				# Determine less frequent unique feature and create paths file 
-				# smallestFeature<-(gffFeaturesCounts[gffFeaturesCounts$FEATURES %in% names(which(table(gffFeaturesCounts$FEATURES) == 1)),] %>% arrange(N))[1,]$FEATURES
+				# smallestFeature<-(gffFeaturesCounts[gffFeaturesCounts$FEATURES %in% names(which(table(gffFeaturesCounts$FEATURES) == 1)),] %>% dplyr::arrange(N))[1,]$FEATURES
 				# Rgff::saf_from_gff(tempPath, outFile=paste0(tempPath,".saf"),features=c(gffFeaturesCounts$FEATURES[gffFeaturesCounts$FEATURES==smallestFeature]))  # to generate .paths
 				stop("The annotation file provide does not contain genes")
 			}
@@ -3767,7 +4554,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			TYPE         = "ann"
 			DATAPATH     = relativePath
 			CREATED      = base::format(Sys.time(), "%Y/%m/%d %H:%M:%S")
-			VIEWFILES    = ""
+			VIEWFILES    = "ND"
 			DEPENDENCIES = "ND"
 			DESCRIPTION  = currentDesc
 			HIDDEN       = "NO"
