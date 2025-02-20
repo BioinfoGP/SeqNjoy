@@ -318,8 +318,7 @@ ul.list {
 	font-family:sans-serif;
 	padding:0.33rem;
 	border-radius:5px;
-	box-shadow:1px 1px 2px silver;
-	font-size:0.75rem;
+	box-shadow:1px 1px 2px silver;	
 }
 
 .buttonIcon:not(.exitButton) {
@@ -526,7 +525,6 @@ ul.list {
 	white-space:nowrap;
 	background:#EDEDED;
 	text-decoration:none;
-	//font-size:1rem;
 }
 
 .igvIcon {
@@ -616,19 +614,6 @@ ul.list {
 	padding-top:1rem;
 	padding-bottom:1rem;
 }
-/*
-#NewSession_Input {
-	font-size:1.2rem;
-	padding:0.25rem;
-}*/
-/*
-#NewSession_Button {
-	font-size:1.2rem;
-	margin-left:1rem;
-	margin-top:1rem;
-	margin-bottom:1rem;
-	padding:0.25rem;
-}*/
 
 #LoadFiles {
 	display:block;

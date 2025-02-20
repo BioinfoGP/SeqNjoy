@@ -3,7 +3,6 @@
 function renderTrimTab(option){
 	fastqSelect1=''
 	fastqSelect2=''
-	fastaSelect='';
 	for (var key in DataTable) {
 		if (DataTable.hasOwnProperty(key)) {
 			var myObj=DataTable[key];
@@ -56,7 +55,7 @@ function renderTrimTab(option){
 							<tr>
 								<td class="medipadded" style="border-bottom:1px solid #000000;">
 									<b> Function:</b>
-									`+option+`									
+									`+option.toLowerCase()+`									
 								</td>
 							</tr>
 							<tr>
@@ -282,7 +281,10 @@ function launchTrimQueue() {
 
 	var stepCaptions=new Array();
 	for (var f=0;f<CURRENT_TASKS.length;f++) {
-		stepCaptions[f]=CURRENT_TASKS[f][0]["data"]["input1"]+` and `+CURRENT_TASKS[f][0]["data"]["input2"];
+		stepCaptions[f]=CURRENT_TASKS[f][0]["data"]["input1"];
+		if(CURRENT_TASKS[f][0]["data"]["input2"] != NOT_SELECTED){
+			stepCaptions[f]+=` and `+CURRENT_TASKS[f][0]["data"]["input2"];
+		}
 		for (var ff=0;ff<CURRENT_TASKS[f].length;ff++) {
 			if (!CURRENT_TASKS[f][ff]["bottomMessage"]) {
 				CURRENT_TASKS[f][ff]["bottomMessage"]="--BOTTOM MESSAGE--";

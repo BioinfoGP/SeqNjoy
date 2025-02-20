@@ -159,6 +159,11 @@ server <- function(input,output, session) {
 					
 				} 
 			}
+			## Sort projects by most recent accessed time
+			if(nrow(currentProjects) > 0 && ("accessed" %in% colnames(currentProjects))){
+				accessedTimes <- as.POSIXct(currentProjects$accessed, format="%Y/%m/%d %H:%M:%S", tz="UTC")
+				currentProjects<<-currentProjects[order(accessedTimes,decreasing = TRUE),]
+			}			
 			writeLines(home_dir,config_file)
 		}
 	}
@@ -560,7 +565,7 @@ server <- function(input,output, session) {
         } else {
 			## showNotification(paste0("Vignette ",newData[["vignette"]]," not found!. Redirecting to website."), type = "error")
 			message(paste0("Vignette ",newData[["vignette"]]," not found!. Redirecting to website."))
-			vignette_path <- paste0("https://bioinfogp.cnb.csic.es/tools/seqnjoy/",newData[["vignette"]])
+			vignette_path <- paste0("https://bioinfogp.cnb.csic.es/tools/seqnjoy/vignettes/",newData[["vignette"]],".html")
 			utils::browseURL(vignette_path)
         }
 		
@@ -1168,11 +1173,11 @@ server <- function(input,output, session) {
 				close(connErrFile)
 
 				if(sampleReads>0){				
-					qa<-Rqc::rqcQA(as.list(input1), n=sampleReads)
-					qa2<-Rqc::rqcQA(as.list(input2), n=sampleReads)
+					qa<-suppressWarnings(Rqc::rqcQA(as.list(input1), n=sampleReads))
+					qa2<-suppressWarnings(Rqc::rqcQA(as.list(input2), n=sampleReads))
 				} else{
-					qa<-Rqc::rqcQA(as.list(input1), sample=FALSE)
-					qa2<-Rqc::rqcQA(as.list(input2), sample=FALSE)
+					qa<-suppressWarnings(Rqc::rqcQA(as.list(input1), sample=FALSE))
+					qa2<-suppressWarnings(Rqc::rqcQA(as.list(input2), sample=FALSE))
 				}
 			} else {
 				sinkOutFile = paste0(reportBaseInput,"_stdout.txt")
@@ -1193,34 +1198,12 @@ server <- function(input,output, session) {
 				close(connErrFile)
 				
 				if(sampleReads>0){
-					qa<-Rqc::rqcQA(as.list(input1), n=sampleReads)
+					qa<-suppressWarnings(Rqc::rqcQA(as.list(input1), n=sampleReads))
 				} else {
-					qa<-Rqc::rqcQA(as.list(input1), sample=FALSE)				
+					qa<-suppressWarnings(Rqc::rqcQA(as.list(input1), sample=FALSE))
 				}
 			}
 
-			rfastpErr<-readLines(sinkErrFile)
-			if (any(grepl("Detecting adapter",rfastpErr))){
-				adapterNames<-rfastpErr[grep("Detecting adapter",rfastpErr)+1]
-				if(grepl("^[ACGT]+$",adapterNames[1])){
-					adapterName1<-"Unknown adapter"
-				} else{
-					adapterName1<-sub(">", "",adapterNames[1])
-				}
-				if (file.exists(input2) && length(adapterNames)>1) {
-					if(grepl("^[ACGT]+$",adapterNames[2])){
-						adapterName2<-"Unknown adapter"
-					} else{
-						adapterName2<-sub(">", "",adapterNames[2])
-					}
-				} else {
-					adapterName2<-"NONE"
-				}
-				
-			} else {
-				adapterName1<-"NONE"
-				adapterName2<-"NONE"
-			}
 			
 			
 			### Collect file info from props.json files
@@ -1235,9 +1218,10 @@ server <- function(input,output, session) {
 				props2<-RJSONIO::fromJSON(propText2, asText=TRUE, na="null", null="null")
 				fastq2Reads<-props2$NREADS
 			}
-			
+			# Adapter identification
 			adapterDetected=!is.null(rfastpOut$adapter_cutting)
-			
+			rfastpErr<-readLines(sinkErrFile)
+						
 			totalSampleReads<-rfastpOut$summary$before_filtering$total_reads
 			if (file.exists(input2)) {
 				totalSampleReads<-totalSampleReads/2
@@ -1253,8 +1237,16 @@ server <- function(input,output, session) {
 			qcData[['GC content']]<-round(rfastpOut$summary$before_filtering$gc_content,2)
 			if(adapterDetected && rfastpOut$adapter_cutting$read1_adapter_sequence != "unspecified"){
 				qcData[['Adapter Sequence']]<-rfastpOut$adapter_cutting$read1_adapter_sequence
+				adapterName1<-"Unknown adapter"
+				if (any(grepl(paste0("^",qcData[['Adapter Sequence']],"$"),rfastpErr))){
+					possibleAdapterName<-rfastpErr[grep(paste0("^",qcData[['Adapter Sequence']],"$"),rfastpErr)-1]
+					if(startsWith(possibleAdapterName,">")){
+						adapterName1<-sub(">", "",possibleAdapterName)
+					} 
+				}
 			} else {
 				qcData[['Adapter Sequence']]<-"None"
+				adapterName1<-"No adapter detected for read1"				
 			}
 			qcData[['Adapter Name']]<-adapterName1
 
@@ -1268,8 +1260,16 @@ server <- function(input,output, session) {
 				qcData2[['GC content']]<-round(rfastpOut$summary$before_filtering$gc_content,2)
 				if(adapterDetected && rfastpOut$adapter_cutting$read2_adapter_sequence != "unspecified"){
 					qcData2[['Adapter Sequence']]<-rfastpOut$adapter_cutting$read2_adapter_sequence
+					adapterName2<-"Unknown adapter"
+					if (any(grepl(paste0("^",qcData2[['Adapter Sequence']],"$"),rfastpErr))){
+						possibleAdapterName<-rfastpErr[grep(paste0("^",qcData2[['Adapter Sequence']],"$"),rfastpErr)-1]
+						if(startsWith(possibleAdapterName,">")){
+							adapterName2<-sub(">", "",possibleAdapterName)
+						} 
+					}
 				} else {
 					qcData2[['Adapter Sequence']]<-"None"
+					adapterName2<-"No adapter detected for read2"
 				}
 				qcData2[['Adapter Name']]<-adapterName2
 				summaryData<-data.frame(Feature=names(qcData),R1=unlist(qcData,use.names=F),R2=unlist(qcData2,use.names=F))			
@@ -1277,6 +1277,7 @@ server <- function(input,output, session) {
 			} else {
 				summaryData<-data.frame(Feature=names(qcData),Value=unlist(qcData,use.names=F))
 			}
+
 
 			### Collect filtered stats from Rfastp
 			if(showFiltered){
@@ -1649,7 +1650,7 @@ server <- function(input,output, session) {
 			}
 			
 
-			print(stringParams_fastP)
+			# print(stringParams_fastP)
 			to_eval='## ## 00000 Load libraries\nlibrary(Rfastp)\n'
 			if (file.exists(input2)) {
 				outputFastq=output1
@@ -1935,7 +1936,7 @@ if (file.exists("_SEQ1_.gz") && !file.exists("_SEQ1_")) { R.utils::gunzip("_SEQ1
 					else if (theparam=="known-splicesite-infile") { # this param is not in the stringParams
 						use_gff=paste0(projectDir,"/",thevalue)
 						if (file.exists(use_gff)) {
-							thevalue=paste0("'",projectDir,"/",thevalue,".introns'")
+							thevalue=paste0("'\"",projectDir,"/",thevalue,".introns\"'")
 							stringParams=paste0(stringParams," `",theparam,"`=",thevalue, ", ")
 						}
 					}
@@ -2061,6 +2062,7 @@ NODUPS <<- Rsamtools::countBam("_OUTPUT_BAM_", param=param)[["records"]] # REMOV
 			to_eval <- gsub('_USE_GFF_'                , use_gff                , to_eval)
 			to_eval <- gsub('_TMP_GFF_'                , out_tmp                , to_eval)
 			
+			print(to_eval)
 			eval(parse(text=to_eval))
 			## add some lines to command (no to be evaluated)
 			
@@ -3140,8 +3142,9 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			currentDesc <- paste0(base::format(nreads, big.mark=",", scientific=FALSE)," short reads")
 
 			## Find if there is a valid pair name
+			## Read header of first read and remove "length=XX" statement if neccesary
 			firstRead<-read_nonempty_lines(tempPath,1)
- 
+			firstRead<-sub("length=\\d+","",firstRead,ignore.case=T)
 			pairCandidates<-check_fastq_pair(basename(newData$fname))
 			matchingPair<- NULL
 			for(pairCandidate in pairCandidates){				
@@ -3151,7 +3154,9 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 				pairPropText=paste(readLines(pairJSONfile), collapse="\n")
 				pairProp<-RJSONIO::fromJSON(pairPropText, asText=TRUE, na="null", null="null")
 				if(nreads == pairProp$NREADS && pairProp$PARTNER == "") { ## If the candidate does not have a PARTNER assigned
+					## Read header of first read and remove "length=XX" statement if neccesary
 					firstPairRead<-read_nonempty_lines(paste0(projectDir,"/",pairData$datapath),1)
+					firstPairRead<-sub("length=\\d+","",firstPairRead,ignore.case=T)
 					## Check first read name in each pair. It must be either equal or differ only in the last character
 					if(adist(firstRead,firstPairRead) == 0 ||  (adist(firstRead,firstPairRead) == 1 && adist(substr(firstRead,nchar(firstRead),nchar(firstRead)),substr(firstPairRead,nchar(firstPairRead),nchar(firstPairRead)))== 1)){
 						if(is.null(matchingPair)){
@@ -3165,9 +3170,10 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 							tempPairJSONfile = paste0(projectDir,"/temp/",pairCandidate$PARTNER,".props.json")
 							writeLines(pairPropText, tempPairJSONfile)						
 							currentDesc <-paste0(base::format(nreads, big.mark=",", scientific=FALSE)," short read pairs")
-							# Asign matching pair candidate and break the loop
+							# Asign matching pair candidate
 							matchingPair<-pairCandidate							
 						} else {
+							# There should not exist more than one compatible partner. Show warning message in the console, 
 							message("Warning! More than one compatible paired end files!!!!!")
 						}
 					}

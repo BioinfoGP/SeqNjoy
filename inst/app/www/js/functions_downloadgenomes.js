@@ -31,7 +31,7 @@ function renderDownloadGenomesTab(option){
 	
 	
 	var EnsemblVersionText= (EnsemblVersion!="") ? `Ensembl (vertebrates) <i class="fa fa-globe" aria-hidden="true" style="font-size:1.1rem;"> Online  - release `+EnsemblVersion+` </i>` : `Ensembl (vertebrates) <i class="fa fa-times-circle" aria-hidden="true" style="font-size:1.1rem;"> Offline </i>`
-	var EnsemblGenomesVersionText= (EnsemblGenomesVersion!="") ? `Ensembl genomes (others) <i class="fa fa-globe" aria-hidden="true" style="font-size:1.1rem;"> Online  - release `+EnsemblGenomesVersion+` </i>` : `Ensembl genomes (others) <i class="fa fa-times-circle" aria-hidden="true" style="font-size:1.1rem;"> Offline  </i>`;
+	var EnsemblGenomesVersionText= (EnsemblGenomesVersion!="") ? `Ensembl Genomes (others) <i class="fa fa-globe" aria-hidden="true" style="font-size:1.1rem;"> Online  - release `+EnsemblGenomesVersion+` </i>` : `Ensembl Genomes (others) <i class="fa fa-times-circle" aria-hidden="true" style="font-size:1.1rem;"> Offline  </i>`;
 
 	var htmlOut=`
 	<form id="NewGenomeDownload" name="NewGenomeDownload"  action="javascript:void(0);">

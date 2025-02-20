@@ -66,20 +66,17 @@ To use the feature "Align reads with **Bowtie2**" on Windows, ensure the followi
     - Python 3 is required for genome indexing.
     - If Python 3 is not already installed:
         - **Recommended Option:** Download and install Python 3 from the official website: [https://www.python.org/downloads/](https://www.python.org/downloads/).
-        - During installation, check the option to **Add Python to PATH**.
+        - Ensure that you check the option to **Add Python to PATH** during installation.
     - **Alternative Option:** Install Python 3 from the Microsoft Store. 
-    - After installation, verify Python is working by running the following command in a terminal: 
+    - After installing Python, verify its installation by running the following command in a terminal: 
      ```cmd
          python3 --version
      ```
-    - If the `python3` command is not recognized or opens the Microsoft Store instead of showing the version, follow these steps:
-        1. Check if Python is added to your system’s PATH:
-            - Open a terminal and try running `python` or `python3`.
-            - If neither command works, locate the installation directory of Python (e.g., `C:\Python39\`) and add it to your PATH environment variable.
-            - For instructions on modifying PATH, refer to [Python’s documentation](https://docs.python.org/3/using/windows.html#installation-steps).  
-        2. If `python3` opens the Microsoft Store, disable the `python3` alias for the Microsoft Store:  
-            - Open **Manage App Execution Aliases** in the Control Panel.  
-            - Disable the alias for `python3` and/or `python`.  
+    - If python3 does not work and instead opens the Microsoft Store, you may need to adjust your system configuration:
+        - Check **App Execution Aliases** settings: Open **Manage App Execution Aliases** in the Control panel and disable the python3 alias for the Microsoft Store.
+        - Ensure that the installation path for Python is correctly added to your PATH environment variable. 
+
+
 
 2. **Perl** 
     - Perl is required for sequence aligning
@@ -166,19 +163,21 @@ if (!requireNamespace("remotes", quietly = TRUE)){
     install.packages("remotes")
 }
 
-## Install SeqNjoy with vignettes
-remotes::install_github("BioinfoGP/SeqNjoy", dependencies=TRUE, build_vignettes = TRUE, bioc_version = BiocManager::version(),ref="development")
-
 ## Install SeqNjoy without vignettes
 remotes::install_github("BioinfoGP/SeqNjoy", dependencies=TRUE, bioc_version = BiocManager::version(),ref="development")
 
+## Install SeqNjoy with vignettes
+remotes::install_github("BioinfoGP/SeqNjoy", dependencies=TRUE, build_vignettes = TRUE, bioc_version = BiocManager::version(),ref="development")
+
 ```
+
 ### From Source
 
 Installation from source can also be done using devtools.
 
-   - Download the latest gzipped package source code SeqNjoy_0.5.X.tar.gz available at [BioinfoGP’s GitHub repository](https://github.com/BioinfoGP/SeqNjoy).
-   - Open R.
+1. Download the latest gzipped package source code SeqNjoy_0.5.X.tar.gz available at [BioinfoGP’s GitHub repository](https://github.com/BioinfoGP/SeqNjoy).
+
+2. Open R.
 
 ```{r, eval=FALSE}
 
@@ -203,7 +202,6 @@ untar("SeqNjoy_0.5.X.tar.gz", exdir=d)
 devtools::install(file.path(d, "SeqNjoy"), dependencies=TRUE, repos=BiocManager::repositories())
 ```
 
-
 ## Starting SeqNjoy
 
 Load **SeqNjoy** library 
@@ -226,6 +224,7 @@ vignette('SeqNjoy')
 vignette('SeqNjoy_Tutorial')
 vignette('SeqNjoy_QuickGuide')
 ```
+
 These resources are also available through the About menu within the application 
 and online at [BioinfoGP's website](https://bioinfogp.cnb.csic.es/tools/seqnjoy), 
 

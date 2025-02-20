@@ -34,3 +34,13 @@
 
 * Auto detection and joint management of paired end short read files
 
+# SeqNjoy 0.5.9
+
+* Improved QC and filtering dialogs
+
+* Larger text size in description
+
+* Meticulous paired end detection
+
+* Fixed bugs
+

@@ -8,8 +8,10 @@ function disableBowtie2(){
 }
 
 function renderAlignmentTab(option){
-	fastqSelect1=''
-	fastqSelect2=''
+	fastqSelect1='';
+	fastqSelect2='';
+	fastaSelect=new Array();
+	fastaSelectHTML='';
 	for (var key in DataTable) {
 		if (DataTable.hasOwnProperty(key)) {
 			var myObj=DataTable[key];

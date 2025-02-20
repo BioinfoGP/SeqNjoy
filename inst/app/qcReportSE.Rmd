@@ -188,7 +188,7 @@ if(adapter1){
 ```
 
 
-`r ifelse(adapter1,knitr::kable(AdapterStats, align="lr"), "Adapter not found")`
+`r if(adapter1) knitr::kable(AdapterStats, align="lr") else "Adapter not found"`
 
 
 ```{r, filtered-heading, eval=showFiltered,echo=FALSE}
