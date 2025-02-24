@@ -13,7 +13,11 @@ knitr::opts_chunk$set(dpi=300)
 
 `r knitr::kable(summaryData, align="lrr")`
 
-
+```{r, sample-size-warning, eval=showSampleSizeWarning,echo=FALSE}
+	if(showSampleSizeWarning){
+		knitr::asis_output(paste0("# <span style='color:red'> WARNING! FASTQ file integrity issue detected! </span> \n\n ## Sample size reported by Rqc (",rqcSampleReads,") differs from fastp (",totalSampleReads,").\n\n ## This suggests potential issues with your FASTQ file(s). Do not proceed with filtering until the file(s) are fixed. "))
+	}
+```
 
 # Per base sequence quality boxplot
 

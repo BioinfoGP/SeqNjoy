@@ -137,7 +137,7 @@ function populateTrimQueueTD(myTrims, fastqSelect1,fastqSelect2) {
 		<td class="medipadded center borderbox" id="fastq2_trim_HTD">Fastq 2 (optional)</td>
 	</tr>
 </table>
-<div id="trimsDIV" class="borderbox" style="border-bottom:1px solid silver;height:16rem;overflow-y:scroll;" onscroll="SCT=this.scrollTop;if (this.scrollHeight-this.scrollTop === this.clientHeight) { addTrimRow(fastqSelect);_$('trimsDIV').scrollTop=SCT;checkTrimmingForm(); }">
+<div id="trimsDIV" class="borderbox" style="border-bottom:1px solid silver;height:16rem;overflow-y:scroll;" onscroll="SCT=this.scrollTop;if (this.scrollHeight-this.scrollTop === this.clientHeight) { addTrimRow(fastqSelect1,fastqSelect2);_$('trimsDIV').scrollTop=SCT;checkTrimmingForm(); }">
 	<table cellpadding="0px" cellspacing="0px" border="0px" class="borderbox">
 		<tr id="TRtrim_to_hide">
 			<td class="medipadded center" id="fastq1_trim_HTD_hidden">Fastq 1</td>

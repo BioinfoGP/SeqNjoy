@@ -1226,6 +1226,14 @@ server <- function(input,output, session) {
 			if (file.exists(input2)) {
 				totalSampleReads<-totalSampleReads/2
 			}
+			rqcSampleReads<-Rqc::perFileInformation(qa)$reads
+
+			if(rqcSampleReads != totalSampleReads){
+				showSampleSizeWarning=TRUE
+			} else {
+				showSampleSizeWarning=FALSE
+			}
+			
 
 
 			### Collect summary data from Rfastp
@@ -1327,12 +1335,12 @@ server <- function(input,output, session) {
 
 			### Collect Duplication levels from Rqc
 			rqcData[['DuplicationFrequencies']]<-Rqc::rqcReadFrequencyCalc(qa)
-			rqcData[['DuplicationRate']]<-formatC(sum(rqcData$DuplicationFrequencies$count/rqcData$DuplicationFrequencies$occurrence)*100/totalSampleReads, format = "f", digits = 2)
+			rqcData[['DuplicationRate']]<-formatC(sum(rqcData$DuplicationFrequencies$count/rqcData$DuplicationFrequencies$occurrence)*100/rqcSampleReads, format = "f", digits = 2)
 			rqcData$DuplicationFrequencies$deduplicated<-(rqcData$DuplicationFrequencies$count/rqcData$DuplicationFrequencies$occurrence)*100/sum(rqcData$DuplicationFrequencies$count/rqcData$DuplicationFrequencies$occurrence)
 
 			if (file.exists(input2)) {
 				rqcData2[['DuplicationFrequencies']]<-Rqc::rqcReadFrequencyCalc(qa2)
-				rqcData2[['DuplicationRate']]<-formatC(sum(rqcData2$DuplicationFrequencies$count/rqcData2$DuplicationFrequencies$occurrence)*100/totalSampleReads, format = "f", digits = 2)
+				rqcData2[['DuplicationRate']]<-formatC(sum(rqcData2$DuplicationFrequencies$count/rqcData2$DuplicationFrequencies$occurrence)*100/rqcSampleReads, format = "f", digits = 2)
 				rqcData2$DuplicationFrequencies$deduplicated<-(rqcData2$DuplicationFrequencies$count/rqcData2$DuplicationFrequencies$occurrence)*100/sum(rqcData2$DuplicationFrequencies$count/rqcData2$DuplicationFrequencies$occurrence)
 			}
 
@@ -1461,10 +1469,10 @@ server <- function(input,output, session) {
 				  }
 				}
 				# Occurrences of sequences with adapter :adapter_count
-				seqAdapterPercent<-adapter_count/totalSampleReads
+				seqAdapterPercent<-adapter_count/rqcSampleReads
 
 				# Percentage of occurrences of the adapter at each position: 
-				adapter_percent<-(position_counts/totalSampleReads)*100
+				adapter_percent<-(position_counts/rqcSampleReads)*100
 
 				# Cumulative percentage of occurrences of the adapter at each position: 
 				adapter_cumsum<-cumsum(adapter_percent)

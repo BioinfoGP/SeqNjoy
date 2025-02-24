@@ -264,7 +264,7 @@ large and therefore may require long processing times, a lot of disk space and l
 }
 
 function safeString(text) {
-	return (text.replace(/[\'\`\"\\\/\:\*\?<>\|]/g,""));		
+	return (text.replace(/[\'\`\"\\\/\:\*\?<>\|,]/g,""));		
 	// return (text.replace(/[\'\`\"\\]/g,""));
 }
 
