@@ -44,3 +44,9 @@
 
 * Fixed bugs
 
+# SeqNjoy 0.5.10
+
+* Removed Rqc library for quality control
+
+* Last development version
+

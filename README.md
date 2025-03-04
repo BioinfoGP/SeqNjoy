@@ -164,10 +164,10 @@ if (!requireNamespace("remotes", quietly = TRUE)){
 }
 
 ## Install SeqNjoy without vignettes
-remotes::install_github("BioinfoGP/SeqNjoy", dependencies=TRUE, bioc_version = BiocManager::version(),ref="development")
+remotes::install_github("BioinfoGP/SeqNjoy", dependencies=TRUE, bioc_version = BiocManager::version())
 
 ## Install SeqNjoy with vignettes
-remotes::install_github("BioinfoGP/SeqNjoy", dependencies=TRUE, build_vignettes = TRUE, bioc_version = BiocManager::version(),ref="development")
+remotes::install_github("BioinfoGP/SeqNjoy", dependencies=TRUE, build_vignettes = TRUE, bioc_version = BiocManager::version())
 
 ```
 
@@ -184,9 +184,9 @@ Installation from source can also be done using devtools.
 ## Set your working directory to the location where the package was downloaded. 
 setwd("path/to/downloaded/package")
 
-## Install devtools
-if (!requireNamespace("devtools", quietly = TRUE)){
-    install.packages("devtools")
+## Install remotes
+if (!requireNamespace("remotes", quietly = TRUE)){
+    install.packages("remotes")
 }
 
 ## Install Bioconductor
@@ -199,34 +199,31 @@ d <- tempdir()
 untar("SeqNjoy_0.5.X.tar.gz", exdir=d)
 
 # Install SeqNjoy
-devtools::install(file.path(d, "SeqNjoy"), dependencies=TRUE, repos=BiocManager::repositories())
+remotes::install(file.path(d, "SeqNjoy"), dependencies=TRUE, repos=BiocManager::repositories())
 ```
 
 ## Starting SeqNjoy
 
-Load **SeqNjoy** library 
+Open R, then load **SeqNjoy** library and launch the application. 
+The browser will automatically start.
+
 ```R
 library(SeqNjoy)
-```
 
-Launch the application. The browser will automatically start.
-```R
 SeqNjoy()
 ```
+If the browser has not already started, or you have closed it. 
+Open your browser and enter the 
+URL [http://127.0.0.1:7628/](http://127.0.0.1:7628/).
+
+To stop *SeqNjoy*, click the "Exit SeqNjoy" button or press 
+Ctrl+C in the R console.
 
 ## How to use SeqNjoy?
 
-SeqNjoy provides detailed documentation and a Quick Guide to help you get started. 
-You can access the vignettes directly in R using the following commands:
-
-```R
-vignette('SeqNjoy')
-vignette('SeqNjoy_Tutorial')
-vignette('SeqNjoy_QuickGuide')
-```
-
-These resources are also available through the About menu within the application 
-and online at [BioinfoGP's website](https://bioinfogp.cnb.csic.es/tools/seqnjoy), 
+Detailed documentation and a Quick Guide to help you get started are available through 
+the About menu within the application and online 
+at [BioinfoGP's website](https://bioinfogp.cnb.csic.es/tools/seqnjoy), 
 
 ## Authors
 

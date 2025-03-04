@@ -20,6 +20,7 @@
 #' @importFrom Rsamtools asBam countBam indexBam indexFa 
 #' @importFrom Rsamtools scanBamFlag scanBamHeader ScanBamParam testPairedEndBam
 #' @importFrom Rsubread align buildindex featureCounts removeDupReads
+#' @importFrom Biostrings quality
 #' @importFrom shinyjs runjs
 #' @importFrom shinyFiles getVolumes parseDirPath shinyDirChoose
 #' @importFrom ShortRead countFastq readFastq sread width
@@ -39,8 +40,6 @@
 #' @importFrom rsvg rsvg_png
 #' @importFrom magrittr %>%
 #' @importFrom Rfastp rfastp
-#' @importFrom Rqc rqcQA rqcCycleAverageQualityCalc
-#' @importFrom Rqc rqcCycleQualityBoxCalc rqcReadFrequencyCalc
 #' @importFrom knitr knit opts_chunk
 #' @importFrom markdown markdownToHTML
 #'

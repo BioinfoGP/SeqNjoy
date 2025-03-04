@@ -1172,13 +1172,6 @@ server <- function(input,output, session) {
 				close(connOutFile)
 				close(connErrFile)
 
-				if(sampleReads>0){				
-					qa<-suppressWarnings(Rqc::rqcQA(as.list(input1), n=sampleReads))
-					qa2<-suppressWarnings(Rqc::rqcQA(as.list(input2), n=sampleReads))
-				} else{
-					qa<-suppressWarnings(Rqc::rqcQA(as.list(input1), sample=FALSE))
-					qa2<-suppressWarnings(Rqc::rqcQA(as.list(input2), sample=FALSE))
-				}
 			} else {
 				sinkOutFile = paste0(reportBaseInput,"_stdout.txt")
 				sinkErrFile = paste0(reportBaseInput,"_stderr.txt")
@@ -1196,12 +1189,6 @@ server <- function(input,output, session) {
 
 				close(connOutFile)
 				close(connErrFile)
-				
-				if(sampleReads>0){
-					qa<-suppressWarnings(Rqc::rqcQA(as.list(input1), n=sampleReads))
-				} else {
-					qa<-suppressWarnings(Rqc::rqcQA(as.list(input1), sample=FALSE))
-				}
 			}
 
 			
@@ -1225,13 +1212,6 @@ server <- function(input,output, session) {
 			totalSampleReads<-rfastpOut$summary$before_filtering$total_reads
 			if (file.exists(input2)) {
 				totalSampleReads<-totalSampleReads/2
-			}
-			rqcSampleReads<-Rqc::perFileInformation(qa)$reads
-
-			if(rqcSampleReads != totalSampleReads){
-				showSampleSizeWarning=TRUE
-			} else {
-				showSampleSizeWarning=FALSE
 			}
 			
 
@@ -1300,17 +1280,6 @@ server <- function(input,output, session) {
 				filteredData<- rbind(filteredData,c('GC content',round(rfastpOut$summary$after_filtering$gc_content,2)))
 			}
 			
-			### Collect per position Sequence Quality boxplot stats from Rqc
-			rqcData<-list()
-			rqcData[['ReadQuality']]<-Rqc::rqcCycleAverageQualityCalc(qa) # Average quality per cycle (line plot)
-			rqcData[['CycleQualityHist']] <- Rqc::rqcCycleQualityBoxCalc(qa) # Quality per cycle box plot information
-
-			if (file.exists(input2)) {
-				rqcData2<-list()
-				rqcData2[['ReadQuality']]<-Rqc::rqcCycleAverageQualityCalc(qa2) # Average quality per cycle (line plot)
-				rqcData2[['CycleQualityHist']] <- Rqc::rqcCycleQualityBoxCalc(qa2) # Quality per cycle box plot information
-			}
-
 
 
 			### Collect per position Sequence Quality stats from Rfastp
@@ -1332,19 +1301,6 @@ server <- function(input,output, session) {
 					qcData2[['FilteredNucleotideContent']]<-as.data.frame(rfastpOut$read2_after_filtering$content_curves)
 				}
 			}
-
-			### Collect Duplication levels from Rqc
-			rqcData[['DuplicationFrequencies']]<-Rqc::rqcReadFrequencyCalc(qa)
-			rqcData[['DuplicationRate']]<-formatC(sum(rqcData$DuplicationFrequencies$count/rqcData$DuplicationFrequencies$occurrence)*100/rqcSampleReads, format = "f", digits = 2)
-			rqcData$DuplicationFrequencies$deduplicated<-(rqcData$DuplicationFrequencies$count/rqcData$DuplicationFrequencies$occurrence)*100/sum(rqcData$DuplicationFrequencies$count/rqcData$DuplicationFrequencies$occurrence)
-
-			if (file.exists(input2)) {
-				rqcData2[['DuplicationFrequencies']]<-Rqc::rqcReadFrequencyCalc(qa2)
-				rqcData2[['DuplicationRate']]<-formatC(sum(rqcData2$DuplicationFrequencies$count/rqcData2$DuplicationFrequencies$occurrence)*100/rqcSampleReads, format = "f", digits = 2)
-				rqcData2$DuplicationFrequencies$deduplicated<-(rqcData2$DuplicationFrequencies$count/rqcData2$DuplicationFrequencies$occurrence)*100/sum(rqcData2$DuplicationFrequencies$count/rqcData2$DuplicationFrequencies$occurrence)
-			}
-
-			
 			
 			### Collect Overrepresented Sequences data from Rfastp
 			if(length(rfastpOut$read1_before_filtering$overrepresented_sequences)==0){
@@ -1434,8 +1390,57 @@ server <- function(input,output, session) {
 				qcData2[['AdapterStats']]<-data.frame(SEQUENCE=names(rfastpOut$adapter_cutting$read2_adapter_counts),COUNTS=unlist(rfastpOut$adapter_cutting$read2_adapter_counts,use.names=F), PERCENT=(unlist(rfastpOut$adapter_cutting$read2_adapter_counts,use.names=F)/totalSampleReads)*50) #  %>% dplyr::arrange(desc(PERCENT))
 			}
 
+			## Collect duplication data for read 1, and use sequences to find adapter
 
-			### Calculate Adapter content per position from Rfastp and Rqc
+			# Open the zipped FASTQ file
+			fastq <- ShortRead::readFastq(dirname(reportInput1),paste0("^",basename(reportInput1),"$"))
+
+			rqcSampleReads<-length(fastq)
+			if(rqcSampleReads != totalSampleReads){
+				showSampleSizeWarning=TRUE
+			} else {
+				showSampleSizeWarning=FALSE
+			}
+
+			### Collect per position Sequence Quality boxplot stats
+
+			rqcData<-list()
+			qualityDf <-as.data.frame(as(Biostrings::quality(fastq), "matrix"))
+			#boxplotDf <- as.data.frame(t(apply(qualityDf, 2, function(x){c(boxplot.stats(x)$stats,mean(x,na.rm=T))})})))
+			boxplotDf <- as.data.frame(t(apply(qualityDf, 2, function(x){c(quantile(x,probs=c(0.1,0.25,0.5,0.75,0.9),na.rm=T),mean(x,na.rm=T))})))
+			colnames(boxplotDf) <- c("ymin", "lower", "middle", "upper", "ymax","average")
+			boxplotDf$cycle<-1:nrow(boxplotDf)
+			rqcData$CycleQualityHist<-boxplotDf
+
+
+
+			# Extract the sequences from the FASTQ file
+			sequences <- ShortRead::sread(fastq)
+
+			duplicatesDf<-as.data.frame(table(table(as.character(sequences))))
+			colnames(duplicatesDf)<-c("occurrence","counts")
+			duplicatesDf$occurrence<-as.numeric(duplicatesDf$occurrence)
+			duplicatesDf$deduplicated<-(duplicatesDf$counts*100)/sum(duplicatesDf$counts)
+			dupCounts<-sum(duplicatesDf$counts*duplicatesDf$occurrence)
+			duplicatesDf$percentage<-((duplicatesDf$counts*duplicatesDf$occurrence)*100)/dupCounts
+
+			rqcData[['DuplicationRate']]<-formatC(sum(duplicatesDf$counts)*100/dupCounts, format = "f", digits = 2)
+
+
+			duplicationBreaks<-c(1:9,10,50,100,500,1000,5000,10000,Inf)
+			dupIntervals<-data.frame(INTERVAL=cut(duplicationBreaks[-length(duplicationBreaks)], breaks = duplicationBreaks, right = FALSE))
+			duplicationNames<-c(as.character(1:9),">10",">50",">100",">500",">1k",">5k",">10k")
+			duplicationNames<-factor(duplicationNames,levels = unique(duplicationNames))
+			dupRateData<-duplicatesDf %>%
+			  dplyr::mutate(INTERVAL = cut(occurrence, breaks = duplicationBreaks, right = FALSE)) %>%
+			  dplyr::group_by(INTERVAL) %>%
+			  dplyr::summarise(TOTAL = sum(percentage),DEDUPLICATED = sum(deduplicated))
+			dupRateData<-dupIntervals %>% dplyr::left_join(dupRateData,by=c("INTERVAL")) %>% dplyr::mutate(TOTAL = ifelse(is.na(TOTAL), 0, TOTAL)) %>% dplyr::mutate(DEDUPLICATED = ifelse(is.na(DEDUPLICATED), 0, DEDUPLICATED))
+
+			rqcData[['DuplicationFrequencies']]<-dupRateData
+
+
+			### Calculate Adapter content per position from Rfastp for read 1
 			if(adapter1){
 				adapter<-rfastpOut$adapter_cutting$read1_adapter_sequence			
 				# Adapter Occurrences
@@ -1443,11 +1448,6 @@ server <- function(input,output, session) {
 				# Define the adapter sequence
 				adapterMatch <- substr(rfastpOut$adapter_cutting$read1_adapter_sequence,1,adapterMatchLength)
 
-				# Open the zipped FASTQ file
-				fastq <- ShortRead::readFastq(dirname(reportInput1),paste0(basename(reportInput1),"$"))
-
-				# Extract the sequences from the FASTQ file
-				sequences <- ShortRead::sread(fastq)
 
 				# Initialize counters
 				adapter_count <- 0
@@ -1484,6 +1484,49 @@ server <- function(input,output, session) {
 				adapter_cumsum<-0
 			}
 			
+			if (file.exists(input2)) {
+				## Collect duplication data for read 1, and use sequences to find adapter
+				
+				# Open the zipped FASTQ file
+				fastq <- ShortRead::readFastq(dirname(reportInput2),paste0("^",basename(reportInput2),"$"))
+
+				### Collect per position Sequence Quality boxplot stats
+
+				rqcData2<-list()
+
+				qualityDf <-as.data.frame(as(Biostrings::quality(fastq), "matrix"))
+				#boxplotDf <- as.data.frame(t(apply(qualityDf, 2, function(x){c(boxplot.stats(x)$stats,mean(x,na.rm=T))})})))
+				boxplotDf <- as.data.frame(t(apply(qualityDf, 2, function(x){c(quantile(x,probs=c(0.1,0.25,0.5,0.75,0.9),na.rm=T),mean(x,na.rm=T))})))
+				colnames(boxplotDf) <- c("ymin", "lower", "middle", "upper", "ymax","average")
+				boxplotDf$cycle<-1:nrow(boxplotDf)
+				rqcData2$CycleQualityHist<-boxplotDf
+
+				# Extract the sequences from the FASTQ file
+				sequences <- ShortRead::sread(fastq)
+
+				duplicatesDf<-as.data.frame(table(table(as.character(sequences))))
+				colnames(duplicatesDf)<-c("occurrence","counts")
+				duplicatesDf$occurrence<-as.numeric(duplicatesDf$occurrence)
+				duplicatesDf$deduplicated<-(duplicatesDf$counts*100)/sum(duplicatesDf$counts)
+				dupCounts<-sum(duplicatesDf$counts*duplicatesDf$occurrence)
+				duplicatesDf$percentage<-((duplicatesDf$counts*duplicatesDf$occurrence)*100)/dupCounts
+
+				rqcData2[['DuplicationRate']]<-formatC(sum(duplicatesDf$counts)*100/dupCounts, format = "f", digits = 2)
+
+
+				duplicationBreaks<-c(1:9,10,50,100,500,1000,5000,10000,Inf)
+				dupIntervals<-data.frame(INTERVAL=cut(duplicationBreaks[-length(duplicationBreaks)], breaks = duplicationBreaks, right = FALSE))
+				duplicationNames<-c(as.character(1:9),">10",">50",">100",">500",">1k",">5k",">10k")
+				duplicationNames<-factor(duplicationNames,levels = unique(duplicationNames))
+				dupRateData<-duplicatesDf %>%
+				  dplyr::mutate(INTERVAL = cut(occurrence, breaks = duplicationBreaks, right = FALSE)) %>%
+				  dplyr::group_by(INTERVAL) %>%
+				  dplyr::summarise(TOTAL = sum(percentage),DEDUPLICATED = sum(deduplicated))
+				dupRateData<-dupIntervals %>% dplyr::left_join(dupRateData,by=c("INTERVAL")) %>% dplyr::mutate(TOTAL = ifelse(is.na(TOTAL), 0, TOTAL)) %>% dplyr::mutate(DEDUPLICATED = ifelse(is.na(DEDUPLICATED), 0, DEDUPLICATED))
+				
+				rqcData2[['DuplicationFrequencies']]<-dupRateData
+			}
+			
 			if(adapter2){
 
 				adapter<-rfastpOut$adapter_cutting$read2_adapter_sequence			
@@ -1491,12 +1534,6 @@ server <- function(input,output, session) {
 				adapterMatchLength<-11
 				# Define the adapter sequence
 				adapterMatch <- substr(rfastpOut$adapter_cutting$read2_adapter_sequence,1,adapterMatchLength)
-
-				# Open the zipped FASTQ file
-				fastq <- ShortRead::readFastq(dirname(reportInput2),paste0(basename(reportInput2),"$"))
-
-				# Extract the sequences from the FASTQ file
-				sequences <- ShortRead::sread(fastq)
 
 				# Initialize counters
 				adapter_count <- 0
@@ -2070,7 +2107,7 @@ NODUPS <<- Rsamtools::countBam("_OUTPUT_BAM_", param=param)[["records"]] # REMOV
 			to_eval <- gsub('_USE_GFF_'                , use_gff                , to_eval)
 			to_eval <- gsub('_TMP_GFF_'                , out_tmp                , to_eval)
 			
-			print(to_eval)
+			#print(to_eval)
 			eval(parse(text=to_eval))
 			## add some lines to command (no to be evaluated)
 			

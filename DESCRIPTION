@@ -1,6 +1,6 @@
 Package: SeqNjoy
 Title: Complete RNA-Seq Workflows in your Desktop
-Version: 0.5.9
+Version: 0.5.10
 Authors@R: c(
     person("Juan Antonio", "Garcia-Martin", 
            email  = "ja.garcia@cnb.csic.es", role = c("cre","aut"),
@@ -64,7 +64,7 @@ Imports:
     knitr (>= 1.36),
     markdown,
     Rfastp,
-    Rqc    
+    Biostrings 
 Suggests:
     rmarkdown (>= 2.11),    
     shinytest2,
