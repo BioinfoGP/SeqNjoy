@@ -1,0 +1,189 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+		<meta name="Author" content="Juan Carlos Oliveros Collazos">
+		<link rel="stylesheet" href="css/web.css" type="text/css">
+		<!-- Matomo -->
+		<script>
+			var _paq = window._paq = window._paq || [];
+			/* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+			_paq.push(['disableCookies']);
+			_paq.push(['trackPageView']);
+			_paq.push(['enableLinkTracking']);
+			(function() {
+				var u="//bioinfogp.cnb.csic.es/matomobgp/";
+				_paq.push(['setTrackerUrl', u+'matomo.php']);
+				_paq.push(['setSiteId', '2']);
+				var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+				g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+			})();
+		</script>
+		<!-- End Matomo Code -->
+	</head>
+	<body style="margin:0px;padding:0px;" onload="document.getElementById('slider').style.display='block';">
+		<center>
+		<table cellpadding=0 cellspacing=0 border=0 style="width:1000px;height:100%;">
+			<tr>
+				<td style="padding:0px;">
+					<img src="https://bioinfogp.cnb.csic.es/images/banner_2015.png" style="hspace:0px;vspace:0px;border-bottom:1px solid black;width:100%;" alt="banner">
+				</td>
+			</tr>
+			<tr>
+				<td class="right bottom" style="background:white;padding-right:1rem;color:#D4D0C8;">
+					<a href="https://bioinfogp.cnb.csic.es/tools/seqnjoy">SeqNjoy</a> | 
+					<a target="bioinfogp" href="https://bioinfogp.cnb.csic.es">BioinfoGP</a> | 
+					<a target="csic" href="https://www.cnb.csic.es">CNB</a> | 
+					<a target="cnb" href="https://www.csic.es">CSIC</a>
+				</td>
+			</tr>
+			<tr>
+				<td style="padding:0px;height:100%;">
+					<div class="page" style="width:100%;height:100%;padding-top:0px;">
+						<h1><center><br>SeqNjoy: Complete RNA-Seq workflows in your Desktop</center></h1>
+						<h2><i><center>The RNA-Seq GUI</i></center></h2>
+						<p class="left">
+							SeqNjoy is a stand-alone application for generating and analyzing differential gene expression results
+							from RNA-Seq experiments. Analyses can be performed from the very initial step, using the files
+							containing short reads (FASTQ files), or from an intermediate stage, using already aligned reads in BAM/SAM files.
+						</p>
+						<p class="left">
+							The main results of SeqNjoy are annotated list of genes differentially expressed (or not) between groups of samples.
+							These results are presented both as standard tables and as interactive pages that allow the user to apply custom filters
+							and to download ready-to-publish figures (scatter-plots).
+						</p>
+						
+	<!-- Carousel adapted from: https://blog.logrocket.com/build-image-carousel-from-scratch-vanilla-javascript/ -->
+	<center>
+    <div id="slider" class="slider" style="display:none;margin-top:1rem;margin-bottom:2rem;">
+
+      <div class="slide">
+        <a target="home_seqnjoy" href="img/home.png"><img src="img/home.png" alt="" /></a>
+      </div>
+
+      <div class="slide">
+        <a target="tree_seqnjoy" href="img/genes_tree.png"><img src="img/genes_tree.png" alt="" /></a>
+      </div>
+
+      <div class="slide">
+        <a target="download_genomes" href="img/download_genomes.png"><img src="img/download_genomes.png" alt="" /></a>
+      </div>
+
+      <div class="slide">
+        <a target="adding_fastq_seqnjoy" href="img/adding_fastq.png"><img src="img/adding_fastq.png" alt="" /></a>
+      </div>
+
+      <div class="slide">
+        <a target="quality_report" href="img/quality_report.png"><img src="img/quality_report.png" alt="" /></a>
+      </div>
+
+      <div class="slide">
+        <a target="aligning_seqnjoy" href="img/aligning.png"><img src="img/aligning.png" alt="" /></a>
+      </div>
+
+      <div class="slide">
+        <a target="igv.js" href="img/igv.js.png"><img src="img/igv.js.png" alt="" /></a>
+      </div>
+
+      <div class="slide">
+        <a target="comparing_seqnjoy" href="img/comparing.png"><img src="img/comparing.png" alt="" /></a>
+      </div>
+
+      <div class="slide">
+        <a target="files_seqnjoy" href="img/files.png"><img src="img/files.png" alt="" /></a>
+      </div>
+
+      <div class="slide">
+        <a target="fiesta2_seqnjoy" href="img/fiesta2.png"><img src="img/fiesta2.png" alt="" /></a>
+      </div>
+
+      <button class="btn btn-next">></button>
+      <button class="btn btn-prev"><
+    </div>
+    </center>
+
+						<h2>Computer Requirements</h2>
+						<!--
+						<p class="left">
+							As all analytical steps are performed by the user's workstation, for the application to run smoothly,
+							the computer must meet the following requirements:
+						</p>
+						-->
+						<p>
+						<center>
+						<table class="border" style="width:70%;">
+							<tr>
+								<th></th><th class="center" style="width:38%;">Minimum</th><th class="center" style="width:38%">Recommended</th>
+							</tr>
+							<tr>
+								<th class="nowrap right">Architecture</th><td colspan=2 class="center">64-bit</td>
+							</tr>
+							<tr>
+								<th class="nowrap right">Operative System</th><td colspan=2 class="center nowrap">Windows, macOS, Linux (Debian or Fedora-based)</td>
+							</tr>
+							<tr>
+								<th class="nowrap right">Web Browser</th><td colspan=2 class="center nowrap">Chrome, Firefox, Safari, Edge</td>
+							</tr>
+							<tr>
+								<th class="nowrap right">RAM Memory</th><td class="center">8 GB</td><td class="center">16 GB</td>
+							</tr>
+								<th class="nowrap right">Hard Disk</th><td class="center">500 GB</td><td class="center">1 TB</td>
+							</tr>
+						</table>
+						</center>
+						</p>
+						<ul>
+							<li>Minimum requirements are adequate for bacterial genomes. Recommended requirements are adequate also for eukaryotic genomes. </li>
+							<li>Some of the steps performed by SeqNjoy may take many hours to complete. It is recommended to run the application with no
+							other intensive processes consumming CPU or RAM memory.
+							<br>
+							<span style="color:red">
+								Please disable Sleep Mode or Hibernation in your computer to avoid interruptions of long lasting processes
+							</span>
+							</li>
+							<li>Hard drive requirements specify the necessary storage space for project files in typical RNA-Seq analysis. SeqNjoy is installed as a 
+							standard R package, and users can store project folders on local or USB-connected hard drives of their choice.
+							</li>
+						</ul>
+						<h2>Installation</h2>
+							<p> In addition to installing <a target="install_r" href="https://cran.r-project.org/">R</a>, <strong>SeqNjoy</strong> has specific software requirements that vary by operating system. Please refer to the <a target="seqnjoy_help" href="help#software-requirements">help</a> section to ensure you meet all necessary requirements. 
+								<br/>
+								<br/>								
+							    Then, open R and follow the detailed installation instructions: <p>
+							<ul>
+								<li>From <a target="seqnjoy_help" href="help#from-github"> GitHub </a></li>
+								<li>From <a target="seqnjoy_help" href="help#from-source"> Source </a></li>
+							</ul>
+						<h2>Resources</h2>
+						<ul>
+							<li><a target="seqnjoy_help" href="help">Help Pages</a>
+							<li><a target="seqnjoy_guide" href="https://bioinfogp.cnb.csic.es/tools/seqnjoy/help/quick_guide">Quick Guide</a>
+							and <a target="rnaseq_samples" href="https://bioinfogp.cnb.csic.es/files/samples/rnaseq">RNA-Seq Sample Files</a> to start using SeqNjoy
+							<li>Source code: <a href="https://github.com/BioinfoGP/SeqNjoy" target="seqnjoy_help">GitHub</a>
+						</ul>
+						<h2>License</h2>
+						<p class="left">
+							Copyright 2022 BioinfoGP (CNB-CSIC). All rights reserved.
+						</p>
+						<p>
+							This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License 3 as published by the Free Software Foundation, either version 3 of the License, or any later version.
+						</p>
+						<p>
+							This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+						</p>
+						<p>
+							You can read the full GNU General Public License <a target="license" href="http://www.gnu.org/licenses/gpl-3.0.txt">here</a>.							
+						</p>
+						<h2>Credits</h2>
+						<ul>
+							<li>Authors: Juan Antonio García-Martín, Rafael Torres-Pérez and Juan Carlos Oliveros
+							<li>Please cite: Juan A Garcia-Martin, Rafael Torres-Perez and Juan C Oliveros (2022) SeqNjoy: Complete RNA-Seq workflows in your Desktop. (Manuscript in preparation)
+							<li>Contact: bioinfogp@cnb.csic.es
+						</ul>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</body>
+	<link rel="stylesheet" href="css/slides.css" type="text/css">
+	<script src="js/slides.js"></script>
+</html>

@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Juan Antonio García-Martín, Rafael Torres-Pérez, Juan Carlos Oliveros" />
+
+
+<title>SeqNjoy: Complete RNA-Seq workflows in your Desktop</title>
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+
+
+<link rel="stylesheet" href="css/basic.css" type="text/css" />
+<link rel="stylesheet" href="css/img_style.css" type="text/css" />
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore"><span style="display:inline-block;font-size:2.5rem;padding-top:2rem;">SeqNjoy: Complete RNA-Seq workflows in your Desktop</span></h1>
+<h3 class="subtitle"><span style="font-size:2rem;">Tutorial</span></h3>
+<h4 class="author"><span style="font-size:1.5rem;">Juan Antonio García-Martín, Rafael Torres-Pérez, Juan Carlos Oliveros</span></h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction"><span class="toc-section-number">1</span> Introduction</a></li>
+<li><a href="#computer-requirements-and-installation"><span class="toc-section-number">2</span> Computer requirements and installation</a><ul>
+<li><a href="#computer-requirements"><span class="toc-section-number">2.1</span> Computer requirements</a></li>
+<li><a href="#software-requirements"><span class="toc-section-number">2.2</span> Software requirements</a></li>
+<li><a href="#installation"><span class="toc-section-number">2.3</span> Installation</a></li>
+<li><a href="#starting-seqnjoy"><span class="toc-section-number">2.4</span> Starting SeqNjoy</a></li>
+</ul></li>
+<li><a href="#rna-seq-in-short"><span class="toc-section-number">3</span> RNA-Seq in short</a></li>
+<li><a href="#seqnjoy-framework-in-short"><span class="toc-section-number">4</span> SeqNjoy framework in short</a></li>
+<li><a href="#first-steps-in-seqnjoy-creating-and-managing-projects"><span class="toc-section-number">5</span> First steps in SeqNjoy: creating and managing projects</a></li>
+<li><a href="#projects-main-page-loading-files"><span class="toc-section-number">6</span> Project’s Main Page: Loading files</a></li>
+<li><a href="#downloading-genome-files"><span class="toc-section-number">7</span> Downloading genome files</a></li>
+<li><a href="#projects-main-page-file-list"><span class="toc-section-number">8</span> Project’s Main Page: File List</a></li>
+<li><a href="#quality-control"><span class="toc-section-number">9</span> Quality Control</a></li>
+<li><a href="#preprocess-reads"><span class="toc-section-number">10</span> Preprocess Reads</a></li>
+<li><a href="#align-reads"><span class="toc-section-number">11</span> Align Reads</a></li>
+<li><a href="#quantify-genes"><span class="toc-section-number">12</span> Quantify Genes</a></li>
+<li><a href="#compare-samples-differential-expression"><span class="toc-section-number">13</span> Compare Samples (Differential Expression)</a></li>
+<li><a href="#utilities"><span class="toc-section-number">14</span> Utilities</a><ul>
+<li><a href="#quality-control-report"><span class="toc-section-number">14.1</span> Quality Control Report</a></li>
+<li><a href="#gff-feature-structure-hierarchical-tree"><span class="toc-section-number">14.2</span> GFF feature structure hierarchical tree</a></li>
+<li><a href="#visual-exploration-of-genomic-files-with-igv"><span class="toc-section-number">14.3</span> Visual exploration of genomic files with IGV</a></li>
+<li><a href="#graphical-analysis-of-differential-expression-results-with-fiesta-2.0"><span class="toc-section-number">14.4</span> Graphical analysis of differential expression results with FIESTA 2.0</a></li>
+</ul></li>
+<li><a href="#file-types-in-seqnjoy"><span class="toc-section-number">15</span> File Types in SeqNjoy</a><ul>
+<li><a href="#fasta-file"><span class="toc-section-number">15.1</span> FASTA file</a></li>
+<li><a href="#fastq-files"><span class="toc-section-number">15.2</span> FASTQ files</a></li>
+<li><a href="#gene-feature-file-gff-gff3-and-gtf-formats"><span class="toc-section-number">15.3</span> Gene Feature File (GFF): GFF3 and GTF formats</a></li>
+<li><a href="#alignment-files-bam-sam-files"><span class="toc-section-number">15.4</span> Alignment files (BAM / SAM files)</a></li>
+<li><a href="#counts-file"><span class="toc-section-number">15.5</span> Counts file</a></li>
+<li><a href="#annotations-file"><span class="toc-section-number">15.6</span> Annotations file</a></li>
+<li><a href="#differential-expression-file"><span class="toc-section-number">15.7</span> Differential Expression file</a></li>
+</ul></li>
+<li><a href="#references">References</a></li>
+<li><a href="#appendix-1-single-end-and-paired-ends-sequencing">Appendix 1: Single-end and paired-ends sequencing</a><ul>
+<li><a href="#introduction-1">Introduction</a></li>
+<li><a href="#reads-orientation">Reads orientation</a></li>
+<li><a href="#single-end-or-paired-ends-which-is-better">Single-end or paired-ends, which is better?</a></li>
+</ul></li>
+<li><a href="#appendix-2-strandedness-in-rna-seq">Appendix 2: Strandedness in RNA-Seq</a><ul>
+<li><a href="#understanding-strandedness-in-transcription">Understanding Strandedness in Transcription</a></li>
+<li><a href="#rna-seq-protocols-unstranded-vs.-stranded">RNA-Seq protocols: unstranded vs. stranded</a></li>
+<li><a href="#fastq-file-structure-in-different-protocols">FASTQ File Structure in Different Protocols</a></li>
+<li><a href="#getting-down-to-practicalities">Getting Down to Practicalities</a></li>
+<li><a href="#how-to-determine-the-strandedness-with-igv">How to Determine the Strandedness with IGV</a></li>
+</ul></li>
+<li><a href="#FAQ">Appendix 3: FAQ</a></li>
+</ul>
+</div>
+
+<div id="header_top_right">
+<p><a href="https://bioinfogp.cnb.csic.es/tools/seqnjoy">SeqNjoy</a> |
+<a target="bioinfogp" href="https://bioinfogp.cnb.csic.es">BioinfoGP</a> |
+<a target="csic" href="https://www.cnb.csic.es">CNB</a> |
+<a target="cnb" href="https://www.csic.es">CSIC</a></p>
+</div>
+<div id="introduction" class="section level1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p><strong>SeqNjoy</strong> is a standalone application designed to generate and analyze differential gene expression results from RNA-Seq experiments. The analysis can start from the very initial step using raw short-read files in <a href="#fastq-files"><em>FASTQ</em></a> format or from an intermediate alignments files in <a href="#alignment-files-bam-sam-files"><em>BAM</em>/<em>SAM</em></a> format. <strong>SeqNjoy</strong> results include annotated of the genes (or other genetic features) that are differentially expressed between groups of samples under different conditions, as well as interactive HTML pages. These pages enable users to visually explore, analyze, filter and download selected genesets of interest.</p>
+<p>This tutorial provides step-by-step guidance for analyzing RNA-Seq data with <strong>SeqNjoy</strong>. Each step explains the required input files, the configurable parameters, and the outputs generated. To enhance your understanding of the process, the tutorial also describes the structure of the input files, the significance and implications of each parameter, and key concepts critical to RNA-Seq data analysis. The ultimate goal is to empower you to perform a comprehensive RNA-Seq differential expression analysis on your own.</p>
+<p>Before installing <strong>SeqNjoy</strong>, ensure that your computer meets the application’s minimum system <a href="#computer-requirements-and-installation">requirements</a>.</p>
+</div>
+<div id="computer-requirements-and-installation" class="section level1">
+<h1><span class="header-section-number">2</span> Computer requirements and installation</h1>
+<div id="computer-requirements" class="section level2">
+<h2><span class="header-section-number">2.1</span> Computer requirements</h2>
+<table>
+<tr>
+<th class="left">
+</th>
+<th class="center">
+Minimum
+</th>
+<th class="center">
+Recommended
+</th>
+</tr>
+<tr>
+<td class="left">
+Architecture
+</td>
+<td class="center" colspan="2">
+64-bit
+</td>
+</tr>
+<tr>
+<td class="left">
+Operative System
+</td>
+<td class="center" colspan="2">
+Windows, macOS, Linux (Debian, Fedora or SUSE-based)
+</td>
+</tr>
+<tr>
+<td class="left">
+Web Browser
+</td>
+<td class="center" colspan="2">
+Chrome, Firefox, Safari, Edge
+</td>
+</tr>
+<tr>
+<td class="left">
+RAM Memory
+</td>
+<td class="center">
+8 GB
+</td>
+<td class="center">
+16 GB
+</td>
+</tr>
+<tr>
+<td class="left">
+Disk Space
+</td>
+<td class="center">
+500 GB
+</td>
+<td class="center">
+1 TB
+</td>
+</tr>
+</table>
+<p><b>NOTE:</b> minimum requirements are adequate for carrying out analyses involving bacterial genomes, while recommended requirements are adequate also for eukaryotic genomes.</p>
+<p><strong>SeqNjoy</strong> is optimized to be used with 1920 x 1080 screen resolution (or higher).</p>
+<p>Hard drive requirements specify the necessary storage space for project files in typical RNA-Seq analysis. SeqNjoy is installed as a standard R package, and users can store project folders on local or USB-connected hard drives of their choice.</p>
+<p><span style="color:red">
+Please disable Sleep Mode or Hibernation in your computer to avoid interruptions of long lasting processes.
+</span></p>
+<p>A connection to the Internet is only required for downloading the necessary packages and libraries during the installation and for retrieving genome files from Ensembl.</p>
+</div>
+<div id="software-requirements" class="section level2">
+<h2><span class="header-section-number">2.2</span> Software requirements</h2>
+<div id="windows" class="section level3">
+<h3><span class="header-section-number">2.2.1</span> Windows</h3>
+<div id="rtools-on-windows" class="section level4">
+<h4><span class="header-section-number">2.2.1.1</span> Rtools on Windows</h4>
+<p>RTools is necessary to install <strong>SeqNjoy</strong> on Windows because some neccesary R packages are not available as precompiled Windows binaries and must be built from source.</p>
+<p>Download the appropriate version of RTools for your R installation from the official website: <a href="https://cloud.r-project.org/bin/windows/Rtools/">https://cloud.r-project.org/bin/windows/Rtools/</a>.</p>
+</div>
+<div id="bowtie2-aligner" class="section level4">
+<h4><span class="header-section-number">2.2.1.2</span> Bowtie2 aligner</h4>
+<p>To use the feature “Align reads with <strong>Bowtie2</strong>” on Windows, ensure the following software is installed:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Python 3</strong>
+<ul>
+<li>Python 3 is required for genome indexing.</li>
+<li>If Python 3 is not already installed:
+<ul>
+<li><strong>Recommended Option:</strong> Download and install Python 3 from the official website: <a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a>.</li>
+<li>Ensure that you check the option to <strong>Add Python to PATH</strong> during installation.</li>
+</ul></li>
+<li><strong>Alternative Option:</strong> Install Python 3 from the Microsoft Store.</li>
+<li>After installing Python, verify its installation by running the following command in a terminal:</li>
+</ul>
+<pre class="cmd"><code>    python3 --version</code></pre>
+<ul>
+<li>If python3 does not work and instead opens the Microsoft Store, you may need to adjust your system configuration:
+<ul>
+<li>Check <strong>App Execution Aliases</strong> settings: Open <strong>Manage App Execution Aliases</strong> in the Control panel and disable the python3 alias for the Microsoft Store.</li>
+<li>Ensure that the installation path for Python is correctly added to your PATH environment variable.</li>
+</ul></li>
+</ul></li>
+<li><strong>Perl</strong>
+<ul>
+<li>Perl is required for sequence aligning.</li>
+<li>You can download and install Perl from <a href="http://strawberryperl.com/">Strawberry Perl</a> or another Perl distribution for Windows.</li>
+<li>After installing Perl, verify its installation by running the following command in a terminal:</li>
+</ul>
+<pre class="cmd"><code>    perl --version</code></pre></li>
+</ol>
+</div>
+<div id="pandoc" class="section level4">
+<h4><span class="header-section-number">2.2.1.3</span> Pandoc</h4>
+<p>Pandoc is required to build the vignettes used within the app. If you do not already have Pandoc installed:</p>
+<ul>
+<li>Download Pandoc from the official website: <a href="https://pandoc.org/installing.html">https://pandoc.org/installing.html</a>.</li>
+<li>Follow the installation instructions for Windows.</li>
+<li>After installation, verify it by running the following command in a terminal:</li>
+</ul>
+<pre class="cmd"><code>    pandoc --version</code></pre>
+</div>
+</div>
+<div id="linux" class="section level3">
+<h3><span class="header-section-number">2.2.2</span> Linux</h3>
+<p>Installing <strong>SeqNjoy</strong> dependencies from source requires several system libraries. The package names vary depending on the Linux distribution. Ensure the appropriate libraries are installed by running the commands below.</p>
+<div id="debian-based-distributions-e.g.-debian-ubuntu" class="section level4">
+<h4><span class="header-section-number">2.2.2.1</span> Debian-based Distributions (e.g., Debian, Ubuntu)</h4>
+<pre class="bash"><code>    sudo apt-get install $i -y \
+        build-essential gfortran libreadline-dev libx11-dev libxt-dev \
+        libbz2-dev liblzma-dev libpcre2-dev libcurl4 libcurl4-openssl-dev \
+        libpng-dev libjpeg-dev libxml2-dev libssl-dev librsvg2-dev</code></pre>
+</div>
+<div id="fedora-based-e.g.-fedora-red-hat-rocky-linux" class="section level4">
+<h4><span class="header-section-number">2.2.2.2</span> Fedora-based (e.g., Fedora, Red Hat, Rocky Linux)</h4>
+<pre class="bash"><code>    sudo yum install -y \
+        make gcc-c++ gcc-gfortran readline-devel libX11 libX11-devel \
+        libXt libXt-devel bzip2-devel pcre2-devel libcurl-devel \
+        libxml2-devel openssl-devel libpng-devel libjpeg-turbo-devel \
+        librsvg2-devel</code></pre>
+</div>
+<div id="suse--based-e.g.-opensuse-suse-linux-enterprise" class="section level4">
+<h4><span class="header-section-number">2.2.2.3</span> SUSE -based (e.g., openSUSE, SUSE Linux Enterprise)</h4>
+<pre class="bash"><code>    sudo zypper install -y  \
+        make gcc-c++ gcc-fortran readline-devel libX11-devel libXt-devel \
+        libbz2-devel lzma-sdk-devel pcre2-devel libcurl-devel \
+        openjpeg-devel libxml2-devel libopenssl-devel libjpeg8-devel \
+        libpng16-devel librsvg-devel</code></pre>
+</div>
+</div>
+</div>
+<div id="installation" class="section level2">
+<h2><span class="header-section-number">2.3</span> Installation</h2>
+<div id="from-github" class="section level3">
+<h3><span class="header-section-number">2.3.1</span> From GitHub</h3>
+<p>The most recent release, avalaible on GitHub, can be installed using the <code>remotes</code> package.
+Pandoc is required to build vignettes on Windows (see Software requirements).
+You can disable this option, but some help pages will not be available.</p>
+<pre class="r"><code>
+    ## Install Bioconductor
+    if (!requireNamespace(&quot;BiocManager&quot;, quietly = TRUE)){
+        install.packages(&quot;BiocManager&quot;)
+    }
+
+    ## Install remotes
+    if (!requireNamespace(&quot;remotes&quot;, quietly = TRUE)){
+        install.packages(&quot;remotes&quot;)
+    }
+
+    ## Install SeqNjoy without vignettes
+    remotes::install_github(&quot;BioinfoGP/SeqNjoy&quot;, dependencies=TRUE, bioc_version = BiocManager::version(),ref=&quot;development&quot;)
+
+    ## Install SeqNjoy with vignettes
+    remotes::install_github(&quot;BioinfoGP/SeqNjoy&quot;, dependencies=TRUE, build_vignettes = TRUE, bioc_version = BiocManager::version(),ref=&quot;development&quot;)</code></pre>
+</div>
+<div id="from-source" class="section level3">
+<h3><span class="header-section-number">2.3.2</span> From Source</h3>
+<p>Installation from source can also be done using devtools. Download the latest gzipped package source code SeqNjoy_0.5.X.tar.gz available at <a href="https://github.com/BioinfoGP/SeqNjoy">BioinfoGP’s GitHub repository</a> and install it from R console.</p>
+<pre class="r"><code>    ## Set your working directory to the location where the package was downloaded. 
+    setwd(&quot;path/to/downloaded/package&quot;)
+
+    ## Install remotes
+    if (!requireNamespace(&quot;remotes&quot;, quietly = TRUE)){
+        install.packages(&quot;remotes&quot;)
+    }
+
+    ## Install Bioconductor
+    if (!requireNamespace(&quot;BiocManager&quot;, quietly = TRUE)){
+        install.packages(&quot;BiocManager&quot;)
+    }
+
+    # Create a temporary directory and extract the package contents
+    d &lt;- tempdir()
+    untar(&quot;SeqNjoy_0.5.X.tar.gz&quot;, exdir=d)
+
+    # Install SeqNjoy
+    remotes::install(file.path(d, &quot;SeqNjoy&quot;), dependencies=TRUE, repos=BiocManager::repositories())</code></pre>
+</div>
+</div>
+<div id="starting-seqnjoy" class="section level2">
+<h2><span class="header-section-number">2.4</span> Starting SeqNjoy</h2>
+<p>Open R, then load <strong>SeqNjoy</strong> library and launch the application.
+The browser will automatically start.</p>
+<pre class="r"><code>library(SeqNjoy)
+
+SeqNjoy()</code></pre>
+<p>If the browser has not already started, or you have closed it.
+Open your browser and enter the
+URL <a href="http://127.0.0.1:7628/">http://127.0.0.1:7628/</a>.</p>
+<p>To stop <em>SeqNjoy</em>, click the “Exit SeqNjoy” button or press
+Ctrl+C in the R console.</p>
+</div>
+</div>
+<div id="rna-seq-in-short" class="section level1">
+<h1><span class="header-section-number">3</span> RNA-Seq in short</h1>
+<p>RNA-Seq is a high-throughput sequencing technique used to detect and quantify RNA in biological samples. This provides a proxy for detecting and quantifying gene expression levels, among other applications.</p>
+<p>The “wet lab” part of the RNA-Seq process (Figure <a href="#fig:rnaseq">3.1</a>, top) begins with the <em>library preparation</em>, a process involving several key steps: extraction of RNA from the samples, filtering to isolate mRNA molecules while depleting other RNA species (e.g., ribosomal RNA), reverse transcription of mRNA into more stable cDNA molecules, fragmentation and size selection to produce smaller nucleic acid fragments (easier to handle), and sequencing these fragments to generate short reads.</p>
+<p>The sequencing machine (“<em>sequencer</em>”) reads the nucleotide sequences corresponding to the mRNA transcripts, producing millions of short reads. These reads are stored in <em>FASTQ files</em>, typically one file per sample or biological replicate in your experiment. These <em>FASTQ</em> files are the starting point for RNA-Seq data analysis—and you can carry out this analysis using <strong>SeqNjoy</strong>!</p>
+<p>Figure <a href="#fig:rnaseq">3.1</a> provides a schematic overview of the standard RNA-Seq pipeline for analyzing mRNA expression in biological samples. The upper section outlines the experimental protocol, while the yellow-highlighted area below illustrates the main steps for processing and analyzing the RNA-Seq data from the sequenced samples.</p>
+<div class="figure"><span style="display:block;" id="fig:rnaseq"></span>
+<img src="Figures/RNA-seq_quantifying_expression_poster_v3.png" alt="Schematic overview of the standard RNA-Seq pipeline for mRNA expression analysis" width="" id="img_rnaseq" />
+<p class="caption">
+Figure 3.1: Schematic overview of the standard RNA-Seq pipeline for mRNA expression analysis
+</p>
+</div>
+<p>In brief, the bioinformatic analysis of a RNA-Seq experiment involves three consecutive steps:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Alignment to reference genome</strong>: Before aligning the short reads from the input FASTQ files, it is common practice to perform a <em>quality control (QC) analysis</em>. This bioinformatic analysis helps assess potential issues such as adapter contamination or low-quality bases. If the QC results indicate significant problems, a <em>preprocessing step</em> is recommended to clean or correct the FASTQ files. Once the reads have passed quality assessment (either directly or after preprocessing if necessary), they are aligned to a FASTA file containing the genome reference. This process generates BAM files containing the aligned reads, with one BAM file produced for each FASTQ file or pair of FASTQ files, depending on the sequencing type (single-end or paired-end RNA-Seq).<br />
+</li>
+<li><strong>Gene quantification</strong>: The aligned reads in each BAM file are mapped to a GTF or GFF file, which contains the start and end positions of all annotated genes. For each gene, the total number of reads mapped to it is counted. The result is a “counts file” for each BAM file. A counts file includes a list of all genes in the genome and the corresponding number of reads (“counts”) mapped to each gene.<br />
+</li>
+<li><strong>Samples comparison / Differential expression calculation</strong>: The counts files are grouped into two sets: one for the “Control” samples and another for the “Case” samples. This step statistically compares the expression of each gene between the two groups to identify genes with significant differential expression and quantify the magnitude of these differences. The output is a table containing the results of the differential expression analysis for each gene.</li>
+</ol>
+</div>
+<div id="seqnjoy-framework-in-short" class="section level1">
+<h1><span class="header-section-number">4</span> SeqNjoy framework in short</h1>
+<p><strong>SeqNjoy</strong> utilizes user-friendly interfaces that allow you to perform a complete RNA-Seq expression gene data analysis in a short number of steps. If you have never performed this kind of analysis, we recommend reading <a href="#rna-seq-in-short">RNA-Seq in short</a> section as a starting point to get familiarized with the overall process.</p>
+<p>Flowchart below (Figure <a href="#fig:flowchart1">4.1</a>) summarizes how <strong>SeqNjoy</strong> addresses the different parts of the analysis:</p>
+<div class="figure"><span style="display:block;" id="fig:flowchart1"></span>
+<img src="Figures/Figure4.1_v2.png" alt="Flowchart of SeqNjoy" width="" id="img_flowchart1" />
+<p class="caption">
+Figure 4.1: Flowchart of SeqNjoy
+</p>
+</div>
+<p>The <strong>Homepage</strong> serves as the entry point to the application (located in the upper-left part of the flowchart). This initial page is where you create your <em>projects</em>. A <strong>project</strong> acts as a container for a single study and includes all the files required for an RNA-Seq data analysis.</p>
+<p>The files associated with a project include:<br />
+- <em>Input files</em>, such as short reads files, gene feature files, genome reference files, and functional annotations.<br />
+- <em>Output files</em> generated during the analysis steps, including alignment files, counts files, and lists of differentially expressed genes resulting from sample comparisons.</p>
+<p>From the list of created projects displayed on the <em>Homepage</em>, you can select any project to access its <strong>Project’s Main Page</strong>, which serves as the central hub of the application. All functionalities are initiated from this page.</p>
+<p>From the <em>Project’s Main Page</em>, you can:</p>
+<ul>
+<li>Load the input files needed for the analysis.</li>
+<li>Access menus to perform each successive step of the analysis.</li>
+<li>Browse and manage the files generated at different stages of the analysis.</li>
+<li>Access some specific utilities to inspect and analyze the content of the files and the quality report.</li>
+</ul>
+<p><br />
+</p>
+<p>Just as a recipe requires initial ingredients to prepare a dish, <strong>SeqNjoy</strong> requires specific input files to begin processing your project. Depending on the available data, you can follow one of the two workflows described below:</p>
+<ol style="list-style-type: decimal">
+<li><em>From Short Reads</em> (<a href="#fastq-files">FASTQ format</a>):<br />
+<br />
+
+<ul>
+<li>Multiple short reads files (<a href="#fastq-files">FASTQ format</a>)<br />
+</li>
+<li>One genome sequence file (<a href="#fasta-file">FASTA format</a>)<br />
+</li>
+<li>One genome feature file (<a href="#gene-feature-file-gff-gff3-and-gtf-formats">GFF3 or GTF format</a>)</li>
+</ul></li>
+</ol>
+<p>This is the <strong>standard input</strong> for a complete RNA-Seq data analysis.</p>
+<ol start="2" style="list-style-type: decimal">
+<li><em>From Alignment Files</em> (<a href="#alignment-files-bam-sam-files">SAM or BAM format</a>):<br />
+<br />
+
+<ul>
+<li>Multiple alignment files (<a href="#alignment-files-bam-sam-files">SAM or BAM format</a>)<br />
+</li>
+<li>One genome feature file (<a href="#gene-feature-file-gff-gff3-and-gtf-formats">GFF3 or GTF format</a>)</li>
+</ul></li>
+</ol>
+<p>If you start from short reads files (<em>FASTQ format</em>), the analysis process comprises all the steps mentioned before: <strong>Align Reads</strong>, <strong>Quantify Genes</strong> and <strong>Compare Results</strong>, as described in the Figure <a href="#fig:functionalities">4.2</a>, that illustrates the <strong>SeqNjoy workflow</strong>, showing the dependencies between input and output files at each step. All of them are launched from the <em>Project’s Main Page</em>.</p>
+<div class="figure"><span style="display:block;" id="fig:functionalities"></span>
+<img src="Figures/Input_outputs_all_test_v2.png" alt="Overview of the SeqNjoy workflow, showing the analysis steps (right), the types of files used (center), and the utilities available for file inspection (left)." width="" id="img_functionalities" />
+<p class="caption">
+Figure 4.2: Overview of the SeqNjoy workflow, showing the analysis steps (right), the types of files used (center), and the utilities available for file inspection (left).
+</p>
+</div>
+<p>In the case of starting with alignment files <a href="#gene-feature-file-gff-gff3-and-gtf-formats">SAM/BAM</a>, the workflow is similar, except the <strong>Align Reads</strong> step is skipped.</p>
+<p>The RNA-Seq data analysis proceeds from top to bottom, with the output files from one step becoming the input for the next.</p>
+<p><br />
+</p>
+<p>SeqNjoy also provides utilities to inspect or analyze specific types of files. These tools can help you better understand the data generated at different stages of the analysis.</p>
+<p>SeqNjoy also provides <a href="#utilities">Utilities</a>(#utilities to inspect or analyze specific types of files or the quality report (Figure <a href="#fig:utilities">4.3</a>). These tools can help you better understand the data generated at different stages of the analysis.</p>
+<div class="figure"><span style="display:block;" id="fig:utilities"></span>
+<img src="Figures/Input_outputs_Finny_utilities_v6.png" alt="Utilities in SeqNjoy for file inspection/analysis" width="" id="img_utilities" />
+<p class="caption">
+Figure 4.3: Utilities in SeqNjoy for file inspection/analysis
+</p>
+</div>
+<hr />
+<p>In the following sections, we provide destailed description of:
+- Each step of the analysis
+- The utilities available in SeqNjoy
+- The characteristics and use of the files involved For the <em><a href="#graphical-analysis-of-differential-expression-results-with-fiesta-2.0">FIESTA 2.0</a></em> graphical viewer, a specific tutorial is available here.</p>
+</div>
+<div id="first-steps-in-seqnjoy-creating-and-managing-projects" class="section level1">
+<h1><span class="header-section-number">5</span> First steps in SeqNjoy: creating and managing projects</h1>
+<p>Once you launch <strong>SeqNjoy</strong>, the homepage welcomes you with a brief summary and key information about the application.</p>
+<div class="figure"><span style="display:block;" id="fig:homepage1"></span>
+<img src="Figures/WelcomePage.png" alt="Homepage" width="" id="img_homepage1" />
+<p class="caption">
+Figure 5.1: Homepage
+</p>
+</div>
+<p>Before creating a project, you must select a <strong>Project Folder</strong>, a directory on your computer or external drive where all new projects will be stored. Click the <em>Projects Folder</em> button to select or create this directory.</p>
+<p>A <strong>project</strong> in <strong>SeqNjoy</strong> acts as a container for a single RNA-Seq study, including both the input and the generated files. Input files include FASTQ files, genome reference files, gene feature files, and functional annotations. As the analysis progresses, the project also stores generated files such as quality reports, alignment files, count tables, and lists of differentially expressed genes.</p>
+<p>Each project is uniquely identified by a <em>project name</em>, which you provide in the text box at the bottom of the homepage (Figure <a href="#fig:homepage2">5.2</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:homepage2"></span>
+<img src="Figures/WelcomePage_firstproject.png" alt="Select Projects Folder and then Create a New Project by writing a project's name. The project will be created in the selected Projects Folder" width="" id="img_homepage2" />
+<p class="caption">
+Figure 5.2: Select Projects Folder and then Create a New Project by writing a project’s name. The project will be created in the selected Projects Folder
+</p>
+</div>
+<p>After clicking the <em>Create New Project</em> button, you will be directed to the <strong>Project’s Main Page</strong>, where you can begin your analysis(see <a href="#projects-main-page-loading-files">Main Page</a> section).</p>
+<p>Once you have one or more projects created, the <em>Available Projects</em> section of the Homepage displays a list of your projects along their creation dates (Figure <a href="#fig:homepage3">5.3</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:homepage3"></span>
+<img src="Figures/WelcomePage_projectlist.png" alt="List of started projects" width="" id="img_homepage3" />
+<p class="caption">
+Figure 5.3: List of started projects
+</p>
+</div>
+<p>For each project, you can either <strong>open the project</strong> it by clicking the “play” icon <img src="Figures/OpenProject_button.png" id="openprojBt" />, which takes you to the <a href="#projects-main-page-loading-files">Main Page</a> to start or continue your analysis, or <strong>delete the project</strong> it by clicking the “basket” icon <img src="Figures/Delete_button.png" id="deleteprojBt" />, which permanently removes the project along with all its associated files from your system.</p>
+<p>⚠ <strong>IMPORTANT:</strong> Deleting a project <strong>permanently removes all input and result files</strong>, making the project <strong>impossible to recover</strong>. This action <strong>CANNOT be undone</strong>.</p>
+</div>
+<div id="projects-main-page-loading-files" class="section level1">
+<h1><span class="header-section-number">6</span> Project’s Main Page: Loading files</h1>
+<p>Once the project has been created, you can start uploading your input files. First, open the project by clicking the “play” icon <img src="Figures/OpenProject_button.png" id="openprojBt" /> in the <em>Homepage</em> and access the <em>Project’s Main Page</em> of the application (Figure <a href="#fig:mainpage">6.1</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:mainpage"></span>
+<img src="Figures/MainPage_ProjectStart.png" alt="Project's Main page" width="" id="img_mainpage" />
+<p class="caption">
+Figure 6.1: Project’s Main page
+</p>
+</div>
+<p>Now, click the <strong>Load Files</strong> button and select in your computer one or several files of the allowed file types. <strong>SeqNjoy</strong> supports the following file types and extensions:</p>
+<table>
+<colgroup>
+<col width="27%" />
+<col width="25%" />
+<col width="47%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">File type</th>
+<th align="left">File Formats</th>
+<th align="left">Allowed File Extensions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Genome sequences</td>
+<td align="left">FASTA</td>
+<td align="left">fa, fa.gz, fasta, fasta.gz, fna, fna.gz</td>
+</tr>
+<tr class="even">
+<td align="left">Genes features</td>
+<td align="left">GFF3, GTF</td>
+<td align="left">gff, gff.gz, gtf, gtf.gz, gff3, gff3.gz</td>
+</tr>
+<tr class="odd">
+<td align="left">Short reads sequences</td>
+<td align="left">FASTQ</td>
+<td align="left">fastq, fastq.gz, fq, fq.gz</td>
+</tr>
+<tr class="even">
+<td align="left">Alignments</td>
+<td align="left">BAM, SAM</td>
+<td align="left">bam, sam</td>
+</tr>
+<tr class="odd">
+<td align="left">Gene annotations</td>
+<td align="left">ANN (text table)</td>
+<td align="left">ann, ann.txt, ann.tsv, ann.tab, ann.xls, ann.xlsx</td>
+</tr>
+</tbody>
+</table>
+<p>If you are not familiarized with any of these file types, go to the section <a href="#file-types-in-seqnjoy">File Types</a> to know more about the structure of the format and the function and details of each file type.</p>
+<p>Figure <a href="#fig:uploading">6.2</a> shows the application loading a number of FASTQ files:</p>
+<div class="figure"><span style="display:block;" id="fig:uploading"></span>
+<img src="Figures/MainPage_UploadProgress_ini.png" alt="Uploading files in **SeqNjoy**" width="" id="img_uploading" />
+<p class="caption">
+Figure 6.2: Uploading files in <strong>SeqNjoy</strong>
+</p>
+</div>
+<p>The pop-up window reports the status of file uploading and post-processing by means of a progress bar and informative messages describing the step being performed. When all is OK, you should see a window with an “all in green” aspect like this (Figure <a href="#fig:uploadingOK">6.3</a>):</p>
+<div class="figure"><span style="display:block;" id="fig:uploadingOK"></span>
+<img src="Figures/MainPage_UploadProgress_end.png" alt="Uploading process successful" width="" id="img_uploadingOK" />
+<p class="caption">
+Figure 6.3: Uploading process successful
+</p>
+</div>
+<p>Take into account that in the case of some large and/or complex files the upload may take a considerable amount of time.</p>
+</div>
+<div id="downloading-genome-files" class="section level1">
+<h1><span class="header-section-number">7</span> Downloading genome files</h1>
+<p><em>Genome files</em> include two types: (1) a genome reference in <a href="#fasta-file">FASTA format</a> and (2) a genomic features file (<a href="#gene-feature-file-gff-gff3-and-gtf-formats">GFF3 or GTF</a>) containing information about chromosomes, genes, CDS, exons, etc.</p>
+<p>If you already have a FASTA and a GTF/GFF file, you can upload them following the steps described in the previous section. Otherwise, you can download genome files directly from the <a href="https://www.ensembl.org/index.html">Ensembl</a> repositories. <a href="https://www.ensembl.org/index.html">Ensembl</a> provides access to a large number of genomes, focusing on the most biologically and medically relevant species.</p>
+<p>To download genomes from Ensembl, click the <em>Download Genomes</em> button of the <a href="#projects-main-page-loading-files">Main Page</a> and then select <em>Download Genomes from Ensembl</em> (Figure <a href="#fig:downloadGenomes">7.1</a>):</p>
+<div class="figure"><span style="display:block;" id="fig:downloadGenomes"></span>
+<img src="Figures/Download_genome_selection.png" alt="Selecting the *Download Genomes* option from the Main Page." width="" id="downloadGenomes" />
+<p class="caption">
+Figure 7.1: Selecting the <em>Download Genomes</em> option from the Main Page.
+</p>
+</div>
+<p>A new window will open where you need to select the taxonomic group of your organism (Figure <a href="#fig:SelectTaxonGroup">7.2</a>).</p>
+<p><strong>Important</strong>: To access the repository, you must be connected to the Internet, and Ensembl (for vertebrates) or Ensembl Genomes (for bacteria, fungi, metazoa, plants and protists) must be accessible and functional. Ensure that the window displays the message “<em>Online - release &lt;number&gt;</em>” next to the repository name; otherwise, you will not be able to proceed with the download using this option.</p>
+<div class="figure"><span style="display:block;" id="fig:SelectTaxonGroup"></span>
+<img src="Figures/SelectTaxonGroup.png" alt="Taxonomic group selection" width="" id="SelectTaxonGroup" />
+<p class="caption">
+Figure 7.2: Taxonomic group selection
+</p>
+</div>
+<p>After selecting the taxonomic group, choose the specific genome from the dropdown menu (Figure <a href="#fig:SelectGenomeSpecies">7.3</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:SelectGenomeSpecies"></span>
+<img src="Figures/SelectGenomeSpecies.png" alt="Choosing the genome of interest from the dropdown menu." width="" id="SelectGenomeSpecies" />
+<p class="caption">
+Figure 7.3: Choosing the genome of interest from the dropdown menu.
+</p>
+</div>
+<p>Once you have selected the species/strain genome, click <em>Check Availability Genome</em> (Figure <a href="#fig:CheckGenomeAvailability">7.4</a>) to view the files of that organism available for download. Tipically, you will find the reference genome file (FASTA) and the genomic features file in both common formats, GTF and GFF.</p>
+<div class="figure"><span style="display:block;" id="fig:CheckGenomeAvailability"></span>
+<img src="Figures/CheckGenomeAvailability.png" alt="Checking the availability of genome files before downloading. The application will list available FASTA and GTF/GFF files" width="" id="CheckGenomeAvailability" />
+<p class="caption">
+Figure 7.4: Checking the availability of genome files before downloading. The application will list available FASTA and GTF/GFF files
+</p>
+</div>
+<p>To proceed with the download, select the FASTA file and at least one of genomic features files (GTF or GFF), then click the <em>Download</em> button (Figure <a href="#fig:SelectFASTAGTF">7.5</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:SelectFASTAGTF"></span>
+<img src="Figures/SelectFASTAGTF.png" alt="Selecting genome files: reference genome (FASTA) and genomic features file (GTF/GFF). In this case, a GTF file is selected" width="" id="SelectFASTAGTF" />
+<p class="caption">
+Figure 7.5: Selecting genome files: reference genome (FASTA) and genomic features file (GTF/GFF). In this case, a GTF file is selected
+</p>
+</div>
+<p>Once the download is complete, the genome files will appear in <em>File List</em> on the “<a href="#projects-main-page-file-list"><em>Project’s Main Page</em></a>” (Figure <a href="#fig:GenomeFilesInFileList">7.6</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:GenomeFilesInFileList"></span>
+<img src="Figures/GenomeFilesInFileList.png" alt="Once downloaded, the genome files appear in the *File List* on the [*Project's Main Page*](#projects-main-page-file-list) along with the rest of loaded files" width="" id="GenomeFilesInFileList" />
+<p class="caption">
+Figure 7.6: Once downloaded, the genome files appear in the <em>File List</em> on the <a href="#projects-main-page-file-list"><em>Project’s Main Page</em></a> along with the rest of loaded files
+</p>
+</div>
+</div>
+<div id="projects-main-page-file-list" class="section level1">
+<h1><span class="header-section-number">8</span> Project’s Main Page: File List</h1>
+<p>After you have uploaded your input files, your <strong>Project’s Main Page</strong> shows the list of the loaded files. The list offers different information and a number of options to operate on them. From the <em>Project’s Main Page</em> you can also perform the successive steps of your RNA-Seq gene expression data analysis project.</p>
+<p>This is the aspect of the <em>Project’s Main Page</em> after a standard RNA-Seq data analysis project has been performed (Figure <a href="#fig:mainpagefull">8.1</a>):</p>
+<div class="figure"><span style="display:block;" id="fig:mainpagefull"></span>
+<img src="Figures/FILE_LIST_panorama.png" alt="Project's Main Page" width="" id="img_mainpagefull" />
+<p class="caption">
+Figure 8.1: Project’s Main Page
+</p>
+</div>
+<p>The <em>Project’s Main Page</em> is structured as follows.</p>
+<p>In the top area the following functionalities are available:</p>
+<ul>
+<li><em>Load Files</em>: Click here to load your input files for the analysis. See <a href="#projects-main-page-loading-files"><em>Loading Files</em></a> section for a description of the process of loading and <a href="#file-types-in-seqnjoy"><em>File Types in SeqNjoy</em></a> for a full description of the allowed file types.</li>
+<li><em>Project Name</em>: This text box informs you of the current project you are working with. You can change the project name at any moment by typing the new name in the text box.</li>
+<li><em>Align Reads</em>: Click here to access the first step of the analysis (<em>short reads alignment</em>). See the corresponding <a href="#align-reads">section</a> for more information.</li>
+<li><em>Quantify Genes</em>: Click here to access the second step of the analysis (<em>quantification of genes</em>). See the corresponding <a href="#quantify-genes">section</a> for more information.</li>
+<li><em>Compare Samples</em>: Click here to access the third step of the analysis (<em>differential expression between sample groups</em>). See the corresponding <a href="#compare-samples-differential-expression">section</a> for more information.</li>
+<li><em>About</em>: Click here to see Credits or obtain Help.</li>
+</ul>
+<p>The rest of the <em>Project’s Main Page</em> is dedicated to the <strong>File List</strong>. The <em>File List</em> area contains information about all the files loaded by the user or generated by the processing with <strong>SeqNjoy</strong>, and provides a number of operations that the user can run on one or more selected files. The <em>File List</em> comprises the following buttons and columns, described from the left to the right:</p>
+<ul type="disc">
+<li>
+<p>
+<em>Select/Unselect</em>: A column of check boxes. When you check one or more boxes, the corresponding file(s) is/are marked as selected. If you click a checked box, the file(s) returns to unselected status. In case you want to select all the files of the list, you can do in a more convenient way by clicking the uppermost check box (it also serves to “unselect all”).
+</p>
+<p>
+There are two possible operations you can execute with the selected files:
+</p>
+<ul type="circle">
+<li>
+<em>Download</em> the selected file(s): you are asked the destination path of the selected files in your system. In the case of results files, a file with the script in R that generated this result is also provided. In the case of <a href="#differential-expression-file">diffexp</a> results, an additional third file is provided: an interactive <a href="#graphical-analysis-of-differential-expression-results-with-fiesta-2.0">FIESTA 2.0</a> html page that you can open with a web browser.
+</li>
+<li>
+<em>Delete</em> the selected file(s): The files are deleted from the project. Note that files that are being used as input of other files can not be deleted. Be aware that <em>deleted files can not be recovered</em>.
+</li>
+</ul>
+<p>
+</p>
+<p>
+Both operations, <em>Download</em> and <em>Delete</em>, are also available on a file-by-file basis in the two rightmost columns of the <em>File List</em>.
+</p>
+</li>
+<li>
+<p>
+<em>Show buttons</em>: You can filter the <em>File List</em> to hide or show the files having a particular file type(s). For example, if you click a colored “bam” button <img src="Figures/FILE_LIST_bam_showed_button.png" id="showedbam" />, all bam files are hidden from the File List and the bam button becomes grayish <img src="Figures/FILE_LIST_bam_hidden_button.png" id="hiddenbam" />. Click again the grayish icon to return your bam files to the list. You can click multiple <em>Show buttons</em> to show/hide several file types at one time. Note that only file types with no members selected can be hidden.
+</p>
+<p>
+The numbers accompanying the file type on the button indicate the total number of existing files of that type and how many of them have been selected via the checkboxes (see <em>Select/Unselect</em> above).
+</p>
+</li>
+<li>
+<p>
+<em>Type</em>: It informs you of the type of the file. Refer the <a href="#file-types-in-seqnjoy"><em>File Types in SeqNjoy</em></a> section to know more about the file types and their characteristics.
+</p>
+</li>
+<li>
+<p>
+<em>Details</em>: This column contains diverse information about the file and provides access to additional <a href="#utilities">utilities</a> for some file types.
+</p>
+</li>
+<ul type="square">
+<li>
+<em>File name</em>: the background color of the file name indicates the file type (e.g red for FASTQ, green for FASTA, etc.)
+</li>
+<li>
+<em>File content</em>: e.g. “short reads”, “short read pairs”, chromosomes“,”genes“,”features“,”alignments“… In addition, it displays also the number of items (e.g. ”1000000 reads"). For the alignment files, it displays the result of the duplication removal, if applied.
+</li>
+<li>
+<em>File origin</em>: Shows the source files used to generate the current file (e.g., a BAM file created from specific FASTQ files).
+</li>
+<li>
+<em>File glimpse</em>: Displays a list of the first identifiers contained in the file (e.g. chromosome identifiers, gene ids)
+</li>
+<li>
+<em>Introns</em>: Displays information calculated from the GFF file about the introns in the genome. Some of this information (minimum and maximum intron length) is useful to take full advantage of the splice-aware feature of <a href="#align-reads">hisat2</a> aligner.
+</li>
+<li>
+For some file types, the <em>Details</em> column displays a specific button that launches an specific utility. Each button is colored according to the file type of the selected file. These are the supported <a href="#utilities">utilities</a>:
+<table>
+<table>
+<thead>
+<tr class="header">
+<th><strong>File Types</strong></th>
+<th><strong>Operation</strong></th>
+<th><strong>Tool</strong></th>
+<th><strong>Icon</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>html</td>
+<td><a href="#quality-control-report">Quality Control Report Visualization</a></td>
+<td>Rqc + fastp</td>
+<td><img src="Figures/quality_control_icon.png" id="qcBt" /></td>
+</tr>
+<tr class="even">
+<td>fasta, bam</td>
+<td><a href="#visual-exploration-of-genomic-files-with-igv">Genomic Browser</a></td>
+<td>IGV</td>
+<td><img src="Figures/bam_mountain_icon.png" id="igvBt" /></td>
+</tr>
+<tr class="odd">
+<td>gff</td>
+<td><a href="#gff-feature-structure-hierarchical-tree">Genome features structure</a></td>
+<td>Rgff</td>
+<td><img src="Figures/GFF_tree_icon.png" id="gffBt" /></td>
+</tr>
+<tr class="even">
+<td>diffexp</td>
+<td><a href="#graphical-analysis-of-differential-expression-results-with-fiesta-2.0">Visualize, plot and filter gene expression results</a></td>
+<td>FIESTA 2.0</td>
+<td><img src="Figures/diffexp_table_icon.png" id="fiesta2Bt" /></td>
+</tr>
+</tbody>
+</table>
+</table>
+</li>
+</ul>
+</li>
+<li>
+<em>Bytes</em>: Size of the file in bytes.
+</li>
+<li>
+<em>Date</em>: Day and time of creation of the file.
+</li>
+<li>
+<img src="Figures/FILE_LIST_download_button.png" id="downloadBt" /> <em>(Download file icon)</em>: Downloads the file in your computer (you are asked where).
+</li>
+<li>
+<img src="Figures/FILE_LIST_delete_button.png" id="deletefileBt" /> <em>(Delete file icon)</em>: Deletes the file (Note: <em>this action cannot be reverted</em>).
+</li>
+</div>
+<div id="quality-control" class="section level1">
+<h1><span class="header-section-number">9</span> Quality Control</h1>
+<p>Quality control (QC) of sequencing reads is a crucial step in NGS data analysis. It allows users to assess the quality of their sequencing data before proceeding with downstream analyses. QC reports provide insights into potential issues such as low-quality bases, adapter contamination, and sequence biases. Based on these reports, users can decide whether their reads are suitable for analysis as they are or if preprocessing steps, such as trimming or filtering, are necessary. While QC is not mandatory, it is highly recommended to ensure data reliability.</p>
+<p>The QC process is conducted using the software tools <em>Rqc</em> <span class="citation">(Souza et al., <a href="#ref-deSouza2018">2018</a>)</span> and <em>fastp</em> <span class="citation">(Chen et al., <a href="#ref-Chen2018">2018</a>)</span>.</p>
+<p>To perform quality control, navigate to the <a href="#projects-main-page"><em>Project’s Main Page</em></a> and click the <em>Quality Control</em> button. This opens a new window with a menu containing a single option: <em>Quality Control with Rqc and fastp</em> (Figure <a href="#fig:SelectQC">9.1</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:SelectQC"></span>
+<img src="Figures/SelectQC.png" alt="Option for Quality Control of the read files (FASTQ)" width="" id="img_SelectQC" />
+<p class="caption">
+Figure 9.1: Option for Quality Control of the read files (FASTQ)
+</p>
+</div>
+<p>Clicking this option displays the QC interface, where users can select the FASTQ files to analyze and specify the number of reads to include in the QC process (Figure <a href="#fig:QCwindow">9.2</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:QCwindow"></span>
+<img src="Figures/QCwindow.png" alt="Quality Control window" width="" id="img_QCwindow" />
+<p class="caption">
+Figure 9.2: Quality Control window
+</p>
+</div>
+<p>The QC interface provides fields for selecting one or multiple FASTQ files:</p>
+<ul>
+<li><em>Single-end reads:</em> Select one FASTQ file.</li>
+<li><em>Paired-end reads:</em> Select the first FASTQ file; the application will automatically identify and pair it with the corresponding mate file.</li>
+</ul>
+<p>Additionally, users must set the <em>Sample Reads for QC</em> parameter. By default, this is set to <em>1,000,000</em>, meaning the first million reads (or read pairs) will be analyzed. Setting this value to <em>0</em> will process all reads in the selected FASTQ file(s).</p>
+<p>Once the desired files and parameters are selected, click the <em>Launch</em> button to start the QC process.</p>
+<p>When the QC process completes, the corresponding QC icon to the left of each analyzed FASTQ file (or paired-end set) will be enabled (it was previously grayed out). Clicking this icon opens the QC report, where users can review metrics and visualizations related to read quality. For a detailed breakdown of the Quality Control Report’s content, refer to section <a href="#quality-control-report">Quality Control Report</a>.</p>
+<p>After reviewing the QC results, users can decide whether preprocessing steps, such as trimming or filtering, are necessary to improve read quality before proceeding with further analyses.</p>
+</div>
+<div id="preprocess-reads" class="section level1">
+<h1><span class="header-section-number">10</span> Preprocess Reads</h1>
+<p>Typically, after performing <em>Quality Control (QC)</em> and inspect the QC report, users may identify issues in their reads that can be corrected through preprocessing. Common problems include the presence of adapter sequences, low-quality regions, and an excessive number of undetermined bases (<em>N</em>). To mitigate these, a preprocessing step can be applied to remove adapter fragments contamination, trim low-quality bases, and discard entire reads that fail to meet quality or length thresholds.</p>
+<p>The application uses <em>fastp</em> <span class="citation">(Chen et al., <a href="#ref-Chen2018">2018</a>)</span> to preprocess FASTQ sequencing files, applying various corrections based on user-defined parameters.</p>
+<p>To access this operation, navigate to the <a href="#projects-main-page"><em>Project’s Main Page</em></a> and click the <em>Preprocess Reads</em> button. This opens a new window containing a single menu option: <em>Preprocess Reads with fastp</em> (Figure <a href="#fig:SelectPreprocessReads">10.1</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:SelectPreprocessReads"></span>
+<img src="Figures/SelectPreprocessReads.png" alt="Option for preprocessing reads" width="" id="img_SelectPreprocessReads" />
+<p class="caption">
+Figure 10.1: Option for preprocessing reads
+</p>
+</div>
+<p>Selecting this option launches the preprocessing setup interface (Figure <a href="#fig:PreprocessReadsWindow">10.2</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:PreprocessReadsWindow"></span>
+<img src="Figures/PreprocessReadsWindow.png" alt="Preprocess Reads window" width="" id="img_PreprocessReadsWindow" />
+<p class="caption">
+Figure 10.2: Preprocess Reads window
+</p>
+</div>
+<p>In this interface, users must select the FASTQ files they wish to preprocess and configure the correction parameters. As with <a href="#quality-control">Quality Control</a>, users can select one or more FASTQ files. If the input files are paired-end, selecting one file will automatically populate its mate file.</p>
+<p>On the right side of the preprocessing interface, users can configure several parameters. The default parameters are set to provide reasonable results for most datasets, effectively addressing common issues. If you are unsure about which values to use, it is recommended to keep the defaults, as they will correct most typical sequencing errors without over-filtering your data.</p>
+<ul>
+<li><p><em>Adapter trimming</em>: When enabled, removes adapter sequences from reads. These are unwanted fragments introduced during sequencing library preparation.</p></li>
+<li><p><em>Keep reads of</em> ‘n’ <em>nucleotides or longer</em>: Retains only reads with a minimun length of ‘n’ nucleotides after trimming (default: 15 nucleotides).</p></li>
+<li><p><em>Allow up to</em> ‘n’ <em>N per read</em>: Reads with more than this number of ambiguous bases (‘N’) are discarded (default: 5 N’s).</p></li>
+<li><em>Discard reads with low-quality bases</em>: If enabled, removes reads based on two adjustable criteria:
+<ul>
+<li><em>At most ‘p’ % of bases</em>: Reads in which more than a percentage “p” of the bases have low quality will be discarded. (default: 40% bases).</li>
+<li><em>With less than ‘n’ phred quality</em>: A base is considered low quality if its Phred score is below a value “q”. (default: phred score 15).</li>
+</ul></li>
+<li><p><em>Discard reads with low complexity</em>: When enabled, removes reads with low complexity. A low-complexity region in the genome is an area where the nucleotide sequence follows a repetitive or predictable pattern with little variability. These regions contain limited combinations of bases and lack the diversity that characterizes most functional DNA sequences. Due to their repetitive nature, they can cause issues in bioinformatics analyses, affecting sequence alignment and the accurate detection of variants.</p></li>
+<li><p><em>Trim poly-X tails</em>: When enabled, this option removes homopolymeric tails (stretches of the same nucleotide, such as poly-A or poly-T) that are longer than 10 nucleotides. These artifacts can arise during library preparation or sequencing and may introduce biases in downstream analyses.</p></li>
+<li><p><em>Trim</em> ‘n’ <em>nucleotides from the 3’ end of read 1</em>: Removes ‘n’ nucleotides from the 3’ end of all reads in the “reads_1.fastq” file (default: 0, no trimming). The same option is available for trimming the 3’ end of reads in the “reads_2.fastq” file.</p></li>
+<li><p><em>Trim</em> ‘n’ <em>nucleotides from the 5’ end of read 1</em>: Removes ‘n’ nucleotides from the 5’ end of all reads in the “reads_1.fastq” file (default: 0, no trimming). The same option is available for trimming the 5’ end of reads in the “reads_2.fastq” file.</p></li>
+</ul>
+<p>Additionally, users must define an <em>Output Prefix</em>, which will be incorporated into the filename of the processed FASTQ files to distinguish them from the originals.</p>
+<p>Once the FASTQ files, parameters, and output prefix are set, clicking the <em>Launch</em> button will process the files according to the specified adjustments.</p>
+<p>The output consists of cleaned FASTQ files, which will appear in the <a href="#projects-main-page-file-list">File List</a> on the <em>Project’s Main Page</em>. These quality-improved FASTQ files can be reassessed using a new <a href="#quality-control">Quality Control</a> step if needed. Once assessed and, if necessary, preprocessed, the resulting FASTQ files serve as input for the <a href="#align-reads">Align Reads</a> step.</p>
+</div>
+<div id="align-reads" class="section level1">
+<h1><span class="header-section-number">11</span> Align Reads</h1>
+<p>Click the “<em>Align Reads</em>” button of <a href="#projects-main-page-loading-files">Main Page</a> to access this window. For performing this task, you inform a genome sequence (<a href="#fasta-file">FASTA</a>) file and the corresponding short reads files (<a href="#fastq-files">FASTQ</a> files) and obtain files with the alignments (<a href="#alignment-files-bam-sam-files">BAM</a> formatted) of the short reads contained in the FASTQ files to the reference genome (FASTA file).</p>
+There are two different aligners available to perform this task, and you should choose one of them in the submenu that is displayed after clicking the <em>Align Reads</em> button (Figure <a href="#fig:alignmentMethodSelection">11.1</a>): <em>bowtie2</em> <span class="citation">(Langmead &amp; Salzberg, <a href="#ref-Langmead2012">2012</a>)</span> or <em>hisat2</em> <span class="citation">(Kim et al., <a href="#ref-Kim2015">2015</a>)</span>. Both of them are well-documented and widely used programs.
+<br/>
+<br/>
+<div class="figure"><span style="display:block;" id="fig:alignmentMethodSelection"></span>
+<img src="Figures/Alignment_method_selection_ed.png" alt="Align Reads: selecting alignment method (aligner)" width="" id="img_alignmentMethodSelection" />
+<p class="caption">
+Figure 11.1: Align Reads: selecting alignment method (aligner)
+</p>
+</div>
+<p><br/>
+After choosing any of them you access a window where you have to fill the input <a href="#fastq-files">FASTQ</a> files and alignment parameters that are necessary to complete the task.</p>
+<div class="figure"><span style="display:block;" id="fig:alignreads1"></span>
+<img src="Figures/Alignment_initial.png" alt="Window for the reads alignment. Input files are the genome reference (FASTA file) and the short reads files (FASTQ files). The shaded areas contains *bowtie*-specific or *hisat2*-specific parameters and therefore are differents according to the selected aligner." width="" id="img_alignreads1" />
+<p class="caption">
+Figure 11.2: Window for the reads alignment. Input files are the genome reference (FASTA file) and the short reads files (FASTQ files). The shaded areas contains <em>bowtie</em>-specific or <em>hisat2</em>-specific parameters and therefore are differents according to the selected aligner.
+</p>
+</div>
+<p><br/>
+The <em>Align Reads to Genomes</em> window has the following parts (see Figure <a href="#fig:alignreads1">11.2</a>):</p>
+<ul>
+<li><p><em>Select Genome sequence</em>: select here one <a href="#fasta-file">FASTA</a> file among the listed in the drop-down menu. Usually, you select the genome reference of the species/variety the sequenced samples come from (or a close one), but you can select any uploaded genome reference that could be more convenient in your particular study.</p></li>
+<li><p><em>Select <a href="#fastq-files">FASTQ</a> files</em>: Below the <em>Genome Sequence</em> you have a grid of drop-down menus arranged in rows and columns. To fill this part in, you must know that there are two modalities of RNA-Seq named <em>single-end</em> and <em>paired-ends</em> sequencing. Refer to the <a href="#appendix-1-single-end-and-paired-ends-sequencing"><em>corresponding section</em></a> to know about them if you need it.</p>
+<ul>
+<li><p>In “<em>Fastq 1</em>” column you select: a) all your <a href="#appendix-1-single-end-and-paired-ends-sequencing"><em>single-end</em></a> FASTQ files, if your FASTQ file are of the <em>single-end</em> type or b) the files corresponding to the first member of the pair in the case of <a href="#appendix-1-single-end-and-paired-ends-sequencing"><em>paired-ends</em></a> FASTQ files (normally, the filename of these “read 1” files contains the suffix “_1” or similar).</p></li>
+<li><p>“<em>Fastq 2</em>” column only applies in the case of <a href="#appendix-1-single-end-and-paired-ends-sequencing"><em>paired-end sequencing</em></a>. In that case, you have to put here the second member of the pair (normally, files with the suffix “_2” or similar in their filesnames). This second member of the pair must be selected side-by-side with the first ("_1“) member that was selected in”Fastq 1" column (as in Figure <a href="#fig:alignreads1">11.2</a>). Do not select any file in this column if all the FASTQ files in your experiment are of “single-end” type.</p></li>
+<li><p>In addition, you have to fill in a <em>Sample label</em> for each <em>Fastq 1</em> (single-end) or <em>Fastq 1</em> plus <em>Fastq 2</em> (paired-end) item you fill in. This <em>Sample label</em> will name the resulting alignment (BAM) file.</p></li>
+</ul>
+<p>At the end, the aspect of this area will be similar to one of the displayed in the Figure <a href="#fig:alignreads1">11.2</a>.</p></li>
+<li><p><em>Output files suffix</em> (optional): The text you type in this box will be added to the name of all the output files (BAM files) of this step, immediately after the <em>sample label</em> and before the <em>.bam</em> extension, that is, “Sample_name.<em>suffix</em>.bam” (Example: “Sample1.<em>aligned_with_bowtie2</em>.bam”, “Sample2.<em>aligned_with_bowtie2</em>.bam”, etc.). If no “<em>output files suffix</em>” is typed, the BAM output files will be named simply with the sample name followed by the “.bam” extension (i.e. <em>[Sample_name].bam</em>).</p></li>
+<li><p><em>Alignment parameters</em>: The shaded areas of the window contain the parameters that are used by the aligner of your choice, <em>bowtie2</em> or <em>hisat2</em>. Some options are the present irrespective of the aligner you choose:</p>
+<ul>
+<li><em>Trim reads from 5’ end</em> / <em>Trim reads from 3’ end</em>: Previously to align reads, usually the FASTQ files are submitted to programs to assess the quality (QA) of the short reads. FASTQC <span class="citation">(Andrews et al., <a href="#ref-andrews2012">2012</a>)</span> is probably one of the most popular. In Figure <a href="#fig:fastqc">11.3</a> we can see an example of one of the plots that FASTQC provides and that represents the “quality per base sequence” (see <a href="https://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/3%20Analysis%20Modules/2%20Per%20Base%20Sequence%20Quality.html">here</a> how to interpret this plot), i.e. an overview of the range of quality values across all bases at each position in the FASTQ file. It is not unusual that sequencing decreases the quality of the positions at the 3’ end (“right” end). In Figure <a href="#fig:fastqc">11.3</a> the quality drop is so marked from position 120 (approx.) onward that a trimming of this chunk on the 3’ extreme of the reads might be advisable.
+<div class="figure"><span style="display:block;" id="fig:fastqc"></span>
+<img src="Figures/FASTQC_better_to_trim.png" alt="FASTQC Plot representing the quality per base sequence on a FASTQ file with quality drop in the 3' extreme." width="" id="img_fastqc" />
+<p class="caption">
+Figure 11.3: FASTQC Plot representing the quality per base sequence on a FASTQ file with quality drop in the 3’ extreme.
+</p>
+</div>
+Other reason to trim nucleotides from the reads ends may be the presence of adapters that for some reason have not been removed after the sequencing. The aim of the trimming is to remove these read chunks of very low quality or that do not correspond to the sequenced sample.
+<p>
+With the <em>Trim reads from 5’ end</em> parameter you can set the number of nucleotides to be removed from the reads of the file at the 5’ end (i.e. “on the left”). With <em>Trim reads from 5’ end</em> you can set the number of nucleotides to be removed from the reads of the file at the 3’ end (i.e. “on the right”).
+</p></li>
+<li><p><em>Max CPU Cores</em>: <em>bowtie2</em> and <em>hisat2</em> support parallel processing, that is, it can use multiple CPU cores. Multi-core is enabled by default to use (up to) 4 cores. You can modify this value in the text box with a numeric value greater or equal to 1. If your computer has less CPU cores than the number typed here, the aligner program will use the maximum your computer has.</p></li>
+<li><p><em>Remove duplicated alignments</em>: In RNA-Seq protocols (especially if a PCR amplification step is included), there is a certain probability of introducing artificial generation of duplicated reads, that is, reads of the same size aligning exactly in the same chunk of the genome (same start and end positions in the genome, Figure <a href="#fig:dupreads">11.4</a>). The presence of duplicated reads above a certain number may be an indication of the existence of such unwanted technical artifacts during the sequencing process. The application provides this parameter to remove reads that are duplicated a number of times equal of greater to a value (50 by default).</p>
+<div class="figure"><span style="display:block;" id="fig:dupreads"></span>
+<img src="Figures/MainPage_AlignReads_dups.png" alt="Duplicated reads are represented in red color" width="" id="img_dupreads" />
+<p class="caption">
+Figure 11.4: Duplicated reads are represented in red color
+</p>
+</div></li>
+</ul></li>
+<li><p><strong>Specific options for <em>bowtie2</em></strong>.</p>
+We use the R package <em>Rbowtie2</em> <span class="citation">(Wei et al., <a href="#ref-Rbowtie2">2018</a>)</span> to align with <em>bowtie2</em> <span class="citation">(Langmead &amp; Salzberg, <a href="#ref-Langmead2012">2012</a>)</span>.
+<ul>
+<li><p><em>Performance</em>: Alignment methods search a reasonable trade-off between speed and sensitivity/accuracy in their results in order to reduce false detected alignments without missing too many true alignments. In <em>bowtie2</em> you can adjust this balance by setting one of the following values the “performance” option: <em>very-sensitive</em>, <em>sensitive</em> (default value), <em>fast</em> or <em>very-fast</em>. The default value, <em>sensitive</em>, keeps a good balance between sensitivity and precision. In the case you need more precision (at the cost of a slower performance) choose <em>very-sensitive</em>. Conversely, choose <em>fast</em> or <em>very-fast</em> to prioritize speed performance (at the cost of a lesser precision).</p></li>
+<li><p><em>Mode</em>: By default, <em>bowtie2</em> aligns “end-to-end” mode, meaning that it attempts to align the entire read without omitting characters at either extreme. The alternative, <em>local</em> mode, does not require that reads align from one extreme to the other, that is, it can yield alignments that do not include one (or both) of their extremes. Observe in the example of Figure <a href="#fig:localendtoend">11.5</a> that in "local" mode the extremes are not aligned while they are both aligned in "end-to-end" mode.</p>
+<div class="figure"><span style="display:block;" id="fig:localendtoend"></span>
+<img src="Figures/end_to_end_vs_local_modes.png" alt="'end-to-end' and 'local' modes." width="" id="img_localendtoend" />
+<p class="caption">
+Figure 11.5: ‘end-to-end’ and ‘local’ modes.
+</p>
+</div></li>
+</ul></li>
+<li><p><strong>Specific options for <em>hisat2</em></strong>.</p>
+<p>We use the R package Rhisat2 <span class="citation">(Soneson, <a href="#ref-Rhisat2">2021</a>)</span> to align with hisat2 <span class="citation">(Kim et al., <a href="#ref-Kim2015">2015</a>)</span>.</p>
+<p>All the functionalities of these <em>hisat2</em>-specific parameters are linked to the fact that <em>hisat2</em> is a “splice-aware” aligner. In practical terms, that means that it uses the information deduced and/or provided about the genomic locations of the splice sites and introns in order to improve the precision of the predicted alignments. Of course, this not applies for intronless genomes. By informing these parameters the alignment may be slightly more accurate (if you do not inform them, <em>hisat2</em> will do his best anyway.)</p>
+<ul>
+<li><em>Min(inimum)/Max(imum) intron length</em>: By default, 20 nucleotides and 100000 nucleotides, respectively. Set here the (estimated) length of the shortest/longest intron in your genome. If possible, this information is provided for you by <strong>SeqNjoy</strong> in the “<em>Details</em>” column (<a href="#projects-main-page-file-list">File List</a>) of the corresponding <a href="#gene-feature-file-gff-gff3-and-gtf-formats">GFF</a> file.</li>
+<li><em>GFF file</em> (optional). You can select here one of the <a href="#gene-feature-file-gff-gff3-and-gtf-formats">GFF</a> files you loaded corresponding to this sequencing. From this GFF file <strong>SeqNjoy</strong> will try to extract the known splice sites of the genome, that will be used by <em>hisat2</em> to improve the alignments involving splice sites.</li>
+</ul></li>
+</ul>
+<p>Once you have filled the form in with the required files and set your parameter values, the “<strong>Launch!</strong>” button turns from disabled (grey) to enabled (red) so you can click it and launch the alignment(s). A pop-up window appears informing you of the progress of the alignment task. When the process ends OK a message “done” is displayed in the pop-up window and a “<em>Close</em>” button is enabled. By clicking “<em>Close</em>” you return to the “<em>Align Reads to Genome</em>” pane. Now, you could make a new <em>Align Reads to Genome</em> round or click the “X” icon for closing the “<em>Align Reads to Genome</em>” window. You will then return to the “<a href="#projects-main-page-loading-files">Project’s Main Page</a>”, which will have been updated to contain the new alignment (.bam) files in its <em>File List</em>.</p>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-2"></span>
+<img src="Figures/Alignment_bowtie_ready.png" alt="*Align Reads to Genome* dialog ready to launch the alignments processes." width="" id="img_alignmentBowtieReady" />
+<p class="caption">
+Figure 11.6: <em>Align Reads to Genome</em> dialog ready to launch the alignments processes.
+</p>
+</div>
+<p><br/></p>
+</div>
+<div id="quantify-genes" class="section level1">
+<h1><span class="header-section-number">12</span> Quantify Genes</h1>
+<p><br/></p>
+<p>Click the “<em>Quantify Genes</em>” button in the “<a href="#projects-main-page-loading-files">Project’s Main Page</a>” to access this window (Figure <a href="#fig:quantifyInitial">12.1</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:quantifyInitial"></span>
+<img src="Figures/Quantify_initial.png" alt="Quantification window" width="" id="img_quantifyInitial" />
+<p class="caption">
+Figure 12.1: Quantification window
+</p>
+</div>
+<p><br/>
+In summary, you inform here a genome features file (<a href="#gene-feature-file-gff-gff3-and-gtf-formats">GFF</a>) file and a number of alignment files in <a href="#alignment-files-bam-sam-files">BAM</a>. Normally, these alignments have been generated previously in the “<a href="#align-reads">Align Reads</a>” step. Alternatively, the BAM files were generated elsewhere and the user uploaded to <strong>SeqNjoy</strong>.</p>
+<p>The output of the quantification is one <a href="#counts-file">“<em>counts</em>”</a> file per BAM alignment file. Each “<em>counts</em>” file contains a list with the “counts” , i.e. the number of “reads” or “fragments” that have been mapped to each gene (or other feature type that you select) of the genome.</p>
+<ul>
+<li><p><em>Genome Features</em>: Select one <a href="#gene-feature-file-gff-gff3-and-gtf-formats">GFF3 or GTF file</a> from the list of loaded GFF files displayed in the drop-down menu.</p></li>
+<li><p><em>Output file suffix</em> (optional): you can type in this box a text chunk that will be added to the name of all the output files of this step (“counts” files), immediately before the <em>.counts</em> extension, that is, “<em>bam_name.suffix.counts</em>” (Example: “Sample1.<em>exons_by_genes</em>.bam”, “Sample2.<em>exons_by_genes</em>.bam”, etc.). If no <em>output file suffix</em> is typed, the resulting files will be named similarly to the corresponding BAM (“<em>sample_name.counts</em>”).</p></li>
+<li><p><em>Alignments</em>: In this column of selectors you select the samples (their corresponding BAM alignment files) from which you want to obtain the quantification of counts for one (or several) genomic feature(s). At least one BAM file must be selected.</p></li>
+</ul>
+<p>The following parameters are used by the tool that performs the quantification task, the function <em>featureCounts</em> of the R package <em>Rsubread</em> <span class="citation">(Liao et al., <a href="#ref-Rsubread">2019</a>)</span>:</p>
+<ul>
+<li><em>Strand specificity</em>: Select the type of protocol that was used in the library preparation: “<em>direct</em>”, “<em>reverse</em>” or “<em>unstranded</em>”.
+<ul>
+<li>With <em>unstranded</em>, a read will be counted for a gene irrespective to which strand it maps to.</li>
+<li>With <em>direct</em> and having <a href="#appendix-1-single-end-and-paired-ends-sequencing">single end</a> data, the read has to map to the same strand as the gene. For <a href="#appendix-1-single-end-and-paired-ends-sequencing">paired end</a> data, the first read of a pair has to map to the same strand as the gene, and the second read has to map to the opposite strand.</li>
+<li>With <em>reverse</em> and having <a href="#appendix-1-single-end-and-paired-ends-sequencing">paired end</a> data, the second read has to map to the same strand as the gene, and the first read has to map to the opposite strand.</li>
+</ul>
+<p>If you have any doubt, there is a <a href="#appendix-2-strandedness-in-rna-seq">specific section</a> on <em>strand specificity in RNA-Seq</em> in this Tutorial. No default value is set, as it depends on how the sequencing of your reads has been made. If you finally don’t know which strandedness protocol was followed in the sequencing, select <em>unstranded</em> as it is the safest option.</p></li>
+<li><p><em>Primary only</em>: A read may map ambiguously to multiple locations, e.g. repeated or closely similar regions in the genome. In that cases, only one of the multiple read alignments is considered “primary”, that is, “the best alignment” based on diverse criteria. All other alignments are marked as “secondary”. By default (box checked) the quantification will count only the alignments marked as “primary alignments” and discard the “secondary”. If not checked, all alignments will be counted. In Figure <a href="#fig:primonly">12.2</a>, if "primary only" is checked, only the alignment tagged as <em>primary</em> will be counted in feature A for read R001. If not, all the three alignments will be counted: one count for feature A, one for feature B and one for feature C.</p>
+<div class="figure"><span style="display:block;" id="fig:primonly"></span>
+<img src="Figures/MainPage_CompareSamples_primary.png" alt="Primary and secondary alignments." width="" id="img_primonly" />
+<p class="caption">
+Figure 12.2: Primary and secondary alignments.
+</p>
+</div></li>
+<li><em>Ignore Marked Dup[licate]s</em>: This option applies only to alignment (BAM) files uploaded by the user and which have duplicate marking (with <a href="https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard-">Picard Tools</a>, for example). As said in a similar parameter of the “<em>Align Reads to Genomes</em>” dialog, duplicated reads are sometimes generated due to technical issues (Figure <a href="#fig:dupreads">11.4</a>). By default, duplicated reads are not considered in the quantification (checked box). If you uncheck the box, the duplicated reads will be counted.</li>
+<li><em>Max CPU Cores</em>: <em>featureCounts</em> supports parallel processing, that is, it can use multiple CPU cores. Multi-core is enabled by default to use (up to) 4 cores. You can modify this value in the text box with a numeric value greater or equal to 1. If your computer has less cores than the number typed here, the quantification program will use the maximum your computer has.</li>
+<li><p><em>Genomic features and blocks</em>: The <a href="#gene-feature-file-gff-gff3-and-gtf-formats">GFF</a> file selected has a number of feature types that you can quantify by. For example, you may wish to get the list of reads that align (<em>counts</em>) per each <em>gene</em>. For that, in the drop-down menu “Select Feature” you should select the “feature type” <em>gene</em> among the existing in your GFF file.
+Some features, like <em>gene</em>, are constructs that have constituent sub-features underneath. One key sub-feature related to gene expression is <em>exon</em>. In principle, it is more accurately (specially if your GFF is well annotated) to take into account for quantification not all the reads aligning the gene span but only those reads aligning within the (block of) exons of the gene (Figure <a href="#fig:featureblock">12.3</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:featureblock"></span>
+<img src="Figures/Quantify_feature_blocks.png" alt="Genomic features and blocks for computing counts in 'GeneX'. When only the feature 'gene' is selected, all reads aligning in the GeneX span are counted (13 reads). When you add the *block* 'exon' to the feature 'gene' you are imposing the restriction that only the reads inside exons are counted, so the counts for GeneX are 10." width="" id="img_featureblock" />
+<p class="caption">
+Figure 12.3: Genomic features and blocks for computing counts in ‘GeneX’. When only the feature ‘gene’ is selected, all reads aligning in the GeneX span are counted (13 reads). When you add the <em>block</em> ‘exon’ to the feature ‘gene’ you are imposing the restriction that only the reads inside exons are counted, so the counts for GeneX are 10.
+</p>
+</div></li>
+<li><p><em>Add more</em> button: Click to set additional feature types to quantify. For example, if the <a href="#gene-feature-file-gff-gff3-and-gtf-formats">GFF</a> file contains “<em>genes</em>” and also “<em>pseudogenes</em>” you may want quantify both.</p></li>
+</ul>
+<p>Once you have filled the form with the required files and set your parameter values, the “<strong>Launch!</strong>” button turns from disabled (grey) to enabled (red) so you can click it and launch the quantification. In Figure <a href="#fig:quantifyReady">12.4</a>, the quantification process will be launched to count <em>genes</em> for nine samples, with reverse strandedness mode. Only primary alignments will be counted. The output of the quantification is a number of <em>counts</em> files equal to the number of input <em>BAM</em> files, that is, nine in this case.</p>
+<div class="figure"><span style="display:block;" id="fig:quantifyReady"></span>
+<img src="Figures/Quantify_ready.png" alt="Quantification dialog ready to be launched" width="" id="img_quatifyReady" />
+<p class="caption">
+Figure 12.4: Quantification dialog ready to be launched
+</p>
+</div>
+<p>A pop-up window appears informing you of the progress of the quantification task. When the process ends OK a message “done” is displayed in the pop-up window and a “<em>Close</em>” button is enabled. By clicking “<em>Close</em>” you return to the <em>Quantify Genomic Features</em> pane. Now, you could make a new <em>Quantify Genomic Features</em> round or click the “X” icon for closing the window. You will then return to the “<a href="#projects-main-page-loading-files">Project’s Main Page</a>”, that it will have been updated to contain the new “<em>counts</em>” files.</p>
+</div>
+<div id="compare-samples-differential-expression" class="section level1">
+<h1><span class="header-section-number">13</span> Compare Samples (Differential Expression)</h1>
+<p>In this step you can perform an statistical analysis of the differences in the expression for a given set of features between two groups of samples. You can use it repeatedly to make more that one binary comparison (e.g. “<em>SampleGroupDrugA versus SampleGroupDrugB</em>”, and then “<em>SampleGroupDrugA versus SampleGroupPlacebo</em>” and finally “<em>SampleGroupDrugB versus SampleGroupPlacebo</em>”).</p>
+<strong>SeqNjoy</strong> offers you two possible methods to perform this task, both of them widely used and well documented: <em>DESeq2</em> <span class="citation">(Love et al., <a href="#ref-Love2014">2014</a>)</span> and <em>edgeR</em> <span class="citation">(Robinson et al., <a href="#ref-Robinson2009">2009</a>)</span>. If you click the <em>Compare Samples</em> button a submenu listing both options is opened and you can select any of them (Figure <a href="#fig:CompareSamplesMethodSelection">13.1</a>) .
+<br/>
+<br/>
+<div class="figure"><span style="display:block;" id="fig:CompareSamplesMethodSelection"></span>
+<img src="Figures/Compare_Samples_method_selection.png" alt="Compare Samples: selecting the method for calculating differential expression" width="" id="img_CompareSamplesMethodSelection" />
+<p class="caption">
+Figure 13.1: Compare Samples: selecting the method for calculating differential expression
+</p>
+</div>
+<p><br/>
+After selecting the desired option, the <em>Calculate Differential Expression</em> dialog is displayed (Figure <a href="#fig:comparesamplesinitial">13.2</a>). Most of this window is the same regardless of the selected software. Only some specific parameters located in the shaded area of the window are different and specific of the selected method (<em>DESeq2</em> or <em>edgeR</em>) to perform the differential expression calculations.</p>
+<div class="figure"><span style="display:block;" id="fig:comparesamplesinitial"></span>
+<img src="Figures/Compare_initial.png" alt="Calculate Differential Expression (Compare Samples) dialog as displayed initially." width="" id="img_comparesamplesinitial" />
+<p class="caption">
+Figure 13.2: Calculate Differential Expression (Compare Samples) dialog as displayed initially.
+</p>
+</div>
+<p>The following fields are present in the <em>Calculate Differential Expression</em> window irrespective of the selected method:</p>
+<ul>
+<li><em>Counts Group</em>: Select one “counts group” from the listed in the drop-down menu. A “counts group” is a set of counts files linked a) to a particular <a href="#gene-feature-file-gff-gff3-and-gtf-formats">GFF</a> AND b) to a particular “feature” or “block-by-feature” counting decided for that GFF in the “Quantify Genes” step. This is expressed in the options displayed in the “Counts Group” drop-down menu with the syntax “<em>gff_file.gff feature (block)</em>” (or “<em>gff_file.gff feature</em>” if no block was selected in “Quantify Genes” step).</li>
+<li><em>Case Label</em> and <em>Control Label</em>: Put here a denomination for the two groups of samples (or biological replicas) to compare, one for the “case”(or “test”, “mutated”, etc.) group and one for the “control” group. These labels are parts of the name of the results file, that has the following syntax: “<em>[CaseLabel]<em>vs</em>[ControlLabel].[Output_suffix_if_typed].xlsx</em>”.</li>
+<li><em>Select Replicate</em> files: Here you have two columns with drop-down menus. Select from the <em>counts group</em> the <a href="#counts-file"><em>counts</em></a> files corresponding to the samples (or biological replicas) you wish to include in the “case” condition (left column) and do the same operation with the samples included in the “control” condition (put them in the right column).
+To perform the “<em>differential expression calculation</em>”, it is required that you select at least two samples (or biological replicas) in one of the conditions (but take into account that this minimum valid number of samples is extremely poor in statistical terms as input for the differential expression calculation).</li>
+<li><em>Output files suffix</em> (optional): You can type in this box a text label that will be added to the name of the results file, immediately after the “[CaseLabel]<em>vs</em>[ControlLabel]” tag and before the “.xlsx” extension specific for differential expression files, that is, “<em>[CaseLabel]<em>vs</em>[ControlLabel].<u>[output_suffix]</u>.xlsx</em>”. If no <em>output files suffix</em> is typed, the resulting file will be named simply “<em>[CaseLabel]<em>vs</em>[ControlLabel].xlsx</em>”.</li>
+<li><em>Annotations</em> (optional): You can add here a <a href="#annotations-file">file with annotations</a> of your genes (or the specific feature type of the <a href="#counts-file"><em>counts</em></a> files being analyzed). As you can see in the corresponding <a href="#annotations-file">section</a>, it must match these requirements:
+<ul>
+<li>Be a tab-separated text file, with extension .ann, .ann.txt, .ann.tsv, or an Excel file, with extension .ann.xls or .ann.xlsx.</li>
+<li>Have a first column containing (gene) identifiers, that must be of the same class as the identifiers present in the <em>counts</em> file (for example, if the gene IDs are ENSEMBL IDs in the <em>counts</em> files, the gene IDs must be ENSEMBL IDs in the first column of the <a href="#projects-main-page-loading-files">user-provided</a> <em>annotations</em> file).</li>
+<li>Have a first column containing (gene) unique identifiers, that must be the same as the identifiers present in the <em>counts</em> file. Regarding your annotations file, take into account that different databases can assign different identifiers to the same feature (for example, ENSEMBL gene IDs are the format ENSG…. and Genbank gene accessions with the format NM…..).</li>
+<li>The rest of columns contain a number of data relative to the respective (gene) identifier (e.g. name, description, genomic location, functional annotations, other IDs, etc), one data per column.<br/><br/></li>
+</ul></li>
+<li><p><strong>Specific options for <em>DESeq</em></strong> <span class="citation">(Love et al., <a href="#ref-Love2014">2014</a>)</span>:</p>
+<ul>
+<li><p><em>Independent Filtering</em>: The default (checked box) is to perform <em>independent filtering</em>. The purpose of <em>independent filtering</em> is to run a process, subsequent to and independent of the particular statistical tests performed by DESeq2, in order to remove from the results those that have no, or little chance of showing significant evidence, what typically increases the statistical/detection power. The simplest criterion to do the filtering is using the mean of all the normalized counts for the evaluated gene. In the box is unchecked, this additional filtering is disabled. More information in this <a href="http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#independent-filtering-and-multiple-testing">link</a></p></li>
+<li><p><em>Use beta prior</em> The default (checked box) is to use <em>beta prior</em>, which is equivalent to perform a “Log fold change (LFC) shrinkage”, that is, to shrink the LFC estimates of genes with little information or high dispersion toward more likely (lower) LFC estimates. Figure <a href="#fig:betapriordeseq2">13.3</a> illustrates the effect of using (right) or not (left) <em>beta prior</em> (PC) on the shrinkage of LFC. Observe how using PC a shrinkage on the LFC (“Log2Ratio”, in the Y-axis) is performed. This shrinkage affects those genes that have low expression (low “Log2BaseMean”, X-axis). Red and green dots represent genes upregulated and downregulated, respectively, with p-adjusted (FDR) &lt; 0.05.</p>
+<div class="figure"><span style="display:block;" id="fig:betapriordeseq2"></span>
+<img src="Figures/beta_prior_deseq2.png" alt="Effect of *beta prior* on the shrinkage of LFC." width="" id="img_betapriordeseq2" />
+<p class="caption">
+Figure 13.3: Effect of <em>beta prior</em> on the shrinkage of LFC.
+</p>
+</div>
+<p>Use beta prior procedure when your data have a high number of low-expressed genes (low number of counts) and/or a high number of genes showing high difference of expression within a condition (high dispersion in the counts values). You can find additional explanations in this <a href="https://hbctraining.github.io/DGE_workshop/lessons/05_DGE_DESeq2_analysis2.html#shrunken-log2-foldchanges-lfc">link</a>.</p></li>
+</ul></li>
+<li><p><strong>Specific options for <em>edgeR</em></strong> <span class="citation">(Robinson et al., <a href="#ref-Robinson2009">2009</a>)</span>:</p>
+<ul>
+<li><p><em>Prior Count</em> (optional): This argument is the counterpart in edgeR to the <em>Use beta prior</em> argument in DESeq2. When checked, you can type in the text box a positive number that will be used in the calculations of differential expression as a factor to shrink Log Fold-Changes (LFC). The default is 0.125, a value that produce a minimal LFC shrinkage. Larger values of <em>prior count</em> will produce more shrinkage. Figure <a href="#fig:betaprioredger">13.4</a> shows the effect of different values of <em>Prior Count</em> (PC) on the shrinkage of LFC. Observe how the higher the value of PC the larger the shrinkage of LFC (“Log2Ratio”, in the Y-axis). Observe also how the shrinkage affects only the those genes with low expression (low “Log2BaseMean”, X-axis). Red and green dots represent genes upregulated and downregulated, respectively, with p-adjusted (FDR) &lt; 0.05.</p>
+<div class="figure"><span style="display:block;" id="fig:betaprioredger"></span>
+<img src="Figures/beta_prior_edger.png" alt="Effect of different values of *Prior Count* on the shrinkage of LFC." width="" id="img_betaprioredger" />
+<p class="caption">
+Figure 13.4: Effect of different values of <em>Prior Count</em> on the shrinkage of LFC.
+</p>
+</div></li>
+</ul></li>
+</ul>
+<p><br/>
+Once you have filled the form with the required files and set your parameters values, the <strong>Launch!</strong> button turns from disabled (grey) to enabled (red) so you can press it and launch the differential expression calculation. In the figure <a href="#fig:comparesamplesfinal">13.5</a> differential expression calculation between the Case ("<em>pH5_CO2</em>") group of samples and the Control ("<em>pH5</em>") group of samples is displayed ready to be launched (<em>Launch!</em> button enabled). In the example, an <a href="#annotations-file">annotations file</a> has been provided so the information contained in this file will be incorporated to the <a href="#differential-expression-file"><em>diffexp</em></a> file with the differential expression calculations.</p>
+<div class="figure"><span style="display:block;" id="fig:comparesamplesfinal"></span>
+<img src="Figures/Compare_final.png" alt="*Calculate Differential Expression* dialog ready to be launched." width="" id="img_comparesamplesfinal" />
+<p class="caption">
+Figure 13.5: <em>Calculate Differential Expression</em> dialog ready to be launched.
+</p>
+</div>
+<p><br/>
+After launching the process, a pop-up window informs you the progress of the “<em>differential expression</em>” task. When the process ends OK the message “done” is displayed in the pop-up window and a <em>close</em> button is enabled. By clicking the <em>Close</em> button you return to the <em>Calculate Differential Expression</em> pane. Now, you can fill in again the form with a new comparison between groups of samples to calculate the differential expression between them or click the “X” icon for closing the window. You will then return to the “<a href="#projects-main-page-file-list">Project’s Main Page</a>”, that it will have been updated to contain the newly created <a href="#differential-expression-file"><em>diffexp</em></a> files in Excel format (extension <em>.xlsx</em>) containing the results of the calculated differential expressions of the comparisons performed.</p>
+<p>The “<em>diffexp</em>” output file (syntax: <em>[CaseLabel]vs[ControlLabel].[OutputSuffix_if_typed].xlsx</em>) contains the list of <em>differentially expressed genes</em> (DEG) detected between the “Case” and the “Control” groups of samples. Check in the <a href="#differential-expression-file"><em>File Types</em></a> section the information content of the <em>diffexp</em> files. You can graphically inspect and filter the differentially expressed genes results using the <a href="#graphical-analysis-of-differential-expression-results-with-fiesta-2.0"><em>FIESTA 2.0</em></a> analytic tool.</p>
+</div>
+<div id="utilities" class="section level1">
+<h1><span class="header-section-number">14</span> Utilities</h1>
+<p>In addition to the pipeline to perform the RNA-Seq gene expression data analysis, <strong>SeqNjoy</strong> provides a number utilities for evaluating and inspecting the content of some of the types of files involved in the analysis. These utilities are launched from buttons located in the <a href="#projects-main-page-file-list"><em>File List</em></a>.</p>
+<div id="quality-control-report" class="section level2">
+<h2><span class="header-section-number">14.1</span> Quality Control Report</h2>
+<p>After running <em>Quality Control (QC)</em> on paired-end FASTQ files, a detailed quality report is generated. This report provides key insights into the sequencing data, allowing users to assess whether further preprocessing steps, such as trimming or filtering, are necessary.</p>
+<p>This report is generated using <em>fastp</em> <span class="citation">(Chen et al., <a href="#ref-Chen2018">2018</a>)</span>, a widely used tool for FASTQ quality assessment and preprocessing.</p>
+<p>To see an example of the Quality Control (QC) report generated for paired-end reads, <a href="./Quality%20report%20for%201M_SRR9336476_1.fastq.gz%20and%201M_SRR9336476_2.fastq.gz.html" target="_blank">click here</a>. This example illustrates the types of quality metrics available.</p>
+<div id="report-structure" class="section level3 unnumbered">
+<h3>Report Structure</h3>
+<div id="basic-statistics" class="section level4 unnumbered">
+<h4>Basic Statistics</h4>
+<p>This section summarizes fundamental metrics for each read file (<em>R1</em> and <em>R2</em>), including:</p>
+<ul>
+<li><em>Number of Reads:</em> Total reads analyzed.</li>
+<li><em>Sample Size:</em> The number of reads sampled for QC.</li>
+<li><em>Average Read Length:</em> Mean length of the reads in nucleotides.</li>
+<li><em>GC Content:</em> Proportion of guanine and cytosine bases, which can indicate biases.</li>
+<li><em>Adapter Sequences:</em> Identified adapter sequences, if present.</li>
+<li><em>Adapter Name:</em> The corresponding adapter reference used during sequencing.</li>
+</ul>
+</div>
+<div id="per-base-sequence-quality" class="section level4 unnumbered">
+<h4>Per-Base Sequence Quality</h4>
+<p>A boxplot displays the quality scores across read positions. This allows users to identify potential quality drops at the ends of reads, which might require trimming.</p>
+</div>
+<div id="per-base-nucleotide-composition" class="section level4 unnumbered">
+<h4>Per-Base Nucleotide Composition</h4>
+<p>A graphical representation of base frequency (A, T, C, G) at each position. Unexpected deviations may indicate sequencing artifacts.</p>
+</div>
+<div id="per-sequence-quality-scores" class="section level4 unnumbered">
+<h4>Per-Sequence Quality Scores</h4>
+<p>A histogram showing the distribution of overall read quality. A large proportion of low-quality reads may suggest sequencing issues.</p>
+</div>
+<div id="adapter-content" class="section level4 unnumbered">
+<h4>Adapter Content</h4>
+<p>This section provides a graphical representation of detected adapter contamination, which may require trimming in the preprocessing step.</p>
+</div>
+<div id="duplicate-read-analysis" class="section level4 unnumbered">
+<h4>Duplicate Read Analysis</h4>
+<p>Displays the proportion of duplicate reads, which can indicate over-sequencing or PCR amplification bias.</p>
+<p>Once the QC process is completed, a gray icon next to the analyzed FASTQ files in the <a href="#projects-main-page-file-list">File List</a> on the <em>Project’s Main Page</em> will become highlighted. Clicking this icon opens the Quality Control Report.</p>
+<p>Based on the report, users can determine whether preprocessing steps, such as adapter trimming or low-quality read filtering, should be applied before proceeding with alignment.</p>
+</div>
+</div>
+</div>
+<div id="gff-feature-structure-hierarchical-tree" class="section level2">
+<h2><span class="header-section-number">14.2</span> GFF feature structure hierarchical tree</h2>
+<p>To access this utility from a <a href="#gene-feature-file-gff-gff3-and-gtf-formats">GFF (GFF3 or GTF formatted)</a> of the <em>File List</em> click the <img src="Figures/GFF_tree_icon.png" id="gffBt" /> icon located rightmost in the <em>Details</em> column.</p>
+<p>When launched, <strong>SeqNjoy</strong> will run the <em>plot_features</em> function of the <em>Rgff</em> R package <span class="citation">(Garcia-Martin et al., <a href="#ref-Rgff">2022</a>)</span> to generate a picture containing a tree representing the hierarchical structure (dependencies) of the feature types included in the selected GFF file (Figure <a href="#fig:Rgfftree">14.1</a>). This tree representation is useful for a global look of what is annotated in the genome and it can help you decide which feature(s) and blocks to use in the <a href="#quantify-genes"><em>Quantify Genes</em></a> step of the analysis.</p>
+<div class="figure"><span style="display:block;" id="fig:Rgfftree"></span>
+<img src="Figures/ViewGFFtree_v3.png" alt="A hierarchical tree of a genome feature file (GFF) produced by *Rgff*" width="" id="img_Rgfftree" />
+<p class="caption">
+Figure 14.1: A hierarchical tree of a genome feature file (GFF) produced by <em>Rgff</em>
+</p>
+</div>
+<p>As it is shown in the example tree above, the highest feature type in this GFF is <em>gene</em> and there are 7127 items annotated as <em>genes</em>. <em>gene</em> has a child node, the <em>transcript</em> feature. Included into <em>transcript</em> there are five child features, that are siblings from each other: <em>CDS</em>, <em>exon</em>, <em>five_prime_UTR</em>, <em>start_codon</em> and <em>stop_codon</em>.</p>
+<p>With this information, we know that we could count <em>genes</em>, <em>exons-by-gene</em>, <em>transcript</em>, <em>exons-by-transcript</em>, <em>exons</em>, etc. in our analysis but not “exon-by-CDS” for example, as <em>exon</em> is not a descendant of the <em>CDS</em> feature.</p>
+</div>
+<div id="visual-exploration-of-genomic-files-with-igv" class="section level2">
+<h2><span class="header-section-number">14.3</span> Visual exploration of genomic files with IGV</h2>
+<p>You can access this utility from a <a href="#fasta-file">FASTA</a> file containing the genomic sequence or from an alignment file (<a href="#alignment-files-bam-sam-files">BAM</a>), by clicking the <img src="Figures/bam_mountain_icon.png" id="igvBt" /> icon located on the right of the <em>Details</em> column of the corresponding file. The option is not available for user-provided BAMs.</p>
+<p>After clicking the button, the widely used “<em>Integrative Genomic Viewer</em>” (IGV) <span class="citation">(Robinson et al., <a href="#ref-Robinson2011">2011</a>, <a href="#ref-Robinson2020">2022</a>)</span> tool will be launched and will load the corresponding FASTA or BAM file. If you have loaded a FASTA, a screen similar to the one in Figure <a href="#fig:igv1">14.2</a> will be displayed.</p>
+<div class="figure"><span style="display:block;" id="fig:igv1"></span>
+<img src="Figures/Utilities_FASTA_ini_instructions.png" alt="IGV launched with a FASTA file as input" width="" id="img_igv1" />
+<p class="caption">
+Figure 14.2: IGV launched with a FASTA file as input
+</p>
+</div>
+<p>If you use a <em>BAM</em> file with <em>IGV</em> a similar window is displayed. In addition to the BAM file, the associated genomic sequence (<em>FASTA</em> file) is automatically incorporated to <em>IGV</em> in the same session. See in Figure <a href="#fig:igv2">14.3</a> the initial aspect displayed in this case and a minimal “use case” for <em>IGV</em> to visually compare the alignment files of two samples (i.e. two BAM files) for a particular gene.</p>
+<div class="figure"><span style="display:block;" id="fig:igv2"></span>
+<img src="Figures/Utilities_IGV_BAM_BAM_GFF_Instructions.png" alt="A simple usage example of IGV to compare two BAM files in a certain genomic region." width="" id="img_igv2" />
+<p class="caption">
+Figure 14.3: A simple usage example of IGV to compare two BAM files in a certain genomic region.
+</p>
+</div>
+<p><em>IGV</em> has a plethora of functionalities and possibilities to interact with your alignment files. Please refer the <a href="https://software.broadinstitute.org/software/igv/UserGuide"><em>IGV user general guide</em></a>, to take full advantage of this versatile tool. In addition, you can inspect your files with the web/on-line version that <em>IGV</em> provides at <a href="https://igv.org/app/" class="uri">https://igv.org/app/</a>, documented at <a href="https://igvteam.github.io/igv-webapp/" class="uri">https://igvteam.github.io/igv-webapp/</a>.</p>
+</div>
+<div id="graphical-analysis-of-differential-expression-results-with-fiesta-2.0" class="section level2">
+<h2><span class="header-section-number">14.4</span> Graphical analysis of differential expression results with FIESTA 2.0</h2>
+<p><em>FIESTA 2.0</em> <span class="citation">(Oliveros, <a href="#ref-FIESTA">2022</a>)</span> is an interactive viewer for differential expression results files that is integrated in <strong>SeqNjoy</strong>. It provides multiple ways of representing your data as tunable interactive plots that can be downloaded as high resolution images. In addition, <em>FIESTA 2.0</em> allows you sorting and filtering genes by one or several columns and saving the relevant ones into files.</p>
+<p>Figure <a href="#fig:FigureFIESTA2">14.4</a> illustrates a usage example for <em>FIESTA 2.0</em>. When a <em>diffexp</em> file is loaded into <em>FIESTA 2.0</em>, a default representation of the expression data as a <a href="https://en.wikipedia.org/wiki/MA_plot"><em>MA-plot</em></a> is displayed. From this point, you can combine filters (<em>top</em>) to select gene subsets. A very common (and useful) filter combination is to select and highlight with user-selected colours genes (<em>center</em>) that show to be significantly (P-adjusted &lt; 0.05) under- (negative Log2Ratio) or overexpressed (positive Log2Ratio). Finally, user can select any pair of numerical columns present in the <em>diffexp</em> file to be represented (<em>bottom</em>), so other popular representations like <a href="https://en.wikipedia.org/wiki/Volcano_plot_(statistics)"><em>Volcano plots</em></a> are also available. User-generated plots and subsets of relevant genes are both downloadable (in the case of the plots, with high resolution).</p>
+<div class="figure"><span style="display:block;" id="fig:FigureFIESTA2"></span>
+<img src="Figures/Figure_FIESTA2.png" alt="*FIESTA 2.0* usage example." width="" id="img_FigureFIESTA2" />
+<p class="caption">
+Figure 14.4: <em>FIESTA 2.0</em> usage example.
+</p>
+</div>
+<p>To access <em>FIESTA 2.0</em> viewer from a file containing the differential expression results (“<a href="#differential-expression-file"><em>diffexp</em></a>” files in .xlsx format) click the <img src="Figures/diffexp_table_icon.png" id="fiesta2Bt&quot;" /> icon located rightmost in the <em>Details</em> column.</p>
+<p>More details about <em>FIESTA 2.0</em> <a href="https://bioinfogp.cnb.csic.es/tools/fiesta2">here</a>.</p>
+</div>
+</div>
+<div id="file-types-in-seqnjoy" class="section level1">
+<h1><span class="header-section-number">15</span> File Types in SeqNjoy</h1>
+<p><strong>SeqNjoy</strong> uses up to seven types of files in the analyses. The files that you provide have these types: <em>FASTA</em>, <em>FASTQ</em>, <em>GFF3/GTF</em> and <em>ANN</em>. Other types are only held by files generated through the <strong>SeqNjoy</strong> analysis: <em>COUNT</em>, <em>DIFFEXP</em>. Finally, the format <em>BAM/SAM</em> is that of the alignment files, which can be either internally generated by <strong>SeqNjoy</strong> or provided (loaded) by the user.</p>
+<p>To follow, we describe the aspect, source, uses, format requirements and content of each file type. You can find a good complement to know more about them in <a href="https://bioinformaticsworkbook.org/introduction/fileFormats.html">this link</a> by Andrew Severin and also in <a href="https://bioinformatics.uconn.edu/resources-and-events/tutorials-2/file-formats-tutorial">this page</a>.</p>
+<div id="fasta-file" class="section level2">
+<h2><span class="header-section-number">15.1</span> FASTA file</h2>
+<ul>
+<li><em>File type and extensions</em>: plain text file, uncompressed (fa, fasta, fna) or gzip-compressed (fa.gz, fasta.gz, fna.gz), e.g. <em>my_fasta_file.fa</em>, <em>my_fasta_file.fasta.gz</em></li>
+<li><em>Source</em>: <a href="#projects-main-page-loading-files">User-provided</a>. In case you do not have a FASTA file of the sequenced species/variety, you have good repositories of FASTA files in <a href="https://www.ensembl.org/">Ensembl</a>, <a href="http://ensemblgenomes.org/">EnsemblGenomes</a>, <a href="https://hgdownload.soe.ucsc.edu/downloads.html">USCS</a> and <a href="https://www.ncbi.nlm.nih.gov/data-hub/genome">NCBI</a>. Very often, you will find or have “.gz” <em>FASTA</em> files. “gz” files are compressed to save space. <strong>SeqNjoy</strong> will process them normally, you don’t need to uncompress them before loading.</li>
+<li><em>Use</em>: As input file In the “<a href="#align-reads"><em>Align Reads</em></a>” task. It is used as genomic reference sequence where the short reads (<a href="#fastq-files"><em>FASTQ</em></a> files) are aligned to.</li>
+<li><em>Content</em>: <em>FASTA</em> files have a very simple format to contain the sequence of nucleotides of a genome, composed by one or several genomic sequences. Each genomic sequence item (a chromosome, for example) is preceded by a header line that starts by a “<em>&gt;</em>” character and contains the identifier of that genomic sequence (Figure <a href="#fig:fastaformat">15.1</a>)</li>
+</ul>
+<div class="figure"><span style="display:block;" id="fig:fastaformat"></span>
+<img src="Figures/FILE_FASTA_example_ed.png" alt="FASTA file format" width="" id="img_fastaformat" />
+<p class="caption">
+Figure 15.1: FASTA file format
+</p>
+</div>
+</div>
+<div id="fastq-files" class="section level2">
+<h2><span class="header-section-number">15.2</span> FASTQ files</h2>
+<ul>
+<li><em>File type and extensions</em>: plain text files, uncompressed (.fq) or gzip-compressed (.fq.gz). e.g.: <em>SampleName_S1_L001_R1.fastq.gz</em>. Normally, the presence of a "_1“-like or”_2"-like label indicates that the FASTQ file is of <a href="#appendix-1-single-end-and-paired-ends-sequencing">paired-ends</a> type.</li>
+<li><em>Source</em>: <a href="#projects-main-page-loading-files">User-provided</a>. FASTQ files are generated by a sequencer machine, so it is the format of the files that the user receive from a sequencing provider. In other cases, users get the FASTQ files from other experiments they want to reuse and that have been deposited (uploaded) in public databases or repositories like <a href="https://www.ncbi.nlm.nih.gov/sra">SRA</a> or <a href="https://www.ebi.ac.uk/ena/browser/home">ENA</a>.</li>
+<li><em>Use</em>: FASTQ files are one of the inputs required at the beginning of the RNA-Seq analysis, in the “<a href="#align-reads"><em>Align Reads</em></a>” step. In fact, FASTQ files are the main input file type, as their content, millions of short reads, are the “RNA-Seq data” to be analyzed in your experiment. You will have one file (in <a href="#appendix-1-single-end-and-paired-ends-sequencing">single-end</a> sequencing mode) or two files (in <a href="#appendix-1-single-end-and-paired-ends-sequencing">paired-ends</a> sequencing mode) per sequenced sample.</li>
+<li><p><em>Content</em>: Each FASTQ file contains information of millions of so-called <em>short reads</em>, or small genomic sequences that have been “read” by a sequencer machine in a sample. FASTQ is also the name of the format of these files, and is kind of a extension of the <a href="#fasta-file">FASTA format</a> (it has also a header and lines with genomic sequences).</p>
+<p>A FASTQ file uses four lines per short read (Figure <a href="#fig:fastqformat">15.2</a>):</p>
+<ul>
+<li>Line 1 begins with a ‘@’ character and is followed by a <em>sequence identifier</em> and an optional description.</li>
+<li>Line 2 contains the <em>raw sequence</em> letters</li>
+<li>Line 3 begins with a ‘+’ character. This line is kind of separator and has not use for the analysis.</li>
+<li>Line 4 encodes the <em>quality values</em> for the sequence in Line 2, and must contain the same number of symbols as letters in the sequence. Each quality symbol in the Line 4 represents the quality value of the sequence letter located in the same position in Line 2. Quality scores are codified as “<em>Phred Scores</em>” that can be translated to numerical values. Quality scores are important for the aligners to make alignment decisions. For more information about this codification and other features of the FASTQ format, click <a href="https://en.wikipedia.org/wiki/FASTQ_format">here</a>.</li>
+</ul>
+<div class="figure"><span style="display:block;" id="fig:fastqformat"></span>
+<img src="Figures/FILE_FASTQ_file.png" alt="FASTQ file format" width="" id="img_fastqformat" />
+<p class="caption">
+Figure 15.2: FASTQ file format
+</p>
+</div></li>
+<li><em>Final remarks</em>
+<ul>
+<li>Important to note, the order of short reads in FASTQ files has nothing to do with the position of the read in the genome or any other criterion.</li>
+<li>FASTQ files usually contains tens or hundreds of millions of lines, that is, they are very large files which is often a trouble for viewing them in a normal text editor. Most of the times, you do not need to view FASTQ files (they are only intermediate files). If you need to view a FASTQ file for troubleshooting purposes or out of curiosity, you will need either a text editor that can handle very large files, or access to the console of your computer and write commands in the command line.</li>
+</ul></li>
+</ul>
+</div>
+<div id="gene-feature-file-gff-gff3-and-gtf-formats" class="section level2">
+<h2><span class="header-section-number">15.3</span> Gene Feature File (GFF): GFF3 and GTF formats</h2>
+<ul>
+<li><em>File type and extensions</em>: plain text files, uncompressed (.gff3, .gtf) or gzip-compressed (.gff3.gz, .gtf.gz). e.g.: <em>my_gene_features.gff3, my_gene_features.gff3.gz</em>.</li>
+<li><em>Source</em>: <a href="#projects-main-page-loading-files">User-provided</a>. GFF3 or GFF files are obtained very often in the same place that the file with the genome (<a href="#fasta-file">FASTA</a> file). This makes sense as a particular “<strong>G</strong>ene <strong>F</strong>eatures <strong>F</strong>ile” (GFF) is linked to a specific “FASTA reference file”. If you don’t have a GFF file for your sequenced species/variety you can try to find one in repositories like <a href="https://www.ensembl.org/">Ensembl</a>, <a href="http://ensemblgenomes.org/">EnsemblGenomes</a>, <a href="https://hgdownload.soe.ucsc.edu/downloads.html">USCS</a> or <a href="https://www.ncbi.nlm.nih.gov/data-hub/genome">NCBI</a>. Very often, the GFF3/GTF files are compressed (“.gz” extension) to save space. <strong>SeqNjoy</strong> will process them normally, you don’t need to uncompress them before loading.</li>
+<li><em>Use</em>: As input file for the “<a href="#quantify-genes">Quantify Genes</a>” task. In a simplistic explanation, in <em>Quantify Genes</em> step the aligned reads contained in each alignment (<a href="#alignment-files-bam-sam-files">BAM</a>) file are mapped to the GFF3/GTF file to count the number of reads that map within the limits of a each gene (or other selected feature type) contained in the GFF3/GFT file.</li>
+<li><p><em>Content</em>: A GFF3 or GTF file contains information for the so-called <em>genomic features</em>. A <em>feature</em> is a genomic region with some involvement in a biological process. For example, the mRNA “EDEN.1” (mRNA00001) of the gene “EDEN” (gene00001) in the Figure <a href="#fig:GFFgene">15.3</a> is a feature. In the same figure, that specific feature is described in Line 3 of the exemplified GFF file:</p>
+<div class="figure"><span style="display:block;" id="fig:GFFgene"></span>
+<img src="Figures/FILE_GFF3_gene.png" alt="Canonical representation of the representation of a single gene in GFF3. Adapted from the [GFF3 specifications](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md#the-canonical-gene)" width="" id="img_GFFgene" />
+<p class="caption">
+Figure 15.3: Canonical representation of the representation of a single gene in GFF3. Adapted from the <a href="https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md#the-canonical-gene">GFF3 specifications</a>
+</p>
+</div>
+<p>The Figure <a href="#fig:GFFgene">15.3</a> depicts how a <em>gene</em> and its <em>features composition</em> (<em>mRNAs</em>, <em>exons</em>, <em>CDSs</em>) are represented in a GFF3. After some header lines (starting with “#”), each feature is written in a line. You can see that each feature has information about its <em>location</em> (start, end, strand) and <em>feature type</em> (gene, mRNA, exon, etc.). A key point is the last column, where <em>relations of dependency</em> between the features are coded. For example, the feature “mRNA00001” (with feature type “mRNA” ) in Line 3 depends on (note its “<em>Parent</em>” tag) another feature named “gene00001” (aka EDEN) in Line 2, which has the feature type “<em>gene</em>”. <strong>SeqNjoy</strong> has <a href="#gff-feature-structure-hierarchical-tree">a specific utility</a> for displaying the feature structure of your GFF3/GTF file in a graphical way.</p></li>
+</ul>
+<p>More formally, each line of a GFF3 (or GTF) file has 9 tab-separated columns:</p>
+<ul>
+<li><p>Column 1: <em>seqID</em> (e.g. <em>chromosome-id</em>: “chr1” or “1”, “chr2”, etc..). IMPORTANT: These ids must be <strong>the same</strong> as the used in the FASTA file. See in the example below (Figure <a href="#fig:GFFFASTAmatching">15.4</a>) how only the GFF3 in green has matching chromosomes ids (chr1, chr2…) with those in the FASTA file displayed.</p>
+<div class="figure"><span style="display:block;" id="fig:GFFFASTAmatching"></span>
+<img src="Figures/FILE_GFF_Ids_matching.png" alt="GFF and FASTA chromosome ids must match. " width="" id="img_GFFFASTAmatching" />
+<p class="caption">
+Figure 15.4: GFF and FASTA chromosome ids must match.
+</p>
+</div>
+<ul>
+<li>Column 2: Source (where the feature comes from: a program, a database…) Not important for us…<br />
+</li>
+<li>Column 3: <em>Feature</em> type (gene, mRNA, CDS, exon, etc.)<br />
+</li>
+<li>Column 4: <em>Start</em> position of feature in the genome (i.e. in the FASTA file)</li>
+<li>Column 5: <em>End</em> position of feature in the genome (i.e. in the FASTA file)<br />
+</li>
+<li>Column 6: Score (confidence value). Often this field contains only a dot ‘.’ (uninformed). Anyway, not important for us.<br />
+</li>
+<li>Column 7: <em>Strand</em> (+,-,.). A dot means uninformed.<br />
+</li>
+<li>Column 8: Phase (0,1,2 or not informed (.) ).</li>
+<li>Column 9: List of <em>attributes</em>, with a format <em>tag=value</em> per attribute. Multiple attributes are separated by “;”. It holds (among other data) the dependency relations of the feature.</li>
+</ul></li>
+</ul>
+<p><em>GFF3</em> is currently the preferred format to represent Gene Features, but it is not uncommon to find gene feature files in <em>GTF</em> format. <em>GFF3</em> provides more flexibility to represent the hierarchy of the features in a genome but <em>GTF</em> has some advantages in certain cases. <strong>SeqNjoy</strong> can process files in GFF3 or GTF formats. In both cases, columns 1 to 8 are the same. The 9th column has a different syntax in GFF3 and GTF (Figure <a href="#fig:GFF3GTF">15.5</a> )</p>
+<div class="figure"><span style="display:block;" id="fig:GFF3GTF"></span>
+<img src="Figures/FILE_GFF3_GTF.png" alt="Comparison of GTF and GFF3 files for the representation of the features of the same gene" width="" id="img_GFF3GTF" />
+<p class="caption">
+Figure 15.5: Comparison of GTF and GFF3 files for the representation of the features of the same gene
+</p>
+</div>
+<p><strong>Important</strong>: For <strong>SeqNjoy</strong>, GFF files must contain at least one “gene” in the feature type column.</p>
+<p>For more detailed information about GFF formats refer to <a href="https://www.ensembl.org/info/website/upload/gff.html">this</a>, <a href="http://gmod.org/wiki/GFF3">this</a> or <a href="https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md">this</a> link.</p>
+</div>
+<div id="alignment-files-bam-sam-files" class="section level2">
+<h2><span class="header-section-number">15.4</span> Alignment files (BAM / SAM files)</h2>
+<ul>
+<li><em>File type and extensions</em>: BAM are binary files with <em>.bam</em> extension. You can also load to <strong>SeqNjoy</strong> the uncompressed/text version of the BAM files (files with <em>.sam</em> extension) but do it ONLY if you do not have the BAM counterparts. The reasons why we advise against using SAM files are:
+<ul>
+<li>They take up lots and lots of memory space from your disk. A BAM file contains exactly the same information than the SAM file in less space.</li>
+<li>Alignment files processed downstream are expected to be BAM files (.sam files do not contribute anything in comparison).</li>
+<li>We do not preserve your loaded .sam files in the original format. In you provide .sam files, we will convert them immediately to BAM and then delete the loaded .sam(s) as they become redundant.</li>
+</ul></li>
+<li><em>Source</em>: Generated by <strong>SeqNjoy</strong> in the upstream <a href="#align-reads">Align Reads</a> step of the analysis or, alternatively, user-provided.<br />
+</li>
+<li><em>Use</em>: Alignment (BAM) files are used as input files for the <a href="#quantify-genes">Quantify Samples</a> step. Additionally, you can graphically inspect the alignments of one or more BAM file(s) by using the <a href="#visual-exploration-of-genomic-files-with-igv">IGV viewer</a> that can be launched from the <em>File List</em>.</li>
+<li><p><em>Content</em>: BAM/SAM files follows a format named “<em>SAM format</em>” (<strong>S</strong>equence <strong>A</strong>lignment/<strong>M</strong>ap). This format consists on tab-limited columns that store alignments of the short reads from the <a href="#fastq-files">FASTQ</a> file that have been mapped to the <em>reference genome</em> (your <a href="#fasta-file">FASTA</a> file).</p>
+<p>A BAM is a binary file and therefore it is not directly readable with an editor (you can use <a href="#visual-exploration-of-genomic-files-with-igv">IGV</a> to inspect its content). Getting the uncompressed/text version of a BAM, a SAM file, does not solve normally the problem, as SAM files are very large and any try to browse it with a common editor will most likely end in a crash of the editor after a while.</p>
+<p>In brief, a BAM/SAM file contains a complete information per line of each alignment: read identification, chromosome location, alignment type (<a href="#appendix-1-single-end-and-paired-ends-sequencing">single-end or paired-ends</a>), mapping quality, presence of insertions and deletions in the alignment, <a href="#single-end-or-paired-ends-which-is-better">insert size</a>, etc.</p>
+<p>You can find detailed information about the SAM format in the <a href="https://samtools.github.io/hts-specs/SAMv1.pdf">SAM Format Specification</a>.</p></li>
+</ul>
+</div>
+<div id="counts-file" class="section level2">
+<h2><span class="header-section-number">15.5</span> Counts file</h2>
+<ul>
+<li><em>File type and extension</em>: tab-separated plain text file (<em>.counts</em> extension).</li>
+<li><em>Source</em>: Generated by <strong>SeqNjoy</strong> in the “<a href="#quantify-genes"><em>Quantify Reads</em></a>” step of the analysis.<br />
+</li>
+<li><em>Use</em>: count files are used as input files in the “<a href="#compare-samples-differential-expression"><em>Compare samples</em></a>” step of the analysis. When comparing two groups of samples in two different conditions, the counts files of the samples in “Case condition” are compared with the counts files of the samples in “Control condition”.</li>
+<li><em>Content</em>: The format of a <em>counts</em> file is very simple. It has only two columns: the <em>Feature_id</em> and the <em>number of raw counts</em> for that feature id. The <em>feature type</em> of the ids in the first column corresponds to that selected for quantifying in the “<em>Quantify Genomic Features</em>” dialog, for example, gene ids if “gene” was selected as “<em>feature</em>”. The second column, <em>raw counts</em>, contains the number of reads that map in the reference genome within the feature span.</li>
+</ul>
+<div class="figure"><span style="display:block;" id="fig:counts"></span>
+<img src="Figures/FILE_counts_file.png" alt="Counts file example" width="" id="img_counts" />
+<p class="caption">
+Figure 15.6: Counts file example
+</p>
+</div>
+</div>
+<div id="annotations-file" class="section level2">
+<h2><span class="header-section-number">15.6</span> Annotations file</h2>
+<ul>
+<li><em>File type and extensions</em>: tab-separated text files (ann, ann.txt, ann.tsv, ann.tab) or Excel files (ann.xls, ann.xlsx). e.g.: <em>my_annotations.ann</em>, <em>my_annotations.ann.xlsx</em>.</li>
+<li><em>Source</em>: <a href="#projects-main-page-loading-files">User-provided</a> file. You can generate your own annotations files using the easy-to-use web-based tool <a href="https://www.ensembl.org/info/data/biomart/index.html">Biomart</a>, available for <a href="https://www.ensembl.org/biomart/martview/">vertebrates</a>, <a href="https://plants.ensembl.org/biomart/martview">plants</a>, <a href="https://metazoa.ensembl.org/biomart/martview">non-vertebrate metazoa</a>, <a href="https://protists.ensembl.org/biomart/martview">protists</a> and <a href="https://fungi.ensembl.org/biomart/martview">fungi</a>.</li>
+<li><em>Use</em>: Optional input file in the “<a href="#compare-samples-differential-expression"><em>Calculate Differential Expression</em></a>” window. When provided, its information is aggregated to the rest of columns of the “<a href="#differential-expression-file"><em>diffexp</em></a>” file, which is also generated in the “<em>Compare Samples</em>” task. See “<a href="#differential-expression-file">Differential Expression File</a>” for more info.</li>
+<li><p><em>Content</em>: The “ANN” format of an annotations file is very simple (Figure <a href="#fig:annformat">15.7</a>). The first line is the header line and has the column names. The first column of the file must contain <em>gene identifiers</em>. These identifiers must match (in type, not necessarily in number) those present in the <a href="#counts-file"><em>counts</em></a> files. The rest of columns may contain different biological information related to the genes, e.g. <em>gene description, gene synonyms, biological processes it is involved in, molecular functions, cell compartments, expressed tissues, biological pathways, interactions, orthologous genes, literature links, identifiers to other databases</em>, etc.</p>
+<div class="figure"><span style="display:block;" id="fig:annformat"></span>
+<img src="Figures/FILE_Annotation_file_ed.png" alt="Annotations file format" width="" id="img_annformat" />
+<p class="caption">
+Figure 15.7: Annotations file format
+</p>
+</div>
+<p>It is not necessary that all genes present in the <em>counts</em> files are also present in the <em>annotations</em> file, nor is it necessary that all genes present in your <em>annotations</em> file are present in the <em>counts</em> files.</p></li>
+</ul>
+</div>
+<div id="differential-expression-file" class="section level2">
+<h2><span class="header-section-number">15.7</span> Differential Expression file</h2>
+<ul>
+<li><em>File type and extension</em>: Differential expression files (<em>diffexp</em>) are Excel files with extension <em>.xlsx</em>.</li>
+<li><em>Source</em>: Generated by <strong>SeqNjoy</strong> in the <a href="#compare-samples-differential-expression"><em>Compare samples</em></a> step of the analysis.<br />
+</li>
+<li><em>Use</em>: Differential expression (<em>diffexp</em>) file is the final result of the analysis in <strong>SeqNjoy</strong>. Additionally, you can carry out further graphical analysis of the results contained in <em>diffexp</em> files by accessing the <a href="#graphical-analysis-of-differential-expression-results-with-fiesta-2.0">FIESTA 2.0</a> utility from the <a href="#projects-main-page-file-list">Project’s Main Page</a>.</li>
+<li><em>Content</em>: <em>diffexp</em> files contain information generated by the program selected for the detection of <em>Differential Expressed Genes (DEGs)</em> between two groups of samples that you determine to be in different conditions (Figure <a href="#fig:diffexpfile">15.8</a>). In addition, <em>diffexp</em> files contain the <em>raw counts</em> and the <em>normalized counts</em> of all the samples involved in the comparison and the <em>location</em> of the genes in the genome (information taken from the <a href="#gene-feature-file-gff-gff3-and-gtf-formats">GFF</a> file). Finally, if an <a href="#annotations-file"><em>annotations file</em></a> (ANN) is provided in the <a href="#compare-samples-differential-expression"><em>Calculate Differential Expression</em></a> dialog, the <em>diffexp</em> file incorporates the biological information contained in the <em>ANN</em> file for each matching gene of the <em>diffexp</em> file.</li>
+</ul>
+<div class="figure"><span style="display:block;" id="fig:diffexpfile"></span>
+<img src="Figures/FILE_DIFFEXP_file.png" alt="*diffexp* file format." width="" id="img_diffexpfile" />
+<p class="caption">
+Figure 15.8: <em>diffexp</em> file format.
+</p>
+</div>
+<p>This is the meaning of the columns present in the <em>diffexp</em> files (Figure <a href="#fig:diffexpfile">15.8</a>):</p>
+<ul>
+<li><em>ID</em>: <em>Feature ID</em>. Identifier of the feature type that was counted. In the case of “<em>gene</em>” this column contains <em>gene IDs</em>.
+<ul>
+<li><em>Type</em>: <em>Feature Type</em>. e.g. gene.</li>
+<li><em>Location</em>: Chromosome, initial position and end position of the feature in the genome as annotated in the GFF file, in the format <em>Chromosome:IniPos-EndPos</em>.</li>
+<li><em>Strand</em>: Strand of the feature (as stated in the GFF file).</li>
+<li><em>Log2BaseMean</em>: Average of the normalized counts taken over all samples in logarithm to base 2. This value is calculated by the program that performs the differential expression (<em>DESeq2</em> or <em>edgeR</em>).</li>
+<li><em>FoldChange(CaseCondition/ControlCondition)</em>: The <a href="https://en.wikipedia.org/wiki/Fold_change">fold change</a> or “<em>ratio</em>” is a measure that describes how much the expression of the feature changes from the <em>Control</em> to the <em>Case</em> condition. For example, given a particular gene with a expression value (averaged between the biological replica of this condition and normalized) for Control equal to 30.5 and for Case is equal to 61.0, the ratio would be 2. That is, “Case” expression is two-fold the “Control” expression for that gene.</li>
+<li><em>Log2Ratio(CaseCondition/ControlCondition)</em>: Logarithm to base 2 of the ratio (<em>fold change</em>) between the counts for Case condition and the counts for the Control condition. Also known as “log Fold Change”. This value is calculated by the program that performs the differential expression (<em>DESeq2</em> or <em>edgeR</em>). The value in this column is the <em>logarithm to base 2 of the ratio</em>, which is used commonly for analysis and visualization purposes as it is easy to interpret, e.g. a doubling value of the ratio (ratio=2) is a logRatio of 1; if it is a quadrupling value (ratio=4) then the logRatio is 2 and so on. Moreover, the logRatio is symmetric: when a change decreases by an equivalent amount e.g. a reduction by half (ratio=0.5) is equal to a logRatio=-1, a reduction by quarter is equal to a logRatio=-2, etc.</li>
+<li><em>StdErr(Log2Ratio)</em>: The standard error of the Log2Ratio estimate. <em>Only in case you have selected DESeq2 for differential expression detection</em>.</li>
+<li><em>P-value</em>: Statistical significance (<a href="https://en.wikipedia.org/wiki/P-value">p-value</a>). The p-value is a measure of how likely you are to get the particular LogRatio of that gene (or a more extreme value) if no real difference existed. Therefore, a small p-value indicates that there is a small chance
+of getting this LogRatio if no real difference existed, so logically you decide that the difference of expression levels between both conditions is significant. By “small” often a threshold of p-value=0.05 is taken, but note that it is a convention.</li>
+<li><em>P-adjusted</em>: This field contains an “<em>adjusted p-value</em>” obtained with the “<em>False Discovery Rate</em>” (FDR) method by Benjamini and Hochberg <span class="citation">(Benjamini &amp; Hochberg, <a href="#ref-Benjamini1995">1995</a>)</span>. FDR is a method to cope with the <a href="https://en.wikipedia.org/wiki/Multiple_comparisons_problem">“multiple comparisons problem”</a>. In <a href="https://hbctraining.github.io/DGE_workshop/lessons/05_DGE_DESeq2_analysis2.html#multiple-test-correction">this link</a> you will find a very good explanation on this problem and why it is a good idea to take the FDR as “the” measure for evaluating statistical significance of your results.</li>
+<li><em>Annotations</em> columns: Additional columns will be displayed only if you provided an <a href="#annotations-file"><em>annotations file</em></a> in the <a href="#compare-samples-differential-expression">“Calculate Differential Expression”</a> dialog. The annotations contained for each gene/feature in the annotations file will be added to the differential expression information of that gene/feature.</li>
+<li><em>Raw counts for the CONTROL group</em> of samples (or biological replicas): Several columns. Each column contains the <em>raw counts</em> detected in the <a href="#quantify-genes">Quantify Genomic Features menu</a> task for each gene/feature in a “Control” sample (or biological replica), i.e. the counts contained in the corresponding <a href="#counts-file"><em>counts files</em></a> “as-is”.</li>
+<li><em>Raw counts for the CASE group</em> of samples (or biological replicas): Idem as the previous “raw counts” but for “Case” samples (or biological replicas).</li>
+<li><em>Norm counts columns for CONTROL group</em> of samples (or biological replicas): Several columns. Each column contains the normalized counts for each gene/feature in each sample (or biological replica). The normalization method depends on the program selected to perform the <a href="#compare-samples-differential-expression"><em>Compare samples</em></a> step. In the normalization step of the differential expression analysis, <em>raw counts</em> are adjusted to account for factors that prevent direct comparison of expression measures. Considered factors in the normalization calculations are the <em>sequencing depth</em> and the <em>RNA composition</em>. See a very intuitive explanation at <a href="https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html">this link</a>.</li>
+<li><em>Norm counts columns for CASE group</em> of samples (or biological replicas): Idem as the previous “norm counts” but for “Case” samples (or biological replicas).</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs">
+<div id="ref-andrews2012">
+<p>Andrews, S., Krueger, F., Segonds-Pichon, A., Biggins, L., Krueger, C., &amp; Wingett, S. (2012). <em>FastQC</em>. Babraham Institute.</p>
+</div>
+<div id="ref-Benjamini1995">
+<p>Benjamini, Y., &amp; Hochberg, Y. (1995). Controlling the false discovery rate: A practical and powerful approach to multiple testing. <em>Journal of the Royal Statistical Society: Series B (Methodological)</em>, <em>57</em>(1), 289–300. <a href="https://doi.org/10.1111/j.2517-6161.1995.tb02031.x">https://doi.org/10.1111/j.2517-6161.1995.tb02031.x</a></p>
+</div>
+<div id="ref-Chen2018">
+<p>Chen, S., Zhou, Y., Chen, Y., &amp; Gu, J. (2018). Fastp: An ultra-fast all-in-one fastq preprocessor. <em>Bioinformatics</em>, <em>34</em>(17), i884–i890. <a href="https://doi.org/10.1093/bioinformatics/bty560">https://doi.org/10.1093/bioinformatics/bty560</a></p>
+</div>
+<div id="ref-Rgff">
+<p>Garcia-Martin, J. A., Oliveros, J. C., &amp; Torres-Perez, R. (2022). <em>Rgff: R utilities for gff and gtf files</em>. National Center for Biotechnology, Spanish National Research Council (CNB-CSIC). <a href="https://cran.r-project.org/web/packages/Rgff">https://cran.r-project.org/web/packages/Rgff</a></p>
+</div>
+<div id="ref-Kim2015">
+<p>Kim, D., Langmead, B., &amp; Salzberg, S. L. (2015). HISAT: A fast spliced aligner with low memory requirements. <em>Nature Methods</em>, <em>12</em>(4), 357–360. <a href="https://doi.org/10.1038/nmeth.3317">https://doi.org/10.1038/nmeth.3317</a></p>
+</div>
+<div id="ref-Langmead2012">
+<p>Langmead, B., &amp; Salzberg, S. L. (2012). Fast gapped-read alignment with bowtie 2. <em>Nature Methods</em>, <em>9</em>(4), 357–359. <a href="https://doi.org/10.1038/nmeth.1923">https://doi.org/10.1038/nmeth.1923</a></p>
+</div>
+<div id="ref-Rsubread">
+<p>Liao, Y., Smyth, G. K., &amp; Shi, W. (2019). The R package Rsubread is easier, faster, cheaper and better for alignment and quantification of RNA sequencing reads. <em>Nucleic Acids Research</em>, <em>47</em>(8), e47. <a href="https://doi.org/10.1093/nar/gkz114">https://doi.org/10.1093/nar/gkz114</a></p>
+</div>
+<div id="ref-Love2014">
+<p>Love, M. I., Huber, W., &amp; Anders, S. (2014). Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2. <em>Genome Biology</em>, <em>15</em>(12). <a href="https://doi.org/10.1186/s13059-014-0550-8">https://doi.org/10.1186/s13059-014-0550-8</a></p>
+</div>
+<div id="ref-FIESTA">
+<p>Oliveros, J. C. (2022). <em>FIESTA 2.0: Interactive scatter plots in your browser</em>. National Center for Biotechnology, Spanish National Research Council (CNB-CSIC). <a href="https://bioinfogp.cnb.csic.es/tools/fiesta2">https://bioinfogp.cnb.csic.es/tools/fiesta2</a></p>
+</div>
+<div id="ref-Pomaznoy2019">
+<p>Pomaznoy, M., Sethi, A., Greenbaum, J., &amp; Peters, B. (2019). Identifying inaccuracies in gene expression estimates from unstranded RNA-seq data. <em>Scientific Reports</em>, <em>9</em>(1). <a href="https://doi.org/10.1038/s41598-019-52584-w">https://doi.org/10.1038/s41598-019-52584-w</a></p>
+</div>
+<div id="ref-Robinson2020">
+<p>Robinson, J. T., Thorvaldsdóttir, H., Turner, D., &amp; Mesirov, J. P. (2022). Igv.js: An embeddable javascript implementation of the integrative genomics viewer (igv). <em>bioRxiv</em>. <a href="https://doi.org/10.1101/2020.05.03.075499">https://doi.org/10.1101/2020.05.03.075499</a></p>
+</div>
+<div id="ref-Robinson2011">
+<p>Robinson, J. T., Thorvaldsdóttir, H., Winckler, W., Guttman, M., Lander, E. S., Getz, G., &amp; Mesirov, J. P. (2011). Integrative genomics viewer. <em>Nature Biotechnology</em>, <em>29</em>(1), 24–26. <a href="https://doi.org/10.1038/nbt.1754">https://doi.org/10.1038/nbt.1754</a></p>
+</div>
+<div id="ref-Robinson2009">
+<p>Robinson, M. D., McCarthy, D. J., &amp; Smyth, G. K. (2009). edgeR: A bioconductor package for differential expression analysis of digital gene expression data. <em>Bioinformatics</em>, <em>26</em>(1), 139–140. <a href="https://doi.org/10.1093/bioinformatics/btp616">https://doi.org/10.1093/bioinformatics/btp616</a></p>
+</div>
+<div id="ref-Rhisat2">
+<p>Soneson, C. (2021). <em>Rhisat2: R wrapper for hisat2 aligner</em>. <a href="https://github.com/fmicompbio/Rhisat2">https://github.com/fmicompbio/Rhisat2</a></p>
+</div>
+<div id="ref-deSouza2018">
+<p>Souza, W. de, Carvalho, B. de S., &amp; Lopes-Cendes, I. (2018). Rqc: A bioconductor package for quality control of high-throughput sequencing data. <em>Journal of Statistical Software</em>, <em>87</em>(Code Snippet 2). <a href="https://doi.org/10.18637/jss.v087.c02">https://doi.org/10.18637/jss.v087.c02</a></p>
+</div>
+<div id="ref-Rbowtie2">
+<p>Wei, Z., Zhang, W., Fang, H., Li, Y., &amp; Wang, X. (2018). EsATAC: An easy-to-use systematic pipeline for atac-seq data analysis. <em>Bioinformatics</em>. <a href="https://doi.org/10.1093/bioinformatics/bty141">https://doi.org/10.1093/bioinformatics/bty141</a></p>
+</div>
+</div>
+</div>
+<div id="appendix-1-single-end-and-paired-ends-sequencing" class="section level1 unnumbered">
+<h1>Appendix 1: Single-end and paired-ends sequencing</h1>
+<div id="introduction-1" class="section level2 unnumbered">
+<h2>Introduction</h2>
+<p>After the “fragmentation” step, in RNA-Seq protocols fragments ~300 to 500 bp long are produced. Even this size range is too long to be sequenced entirely by the type of sequencers that generate short reads. What is done then is to read only <em>the end part of the fragment</em>, which produce short reads of 100-200 bases (this interval may vary according to the experimental design, the machine used, etc.) The rest of the fragment is not sequenced.</p>
+<p>Now, there are two modalities in RNA-Seq, <strong>single-end</strong> and <strong>paired-ends</strong> (Figure <a href="#fig:sepe1">15.9</a>):</p>
+<div class="figure"><span style="display:block;" id="fig:sepe1"></span>
+<img src="Figures/APPENDIX1_SE_PE.png" alt="**Single-end** and **Paired-ends** reads: a global view" width="" id="img_sepe1" />
+<p class="caption">
+Figure 15.9: <strong>Single-end</strong> and <strong>Paired-ends</strong> reads: a global view
+</p>
+</div>
+<p><strong>Single-end RNA-Seq</strong> (<strong>SE</strong>, aka <em>single-read</em> RNA-Seq): Is the simplest mode. Only <span style="color: red;">one end</span> of the fragment is sequenced. All the short reads sequences generated for a sample with single-end (SE) technique are collected in <u><em>a single FASTQ file</em></u>.</p>
+<p><strong>Paired-end RNA-Seq</strong> mode (<strong>PE</strong>): <span style="color: red;">Two</span> <span style="color: green;">reads</span> per fragment are produced. In this mode, the reading starts at one end, finishes this direction at a pre-specified read length (e.g. 150 bases) and a “<span style="color: red;"><em>read 1</em></span>” is produced as a result. Then, it starts another round of reading from the opposite end of the fragment, finishes this new (opposite) direction at the same read length and finally a second read, “<span style="color: green;"><em>read 2</em></span>”, is produced. At the end, both ends of the fragment are sequenced leaving the inner portion of the fragment unsequenced.</p>
+<p>In PE sequencing, <em>read 1</em> reads (those generated first-in-the-pair) and <em>read 2</em> reads (generated secondly) are stored in <u><em>two separated FASTQ files</em></u>. One file contains all the <em>read 1</em> reads the other file contains all the <em>read 2</em> reads. Each of these files has a label in its name that identifies whether it contains <em>read 1</em> or <em>read 2</em> reads, something like <em>Sample1_blah_blah<strong>_1</strong>.fastq</em> and <em>Sample1_blah_blah<strong>_2</strong>.fastq</em> (or something similar like <em>Sample1_blah_blah<strong>_R1</strong>.fastq</em> and <em>Sample1_blah_blah<strong>_R2</strong>.fastq</em>, etc.) Note that usually the only difference in the filenames between two FASTQ paired-ends files of the same sample is just this "_1" or "_2"-like particles.</p>
+<p>In addition, "_1" and "_2" FASTQ files of a particular sample have both the same number of reads. Moreover, they kept the same order of reads (see Figure <a href="#fig:sepe1">15.9</a>): at a given position X in both files, the reads in “_1” and “_2” correspond to the same fragment. In fact, as with the files, the read identifier that is given to the “read 1” and “read 2” reads of the same fragment is the same… except again for the particle indicating whether it is for <em>reads 1</em> or <em>reads 2</em>.</p>
+</div>
+<div id="reads-orientation" class="section level2 unnumbered">
+<h2>Reads orientation</h2>
+<p>To know how is the orientation of the reads in SE and PE is useful to interpret correctly the alignments of the reads and to understand important topics like the <a href="#appendix-2-Strandedness-in-rna-seq">unstranded or stranded</a> protocols in RNA-Seq.</p>
+<p>The sequencing always synthesizes the reads in a 5’ -&gt; 3 direction. (It is the way the DNA polymerase proceeds) so the template strand is traversed 3’ -&gt; 5’.</p>
+<p>In <em>single-end</em>, the reads extend in the 5’ -&gt; 3’ direction along the forward (plus) DNA strand (Figure <a href="#fig:se">15.10</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:se"></span>
+<img src="Figures/APPENDIX1_single_end_orientation.jpg" alt="Single-end read orientation" width="" id="img_se" />
+<p class="caption">
+Figure 15.10: Single-end read orientation
+</p>
+</div>
+<p>In <em>paired-ends</em>, the <em>read 1</em> read extends in the 5’ –&gt; 3’ direction towards <em>read 2</em> along the <em>forward</em> (plus) DNA strand. As for the <em>read 2</em> read, it extends in the 5’ –&gt; 3’ direction towards <em>read 1</em> along the <em>reverse</em> (minus) DNA strand. <em>Read 1</em> is the reverse complement of the first 3’-most bases of the forward strand (therefore identical to the first 5’-most bases of the reverse strand) and <em>read 2</em> is the reverse complement of the first 3’-most bases of the reverse strand (therefore identical to the first 5’-most bases of the forward strand). See the <em>read 1</em> and <em>read 2</em> orientations represented in Figure <a href="#fig:pe">15.11</a>:</p>
+<div class="figure"><span style="display:block;" id="fig:pe"></span>
+<img src="Figures/APPENDIX1_paired_ends_orientation.jpg" alt="Paired-ends *FR* reads orientation" width="" id="img_pe" />
+<p class="caption">
+Figure 15.11: Paired-ends <em>FR</em> reads orientation
+</p>
+</div>
+<p>Therefore the sequences of <em>the two reads of a pair are pointing towards each other on opposite strands</em>. When you align them to a genome, one read should align to the forward strand, and the other should align to the reverse strand, at a higher base pair position than the first one so that they are pointed towards one another. This is known as an <em>“FR”</em> read pair or <em>“forward/reverse”</em>, as this is the order in which they are placed. A read pair having this orientation is called a “<em>proper pair</em>”. There are other possible orientations, but we don’t need to go into them here.</p>
+<p>When you use <a href="#visual-exploration-of-genomic-files-with-igv">IGV genomic browser</a> you can see this orientation in the case of a read pair of a PE sequencing. Take into account that in IGV only the forward (plus) strand of the genome is displayed. With the <em>“Color by” -&gt; “read strand”</em> option the read in the forward strand is colored <span style="\&quot;color:red\&quot;">red</span> and the read of the reverse strand is colored <span style="\&quot;color:blue\&quot;">blue</span>. Observe in the figure above a read pair meeting the FR orientation. They are even more visible if you select <em>“View in Pairs”</em> option (Figure <a href="#fig:peigv">15.12</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:peigv"></span>
+<img src="Figures/IGV_paired_ends_ed.png" alt="Paired-ends *FR* reads orientation as seen in IGV." width="" id="img_peigv" />
+<p class="caption">
+Figure 15.12: Paired-ends <em>FR</em> reads orientation as seen in IGV.
+</p>
+</div>
+</div>
+<div id="single-end-or-paired-ends-which-is-better" class="section level2 unnumbered">
+<h2>Single-end or paired-ends, which is better?</h2>
+<p>Both single-end (SE) and paired-ends (PE) can be used for measuring gene expression. PE offers the advantage over the SE that the distance covered by the R1 and R2 and the unsequenced sequence in-between is controlled on average (it is named “<em>insert size</em>” and is usually in an approximate range 200-600 bp) so the aligners can take advantage of this information to be more accurate in the correct alignment of the reads to the reference genome. The point is that a read pair properly (FR) oriented, covers a longer span in the genome (<em>read_1 + inner_distance + read_2</em>, Figure <a href="#fig:pemodel">15.13</a>) and therefore a stronger evidence of being well aligned than a single read.</p>
+<div class="figure"><span style="display:block;" id="fig:pemodel"></span>
+<img src="Figures/APPENDIX1_Paired_insert_ed.png" alt="Insert size in Paired-ends reads" width="" id="img_pemodel" />
+<p class="caption">
+Figure 15.13: Insert size in Paired-ends reads
+</p>
+</div>
+<p>The main disadvantage of the PE protocol is that it is normally more expensive and time-consuming to generate than single-end reads. On the other hand, just for counting reads or calculate differential expression may be unnecessary to have such a high level of accuracy, especially if your species is well-annotated. But take into account that in the future you might want to reuse the reads intended to study differential expression to, for example, extend the study to look for alternative splicing. In that case, you will need to have done PE sequencing as SE is insufficient for alternative splicing analysis.</p>
+</div>
+</div>
+<div id="appendix-2-strandedness-in-rna-seq" class="section level1 unnumbered">
+<h1>Appendix 2: Strandedness in RNA-Seq</h1>
+<div id="understanding-strandedness-in-transcription" class="section level2 unnumbered">
+<h2>Understanding Strandedness in Transcription</h2>
+<p>During transcription, one of the two DNA strands serves as a <strong>template</strong> for synthesizing the RNA molecule. Since the <strong>template strand</strong> is <strong>reverse complementary</strong> to the transcribed RNA, it is referred to as the <strong>antisense strand</strong>, <strong>negative-sense strand</strong>, <strong>non-coding strand</strong>, or <strong>minus strand</strong>.</p>
+<p>Conversely, the <strong>non-template strand</strong> has the <strong>same sequence as the transcript</strong> (except for T instead of U) and is known as the <strong>sense strand</strong>, <strong>positive-sense strand</strong>, <strong>coding strand</strong>, or <strong>plus strand</strong> (Figure <a href="#fig:strandnesstranscription">15.14</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:strandnesstranscription"></span>
+<img src="Figures/APPENDIX_Transcription.png" alt="Representation of sense and antisense strands in transcription" width="" id="img_strandnesstranscription" />
+<p class="caption">
+Figure 15.14: Representation of sense and antisense strands in transcription
+</p>
+</div>
+<p>It is important to note that <strong>either DNA strand can contain genes</strong>, meaning that the designation of <strong>sense and antisense is gene-specific</strong> (Figure <a href="#fig:sensegenespecific">15.15</a>):</p>
+<div class="figure"><span style="display:block;" id="fig:sensegenespecific"></span>
+<img src="Figures/APPENDIX_Transcription_2.png" alt="Sense and antisense strand assignment depends on the gene" width="" id="img_sensegenespecific" />
+<p class="caption">
+Figure 15.15: Sense and antisense strand assignment depends on the gene
+</p>
+</div>
+</div>
+<div id="rna-seq-protocols-unstranded-vs.-stranded" class="section level2 unnumbered">
+<h2>RNA-Seq protocols: unstranded vs. stranded</h2>
+<p>RNA-Seq protocols generate single-stranded mRNA molecules that are then converted into <strong>double-stranded complementary DNA (cDNA)</strong>. These cDNA molecules are subsequently amplified, producing millions of short sequencing reads. As a result, for any given transcript, the sequencing reads fall into two categories:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Sense reads</strong>: These have a sequence identical to the original RNA transcript (except for T instead of U).<br />
+</li>
+<li><strong>Antisense reads</strong>: These are the <strong>reverse complement</strong> of the original RNA transcript sequence.</li>
+</ol>
+<p>Initially, most RNA-Seq library preparation protocols were <strong>non-strand-specific (also called unstranded)</strong>. In these protocols, sequences from both the <strong>sense strand</strong> (the cDNA strand encoding the transcript) and the <strong>antisense strand</strong> (the reverse complement of the original mRNA) are sequenced <strong>without preserving strand information</strong>.</p>
+<p>This means that in the resulting FASTQ files, <code>_1.fastq</code> and <code>_2.fastq</code> contain a mixture of <strong>sense and antisense reads</strong>, making it impossible to determine whether a given read originated from the <strong>sense</strong> or <strong>antisense</strong> strand of the original mRNA.</p>
+<div class="figure"><span style="display:block;" id="fig:strandedunstranded"></span>
+<img src="Figures/APPENDIX_Diff_unstranded_stranded2.png" alt="Comparison of unstranded and stranded RNA-Seq protocols" width="" id="img_strandedunstranded" />
+<p class="caption">
+Figure 15.16: Comparison of unstranded and stranded RNA-Seq protocols
+</p>
+</div>
+<p>When assigning reads to genes, it is ideal to match all reads derived from the <strong>sense strand</strong> to a <strong>sense gene</strong> in the reference genome and all reads from the <strong>antisense strand</strong> to an <strong>antisense gene</strong>. However, in an <strong>unstranded</strong> protocol, this is not possible—some antisense reads may be incorrectly assigned to sense genes, and vice versa. This can introduce <strong>biases</strong> in gene expression quantification.</p>
+<p>Now, consider the <strong>stranded protocol</strong> illustrated on the right in Figure <a href="#fig:strandedunstranded">15.16</a>. Here, the second-strand cDNA fragment (the sense strand) is prevented from amplification. This results in only the first-strand cDNA (antisense strand) being amplified. Consequently, strand information is retained in the sequencing data:</p>
+<ul>
+<li>In <strong>reverse-stranded</strong> protocols, the <code>_1.fastq</code> file contains antisense (reverse) reads, as they are sequenced first. The <code>_2.fastq</code> file contains sense (direct) reads, sequenced second.<br />
+</li>
+<li>In <strong>direct-stranded</strong> protocols, the sense (direct) reads are amplified and stored in <code>_1.fastq</code>, while the antisense (reverse) reads are stored in <code>_2.fastq</code>.</li>
+</ul>
+</div>
+<div id="fastq-file-structure-in-different-protocols" class="section level2 unnumbered">
+<h2>FASTQ File Structure in Different Protocols</h2>
+<p>In stranded RNA-Seq protocols, strand information is preserved by selectively amplifying only one strand of cDNA. This distinction directly impacts how reads are stored in the FASTQ files and determines whether a given read corresponds to the sense or antisense strand of the original RNA transcript. Figure <a href="#fig:strandedfastq">15.17</a> illustrates how sequencing reads are distributed across FASTQ files depending on the protocol used.</p>
+<div class="figure"><span style="display:block;" id="fig:strandedfastq"></span>
+<img src="Figures/APPENDIX_Strandness_fastq_files.png" alt="Unstranded and stranded protocols and FASTQ files." width="" id="img_strandedfastq" />
+<p class="caption">
+Figure 15.17: Unstranded and stranded protocols and FASTQ files.
+</p>
+</div>
+<ul>
+<li><strong>Unstranded RNA-Seq</strong>: The sense read can be stored in either <code>_1.fastq</code> or <code>_2.fastq</code>, making strand determination impossible.</li>
+<li><strong>Direct-stranded RNA-Seq</strong>: The sense read is stored in <code>_1.fastq</code>.<br />
+</li>
+<li><strong>Reverse-stranded RNA-Seq</strong>: The sense read is stored in <code>_2.fastq</code>.</li>
+</ul>
+<p>By ensuring that all sequencing reads carry strand information, stranded protocols prevent incorrect assignment of antisense reads and eliminate potential biases in gene quantification.</p>
+<p>Several techniques exist for generating stranded RNA-Seq libraries. One of the most widely used involves <em>chemical modification with dUTP</em>. This method incorporates dUTP specifically into the non-sense strand of the cDNA, preventing its amplification during PCR (<a href="#fig:strandedunstranded">15.16</a>, right). This approach is known as <strong>reverse-stranded RNA-Seq</strong>, since the reverse (antisense) strand is amplified and sequenced first.</p>
+<p>Alternatively, some stranded protocols selectively <em>deplete the sense strand</em> instead of the antisense strand, resulting in a <strong>direct-stranded RNA-Seq</strong> protocol. In this case, the sense (direct) strand is amplified and sequenced first, while the antisense strand is discarded.</p>
+</div>
+<div id="getting-down-to-practicalities" class="section level2 unnumbered">
+<h2>Getting Down to Practicalities</h2>
+<p>When your provider delivers the short-read files (<a href="#fastq-files">FASTQ files</a>) from your RNA-Seq experiment, it is recommended to check the sequencing report to determine which <strong>library preparation method</strong> was used: <em>unstranded</em> (non-stranded), <em>direct-stranded</em>, or <em>reverse-stranded</em>. If this information is not explicitly mentioned, request it from the provider, as it is crucial for accurate transcript quantification (<em>counts</em>). Once you have identified the protocol type, select the appropriate option in the <em>Strand Specificity</em> selector of the <em><a href="#quantify-genes">Quantify Genomic Features</a></em> window.</p>
+<p>However, the protocol may not always be listed under these exact names. For example, some reports may refer to the protocol as “<em>directional RNA-Seq</em>,” which is equivalent to “<em>stranded RNA-Seq</em>.” In other cases, only the name of the <strong>commercial kit</strong> used for library preparation might be provided. The following table serves as a reference to help interpret these variations:</p>
+<table>
+<colgroup>
+<col width="20%" />
+<col width="16%" />
+<col width="31%" />
+<col width="31%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"><strong>Protocol</strong></th>
+<th align="left"><strong>Synonym</strong></th>
+<th align="left"><strong>Examples/Kits<sup>1</sup></strong></th>
+<th align="left"><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><strong>Unstranded</strong></td>
+<td align="left">Non-stranded</td>
+<td align="left">Standard Illumina, TruSeq RNA Sample Prep Kit, NuGEN OvationV2, SMARTer Universal Low Input (TaKara), GDC normalized TCGA data</td>
+<td align="left">Strand information is <strong>not retained</strong> (lost).</td>
+</tr>
+<tr class="even">
+<td align="left"><strong>Reverse-stranded</strong></td>
+<td align="left">First-strand</td>
+<td align="left">dUTP, NSR, NNSR; TruSeq Stranded (Total RNA/mRNA), NEB Ultra Directional, Agilent SureSelect Strand-Specific</td>
+<td align="left">The <strong>second read (read 2)</strong> corresponds to the original RNA strand, while the <strong>first read (read 1)</strong> aligns to the opposite (reverse) strand.</td>
+</tr>
+<tr class="odd">
+<td align="left"><strong>Direct-stranded</strong></td>
+<td align="left">Second-strand</td>
+<td align="left">Directional Illumina (Ligation), Standard SOLiD, ScriptSeq v2, SMARTer Stranded Total RNA, NuGEN Encore Complete, NuGEN SoLo, Illumina ScriptSeq</td>
+<td align="left">The <strong>first read (read 1)</strong> corresponds to the original (sense) RNA strand, while the <strong>second read (read 2)</strong> aligns to the opposite strand.</td>
+</tr>
+</tbody>
+</table>
+<p><font size="2"><sup>1</sup> The information in this column was compiled from <a href="https://rnabio.org/module-09-appendix/0009/12/01/StrandSettings/">this</a>, <a href="https://github.com/igordot/genomics/blob/master/notes/rna-seq-strand.md">this</a>, and <a href="https://github.com/NBISweden/GUESSmyLT">this</a> source.</font></p>
+<p>Regardless of the reported protocol, we recommend verifying the <strong>strandedness</strong> yourself by following an approach like the one described in the next section.</p>
+</div>
+<div id="how-to-determine-the-strandedness-with-igv" class="section level2 unnumbered">
+<h2>How to Determine the Strandedness with IGV</h2>
+<p>In some cases, you may not have access to information about the strandedness of your RNA-Seq data. This can happen if you obtained your FASTQ or BAM files from an online repository that lacks metadata or if the dataset is poorly documented.</p>
+<p>Fortunately, there are strategies to infer strandedness from the data itself. One such strategy involves using the <strong>IGV</strong> <span class="citation">(Robinson et al., <a href="#ref-Robinson2011">2011</a>, <a href="#ref-Robinson2020">2022</a>)</span> genomic browser.</p>
+<div id="step-1-load-the-required-files-in-igv" class="section level3 unnumbered">
+<h3>Step 1: Load the Required Files in IGV</h3>
+<p>To analyze strandedness, you need to load the following files into <strong>IGV</strong>:<br />
+- <strong>Reference genome</strong> (FASTA format)<br />
+- <strong>Gene annotation file</strong> (GFF3/GTF format)<br />
+- <strong>BAM file(s)</strong> containing the RNA-Seq alignments</p>
+<p>Once loaded, you can use IGV’s <strong>Color by Read Strand</strong> option to visualize the alignment patterns.</p>
+</div>
+<div id="step-2-understanding-read-orientation-in-igv" class="section level3 unnumbered">
+<h3>Step 2: Understanding Read Orientation in IGV</h3>
+<p>As described in the <a href="#reads-orientation">Reads Orientation</a> section, paired-end reads typically align in an <strong>FR conformation</strong> (<em>Forward-Reverse</em>), where:<br />
+- <em>Read 1</em> aligns to the <strong>forward (+) DNA strand</strong>, and<br />
+- <em>Read 2</em> aligns <strong>downstream</strong> on the <strong>reverse (-) DNA strand</strong> (Figure <a href="#fig:peigv">15.12</a>).</p>
+<p>IGV allows you to visualize read orientation using the <strong>Color by Read Strand</strong> option:<br />
+- <strong>Forward strand reads</strong> are colored <strong>red</strong>.<br />
+- <strong>Reverse strand reads</strong> are colored <strong>blue</strong>.</p>
+<p>Additionally, paired-end sequencing assigns each read to one of two FASTQ files:<br />
+- <strong>“reads_1.fastq”</strong> contains all <em>Read 1</em> sequences.<br />
+- <strong>“reads_2.fastq”</strong> contains all <em>Read 2</em> sequences.</p>
+<p>Now, let’s examine how this information can be used to infer strandedness.</p>
+</div>
+<div id="step-3-detecting-strandedness-using-read-1-orientation" class="section level3 unnumbered">
+<h3>Step 3: Detecting Strandedness Using Read 1 Orientation</h3>
+<p>By inspecting <strong>only Read 1 (<code>reads_1.fastq</code>)</strong>, you can infer the strandedness of your data:</p>
+<ul>
+<li><strong>Unstranded Protocol:</strong>
+<ul>
+<li><code>reads_1.fastq</code> contains a <strong>mix of red and blue reads</strong>, meaning some align to the forward strand and others to the reverse strand.<br />
+</li>
+<li>This happens because strand information is lost during library preparation.</li>
+</ul></li>
+<li><strong>Direct-Stranded Protocol:</strong>
+<ul>
+<li><code>reads_1.fastq</code> contains <strong>only forward-aligned reads</strong> (<strong>red</strong>) when mapping to genes on the <strong>forward strand</strong> of the genome.<br />
+</li>
+<li>Likewise, it contains <strong>only reverse-aligned reads</strong> (<strong>blue</strong>) when mapping to genes on the <strong>reverse strand</strong>.</li>
+</ul></li>
+<li><strong>Reverse-Stranded Protocol:</strong>
+<ul>
+<li><code>reads_1.fastq</code> contains <strong>only reverse-aligned reads</strong> (<strong>blue</strong>) for genes on the <strong>forward strand</strong>.<br />
+</li>
+<li>It contains <strong>only forward-aligned reads</strong> (<strong>red</strong>) for genes on the <strong>reverse strand</strong>.</li>
+</ul></li>
+</ul>
+</div>
+<div id="step-4-using-color-by-first-of-pair-strand-in-igv" class="section level3 unnumbered">
+<h3>Step 4: Using “Color by First-of-Pair Strand” in IGV</h3>
+<p>IGV provides another useful visualization tool clicking the track’s gear menu of IGV and selecting <strong>Color by → First-of-Pair Strand</strong> in the BAM track (Figure <a href="#fig:igvgearfop">15.18</a>).</p>
+<div class="figure"><span style="display:block;" id="fig:igvgearfop"></span>
+<img src="Figures/APPENDIX_IGV_gear_fop.png" alt="option 'first in pair'" width="" id="img_igvgearfop" />
+<p class="caption">
+Figure 15.18: option ‘first in pair’
+</p>
+</div>
+<p>When enabled, <strong>both reads of a pair</strong> are colored based on the strand to which <em>Read 1</em> aligns:<br />
+- If <em>Read 1</em> aligns to the <strong>forward strand</strong>, the entire pair is <strong>red</strong>.<br />
+- If <em>Read 1</em> aligns to the <strong>reverse strand</strong>, the entire pair is <strong>blue</strong>.</p>
+<p>This visualization allows for a quick assessment of whether <em>Read 1</em> is consistently aligning with a particular strand, which is crucial for determining the strandedness protocol.</p>
+</div>
+<div id="step-5-verifying-the-pair-orientation-in-igv" class="section level3 unnumbered">
+<h3>Step 5: Verifying the “Pair Orientation” in IGV</h3>
+<p>By left-clicking a read in IGV, you can access additional alignment details (Figure <a href="#fig:igvpairorientation">15.19</a>). One key piece of information is the <strong>Pair Orientation</strong>, which can be either <strong>F2R1</strong> or <strong>F1R2</strong>:</p>
+<div class="figure"><span style="display:block;" id="fig:igvpairorientation"></span>
+<img src="Figures/APPENDIX_PAIR_ORIENTATION.png" alt="Pair orientation in IGV" width="" id="img_igvpairorientation" />
+<p class="caption">
+Figure 15.19: Pair orientation in IGV
+</p>
+</div>
+<ul>
+<li><strong>F1R2</strong> → <em>Read 1</em> aligns to the forward strand (<strong>red</strong>) and comes from <code>reads_1.fastq</code>, while <em>Read 2</em> aligns to the reverse strand (<strong>blue</strong>) and comes from <code>reads_2.fastq</code>.<br />
+</li>
+<li><strong>F2R1</strong> → <em>Read 1</em> aligns to the reverse strand (<strong>blue</strong>) and comes from <code>reads_1.fastq</code>, while <em>Read 2</em> aligns to the forward strand (<strong>red</strong>) and comes from <code>reads_2.fastq</code>.</li>
+</ul>
+<p>These orientations help confirm whether the sequencing protocol follows a <strong>direct stranded</strong> or <strong>reverse stranded</strong> approach.</p>
+</div>
+<div id="final-interpretation-identifying-the-library-protocol" class="section level3 unnumbered">
+<h3>Final Interpretation: Identifying the Library Protocol</h3>
+<p>Using the tools above, you can now determine the library preparation method:</p>
+<ul>
+<li><strong>Unstranded:</strong> Mixed ‘red and blue’ reads in <code>reads_1.fastq</code>.<br />
+</li>
+<li><strong>Direct stranded:</strong> Red reads for genes on the <strong>forward strand</strong>, blue reads for genes on the <strong>reverse strand</strong> (Figure <a href="#fig:directstranded">15.20</a>).
+<div class="figure"><span style="display:block;" id="fig:directstranded"></span>
+<img src="Figures/APPENDIX_FOP_DIRECT_IGV.png" alt="Direct stranded: read pairs in red for genes in forward (+) strand and in blue for genes in reverse (-) strand." width="" id="img_directstranded" />
+<p class="caption">
+Figure 15.20: Direct stranded: read pairs in red for genes in forward (+) strand and in blue for genes in reverse (-) strand.
+</p>
+</div></li>
+<li><strong>Reverse stranded:</strong> Blue reads for genes on the <strong>forward strand</strong>, red reads for genes on the <strong>reverse strand</strong> (Figure <a href="#fig:reversestranded">15.21</a>).<br />
+
+<div class="figure"><span style="display:block;" id="fig:reversestranded"></span>
+<img src="Figures/APPENDIX_FOP_REVERSE_IGV.png" alt="Reverse stranded: read pairs in blue for genes in forward (+) strand and in red for genes in reverse (-) strand." width="" id="img_reversestranded" />
+<p class="caption">
+Figure 15.21: Reverse stranded: read pairs in blue for genes in forward (+) strand and in red for genes in reverse (-) strand.
+</p>
+</div></li>
+</ul>
+<p>By comparing your observations with these expected patterns, you can confidently determine whether your RNA-Seq library was prepared using an <strong>unstranded</strong>, <strong>direct stranded</strong>, or <strong>reverse stranded</strong> protocol.</p>
+<p></br></p>
+<p>To verify that you have grasped the concept, try to determine which strandedness protocols were used for <strong>BAM-1</strong> and <strong>BAM-2</strong> in Figure <a href="#fig:determinestrandness">15.22</a>. Remember that the reads have been colored using the <strong>“First-of-Pair”</strong> option in IGV.</p>
+<div class="figure"><span style="display:block;" id="fig:determinestrandness"></span>
+<img src="Figures/APPENDIX_Exercise_unstranded_stranded_ed.png" alt="What are the strandedness protocols in BAM-1 and in BAM-2?" width="" id="img_determinestrandness" />
+<p class="caption">
+Figure 15.22: What are the strandedness protocols in BAM-1 and in BAM-2?
+</p>
+</div>
+<p><strong>Final remark</strong>: If you are still unable to determine strandedness, the safest option is to select <strong>“unstranded”</strong> during analysis. This ensures that no reads are mistakenly discarded.</p>
+<p>A study by <span class="citation">(Pomaznoy et al., <a href="#ref-Pomaznoy2019">2019</a>)</span> found that ignoring strand information can significantly affect gene expression estimates that
+<em>“10% of all genes and 2.5% of protein-coding genes show a two-fold or higher difference when strandedness is ignored.”</em></p>
+<p></br></p>
+<p>The answer for the question about the strandedness protocols in Figure <a href="#fig:determinestrandness">15.22</a> is that:</p>
+<ul>
+<li><strong>BAM-2</strong> follows an <strong>unstranded protocol</strong>, as it contains a mix of red and blue reads. This indicates that <em>Read 1</em> aligns to both DNA strands, meaning strand information was not preserved during sequencing.<br />
+</li>
+<li><strong>BAM-1</strong> follows a <strong>direct stranded protocol</strong>, as:
+<ul>
+<li>Reads mapping to a <strong>gene on the forward (plus) DNA strand</strong> are <strong>red</strong>, corresponding to an <strong>F1R2</strong> orientation.<br />
+</li>
+<li>Reads mapping to a <strong>gene on the reverse (minus) DNA strand</strong> are <strong>blue</strong>, corresponding to an <strong>F2R1</strong> orientation.</li>
+</ul></li>
+</ul>
+<p>This confirms that <strong>BAM-1 was sequenced using a direct stranded RNA-Seq protocol</strong>, while <strong>BAM-2 lacks strand specificity</strong>.</p>
+</div>
+</div>
+</div>
+<div id="FAQ" class="section level1 unnumbered FAQ">
+<h1>Appendix 3: FAQ</h1>
+<dl>
+<dt>How to cite SeqNjoy?</dt>
+<dd>Juan Antonio Garcia-Martin, Rafael Torres-Perez and Juan Carlos Oliveros (2022). <em>SeqNjoy: Complete RNA-Seq projects in your Desktop</em>. (manuscript in preparation). <a href="https://bioinfogp.cnb.csic.es/tools/seqnjoy" class="uri">https://bioinfogp.cnb.csic.es/tools/seqnjoy</a>
+<br>
+(Please consult this tutorial for reference updates).
+</dd>
+<dt>My computer has an internal disk low on space. Can I install and use SeqNjoy?</dt>
+<dd>Yes, although RNA-Seq files require considerable amounts of hard disk space, users can store project on local or USB-connected hard drives of their choice. Install <em>SeqNjoy</em> and select a Projects Folder on an dedicated external hard disk with enough space.
+</dd>
+<dt>Can I recover my files from SeqNjoy after deleting a project?</dt>
+<dd>No, the files are deleted without the possibility of being recovered.
+</dd>
+<dt>Why cannot I type some characters when naming a project, a sample label or an output suffix?</dt>
+<dd>Some non-alphabetic characters cannot be part of an output file name. That is the reason we limit the use of special characters in labels or suffixes.
+</dd>
+<dt>Which annotation format should I use, GTF or GFF3?</dt>
+<dd>Both formats contain similar information about genes. GFF3 allows any number of parent-child levels and types of genomic elements whilst GTF is more strict. Many genomic files providers tend to favour GFF3 over GTF, however many bioinformatic tools still use GTF as input as it is best defined. For example, the tool that detects the number and size of introns in <strong>SeqNjoy</strong> works well with any properly formatted GTF files but not so well with most GFF3.
+</dd>
+<dt>Can I use SeqNjoy just to align short-reads?</dt>
+<dd>Yes, you can align with <strong>SeqNjoy</strong> and export the alignment files (in standard BAM format) to be visualized or quantified with another tool of your preference.
+</dd>
+<dt>Why aren’t my paired-end FASTQ files recognized as a pair?</dt>
+<dd>For two paired-end FASTQ files to be correctly recognized, they must meet the following criteria:<br><br>
+- The filenames must differ by only one character.<br>
+- Both files must contain the same number of reads.<br>
+- The first read in each file must differ by at most one character, ignoring any possible “<em>(length=XX)</em>” tag present in the FASTQ files.<br><br>
+If your files are not detected as paired, please verify that they meet these requirements.
+</dd>
+<dt>Can I compare samples without using biological replicates?</dt>
+<dd>No. At least one of the sample groups to be compared must contain two or more biological replicates.
+</dd>
+<dt>Why do some boxes remain red and the “Launch!” button remains disabled after completing a dialog?</dt>
+<dd>That occurs because there are already result files with matching names to those that will be generated in the dialog. The solution is to change one or several sample labels or the common output suffix.
+</dd>
+<dt>What are the .R files downloaded together with my project’s files?</dt>
+<dd>All output files in <strong>SeqNjoy</strong> are generated from other files by applying R instructions on them. The “.R” files contain these instructions to help advanced users to create their own pipelines using R language outside <strong>SeqNjoy</strong>. Please note that these R codes are generated automatically by <strong>SeqNjoy</strong> and are not optimized for analyzing large number of samples (loops, lists, variables etc. are not used).
+</dd>
+<dt>Can I analyze my results with FIESTA Viewer outside SeqNjoy application?</dt>
+<dd>Yes. When a differential expression file is saved (in .xlsx format) the corresponding “<em>.fiesta2.html</em>” is also saved. This .html file is a standard web page that can be opened in another computer to filter and exporting biologically relevant results. You can even publish your results on-line by copying any <em>.fiesta2.html</em> file on a public URL.
+</dd>
+<dt>When I perform the first alignment with bowtie2 for a given genome, I got the following error. “Error in bowtie2_samtools…”.</dt>
+<dd>If using Windows, Python3 command-line tool is not available, so <em>bowtie2</em> fails to index the genome. The solution is to install Python3 command line tool from the Microsoft Store.
+</dd>
+<dt>When I launch SeqNjoy on Windows I am prompted with the message “SeqNjoy finished with errors. Please check that another instance of SeqNjoy is not already running.”</dt>
+<dd>If you are not already running <strong>SeqNjoy</strong>, open the Task Manager and look for running instances of R (named “<em>R for Windows terminal front-end</em>”) and terminate them.
+</dd>
+<dt>By using SeqNjoy, are my result files exposed, in some way, on the internet?</dt>
+<dd>No. Input and results files generated with <strong>SeqNjoy</strong> remain stored in a specific folder on your local hard disk. <strong>SeqNjoy</strong> can even be used with no internet connection.
+</dd>
+</dl>
+<p class="center" style="border-top:1px solid #D4D0C8;padding:0.5rem;margin-top:3rem;margin-bottom:2rem;">
+<em>SeqNjoy: Complete RNA-Seq workflow in your Desktop. Developed by <a href="https://bioinfogp.cnb.csic.es/">BioinfoGP</a> <a href="http://www.cnb.csic.es/index.php/en/">CNB-CSIC</a> (2022)</em>
+</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+
+</body>
+</html>
