@@ -71,6 +71,8 @@ Connection to the internet is NOT required (it is a stand-alone application), as
 
 # Software requirements
 
+*SeqNjoy* is an R package; therefore, installing [R](https://cran.r-project.org/) is required before using the software.
+
 ## Windows
 ### Rtools on Windows
 
@@ -116,10 +118,26 @@ Pandoc is required to build the vignettes used within the app. If you do not alr
 ```cmd
     pandoc --version
 ```
+## macOS
+
+Administrator privileges are required to install [R binaries](https://cran.r-project.org/bin/macosx/).
+
+### Pandoc
+
+Pandoc is required to build the vignettes used within the app. If you do not already have Pandoc installed:
+
+- Download Pandoc from the official website: [https://pandoc.org/installing.html](https://pandoc.org/installing.html).
+- Follow the installation instructions for macOS.
+
+### Source compilers
+
+Depending on the macOS distribution, developer tools and compilers such as xcode might be required. Check [R macOS tools](https://mac.r-project.org/tools/) website for installation instructions.
+
+These tools are also required to install R from source.
 
 ## Linux
 
-Installing SeqNjoy dependencies from source requires several system libraries. The package names vary depending on the Linux distribution. Ensure the appropriate libraries are installed by running the commands below.
+Installing **SeqNjoy** dependencies from source requires several system libraries. The package names vary depending on the Linux distribution. Ensure the appropriate libraries are installed by running the commands below.
 
 ### Debian-based Distributions (e.g., Debian, Ubuntu)
 
@@ -168,7 +186,7 @@ BiocManager::install("SeqNjoy")
 ## From GitHub
 
 The most recent release, avalaible on GitHub, can be installed using the `remotes` package. 
-Pandoc is required to build vignettes on Windows (see Software requirements). 
+Pandoc is required to build vignettes (see Software requirements). 
 You can disable this option, but some help pages will not be available.
 
 ```{r, eval=FALSE}
