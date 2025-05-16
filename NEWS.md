@@ -50,3 +50,11 @@
 
 * Last development version
 
+# SeqNjoy 0.5.11
+
+* Replaced dependency of RJSONIO by jsonlite
+
+* Obtain Ensembl Genomes version from current_README
+
+* Corrected edgeR log2(BaseMean)
+

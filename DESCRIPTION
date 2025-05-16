@@ -1,6 +1,6 @@
 Package: SeqNjoy
 Title: Complete RNA-Seq Workflows in your Desktop
-Version: 0.5.10
+Version: 0.5.11
 Authors@R: c(
     person("Juan Antonio", "Garcia-Martin", 
            email  = "ja.garcia@cnb.csic.es", role = c("cre","aut"),
@@ -45,7 +45,7 @@ Imports:
     rtracklayer (>= 1.54.0),
     fs (>= 1.5.3),
     R.utils (>= 2.11.0),
-    RJSONIO (>= 1.3-1.6),
+    jsonlite (>= 1.7.2),
     ShortRead (>= 1.52.0),
     dplyr (>= 1.0.8),
     shinyFiles (>= 0.9.1),

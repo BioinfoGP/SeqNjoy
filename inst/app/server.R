@@ -92,47 +92,47 @@ server <- function(input,output, session) {
 	}
 	
 	PARAMS_filterAndTrim<<-setFunctionParams("filterAndTrim.params.txt")
-	json<-RJSONIO::toJSON(PARAMS_filterAndTrim,.escapeEscapes = FALSE)
+	json<-jsonlite::toJSON(PARAMS_filterAndTrim,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 	shinyjs::runjs(paste0("PARAMS[`filter_with_filterAndTrim`]=",json,";PARAMS[`filter_with_filterAndTrim`][`FORM_ERRORS`]=0;PARAMS[`filter_with_filterAndTrim`][`INPUT_FILES`]=0;"))
 
 	PARAMS_fastP<<-setFunctionParams("fastP.params.txt")
-	json<-RJSONIO::toJSON(PARAMS_fastP,.escapeEscapes = FALSE)
+	json<-jsonlite::toJSON(PARAMS_fastP,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 	shinyjs::runjs(paste0("PARAMS[`filter_with_fastP`]=",json,";PARAMS[`filter_with_fastP`][`FORM_ERRORS`]=0;PARAMS[`filter_with_fastP`][`INPUT_FILES`]=0;"))
 
 	PARAMS_QC<<-setFunctionParams("QC.params.txt")
-	json<-RJSONIO::toJSON(PARAMS_QC,.escapeEscapes = FALSE)
+	json<-jsonlite::toJSON(PARAMS_QC,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 	shinyjs::runjs(paste0("PARAMS[`QC`]=",json,";PARAMS[`QC`][`FORM_ERRORS`]=0;PARAMS[`QC`][`INPUT_FILES`]=0;"))
 
 	PARAMS_bowtie2<<-setFunctionParams("bowtie2.params.txt")
-	json<-RJSONIO::toJSON(PARAMS_bowtie2,.escapeEscapes = FALSE)
+	json<-jsonlite::toJSON(PARAMS_bowtie2,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 	shinyjs::runjs(paste0("PARAMS[`align_with_bowtie2`]=",json,";PARAMS[`align_with_bowtie2`][`FORM_ERRORS`]=0;PARAMS[`align_with_bowtie2`][`INPUT_FILES`]=0;"))
 
 	PARAMS_hisat2<<-setFunctionParams("hisat2.params.txt")
-	json<-RJSONIO::toJSON(PARAMS_hisat2,.escapeEscapes = FALSE)
+	json<-jsonlite::toJSON(PARAMS_hisat2,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 	shinyjs::runjs(paste0("PARAMS[`align_with_hisat2`]=",json,";PARAMS[`align_with_hisat2`][`FORM_ERRORS`]=0;PARAMS[`align_with_hisat2`][`INPUT_FILES`]=0;"))
 
 	PARAMS_alignRsubread<<-setFunctionParams("alignRsubread.params.txt")
-	json<-RJSONIO::toJSON(PARAMS_alignRsubread,.escapeEscapes = FALSE)
+	json<-jsonlite::toJSON(PARAMS_alignRsubread,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 	shinyjs::runjs(paste0("PARAMS[`align_with_alignRsubread`]=",json,";PARAMS[`align_with_alignRsubread`][`FORM_ERRORS`]=0;PARAMS[`align_with_alignRsubread`][`INPUT_FILES`]=0;"))
 
 	PARAMS_removeDupReads<<-setFunctionParams("removeDupReads.params.txt")
-	json<-RJSONIO::toJSON(PARAMS_removeDupReads,.escapeEscapes = FALSE)
+	json<-jsonlite::toJSON(PARAMS_removeDupReads,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 	shinyjs::runjs(paste0("PARAMS[`removedups_with_removeDupReads`]=",json,";PARAMS[`removedups_with_removeDupReads`][`FORM_ERRORS`]=0;PARAMS[`removedups_with_removeDupReads`][`INPUT_FILES`]=0;"))
 	
 	PARAMS_featureCounts<<-setFunctionParams("featureCounts.params.txt")
-	json<-RJSONIO::toJSON(PARAMS_featureCounts,.escapeEscapes = FALSE)
+	json<-jsonlite::toJSON(PARAMS_featureCounts,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 	shinyjs::runjs(paste0("PARAMS[`quantify_with_featureCounts`]=",json,";PARAMS[`quantify_with_featureCounts`][`FORM_ERRORS`]=0;PARAMS[`quantify_with_featureCounts`][`INPUT_FILES`]=0;"))
 	
 	PARAMS_DESeq2<<-setFunctionParams("DESeq2.params.txt")
-	json<-RJSONIO::toJSON(PARAMS_DESeq2,.escapeEscapes = FALSE)
+	json<-jsonlite::toJSON(PARAMS_DESeq2,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 	shinyjs::runjs(paste0("PARAMS[`compare_with_DESeq2`]=",json,";PARAMS[`compare_with_DESeq2`][`FORM_ERRORS`]=0;PARAMS[`compare_with_DESeq2`][`INPUT_FILES`]=0;"))
 	
 	PARAMS_edgeR<<-setFunctionParams("edgeR.params.txt")
-	json<-RJSONIO::toJSON(PARAMS_edgeR,.escapeEscapes = FALSE)
+	json<-jsonlite::toJSON(PARAMS_edgeR,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 	shinyjs::runjs(paste0("PARAMS[`compare_with_edgeR`]=",json,";PARAMS[`compare_with_edgeR`][`FORM_ERRORS`]=0;PARAMS[`compare_with_edgeR`][`INPUT_FILES`]=0;"))
 
 	PARAMS_addAnnots<<-setFunctionParams("addAnnots.params.txt")
-	json<-RJSONIO::toJSON(PARAMS_addAnnots,.escapeEscapes = FALSE)
+	json<-jsonlite::toJSON(PARAMS_addAnnots,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 	shinyjs::runjs(paste0("PARAMS[`add_annots_in_ANN_format`]=",json,";PARAMS[`add_annots_in_ANN_format`][`FORM_ERRORS`]=0;PARAMS[`add_annots_in_ANN_format`][`INPUT_FILES`]=0;"))
 
 	
@@ -152,7 +152,7 @@ server <- function(input,output, session) {
 			validProjects<-c()
 			for(r in potentialProjects){
 				if(file.exists(paste0(r,"/",projectFileName))){
-					recentP<-utils::read.table(paste0(r,"/",projectFileName),sep="\t",header=T,stringsAsFactors = FALSE,row.names = NULL)
+					recentP<-utils::read.table(paste0(r,"/",projectFileName),sep="\t",header=T,stringsAsFactors = FALSE,row.names = NULL, colClasses = "character")
 					recentP$datapath<-r
 					currentProjects<<-rbind(currentProjects,recentP)
 					validProjects<-c(validProjects,r)
@@ -282,6 +282,21 @@ server <- function(input,output, session) {
 
 	checkEnsemblGenomesOnline<-function(){
 		baseURL<-ensemblGenomesURL
+		# Check first version from README file
+		readmeURL<-paste0(baseURL,"/pub/current_README")
+		if(RCurl::url.exists(readmeURL)){
+			readmeData<-readLines(readmeURL)
+			versionText<-"The current release is Ensembl Genomes"
+			versionInReadme<-any(grepl(versionText, readmeData))
+			if(versionInReadme){
+				versionLine<-readmeData[grep(versionText, readmeData)[1]]
+				versionNumber<-as.numeric(trimws(sub(versionText, "",versionLine)))
+				if(!is.na(versionNumber)){
+					return(versionNumber)
+				}
+			}
+		}		
+		# If not found in README, check version from VERSION file
 		versionURL<-paste0(baseURL,"/pub/VERSION")
 		if(RCurl::url.exists(versionURL)){
 			versionData<-readLines(versionURL)
@@ -376,7 +391,7 @@ server <- function(input,output, session) {
 
 		# message(paste0("Checked files ",genomeFiles))
 
-		outGenomeFilesText<-RJSONIO::toJSON(list(genomefiles=genomeFiles),.escapeEscapes = FALSE)
+		outGenomeFilesText<-jsonlite::toJSON(list(genomefiles=genomeFiles),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 		shinyjs::runjs(paste0("DownloadGenomeFiles=",outGenomeFilesText,";updateGenomeAvailability();"))		
 
 	}
@@ -400,7 +415,7 @@ server <- function(input,output, session) {
 		if(length(availableEnsGenomes)==0){
 			shinyjs::runjs(paste0("EnsemblVersion='",ensVersion,"';EnsemblGenomesVersion='",ensGenomesVersion,"';EnsemblTable= new Object();"))
 		} else {
-			outEnsemblText<-RJSONIO::toJSON(availableEnsGenomes,.escapeEscapes = FALSE)
+			outEnsemblText<-jsonlite::toJSON(availableEnsGenomes,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			# message(outEnsemblText)	
 			shinyjs::runjs(paste0("EnsemblVersion='",ensVersion,"';EnsemblGenomesVersion='",ensGenomesVersion,"';EnsemblTable=",outEnsemblText,";"))
 		}
@@ -443,8 +458,7 @@ server <- function(input,output, session) {
 	
 	
 	loadProjectsFromHomeDir()
-
-	json<-RJSONIO::toJSON(currentProjects,.escapeEscapes = FALSE)
+	json<-jsonlite::toJSON(currentProjects,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 	shinyjs::runjs(paste0("updateProjectsList(`",json,"`);setCurrentProjectsDir(`",home_dir,"`);"))
 	
 	shinyFiles::shinyDirChoose(input,'ChangeProjects_DirButton',roots=systemVolumes,session=session,defaultRoot="Home")
@@ -458,7 +472,7 @@ server <- function(input,output, session) {
 			home_dir<<-newPath
 			print(paste0("Changing Projects directory to ",newPath))
 			loadProjectsFromHomeDir()
-			json<-RJSONIO::toJSON(currentProjects,.escapeEscapes = FALSE)
+			json<-jsonlite::toJSON(currentProjects,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			shinyjs::runjs(paste0("updateProjectsList(`",json,"`);setCurrentProjectsDir(`",home_dir,"`);"))
 
 		}
@@ -573,7 +587,7 @@ server <- function(input,output, session) {
 
 	startAddingFiles<-function(fileList,reload){
 		delete_temp_folder()
-		outText<-RJSONIO::toJSON(list(files=fileList),.escapeEscapes = FALSE)
+		outText<-jsonlite::toJSON(list(files=fileList),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 		shinyjs::runjs(paste0("launchProcessingLoadedFilesQueue(`",outText,"`);"))
 	}
 	
@@ -629,7 +643,7 @@ server <- function(input,output, session) {
 
 		if(fileCheckPassed == 1){
 			myDfFiles$files <- myDfFiles$files[myDfFiles$files$datapath != filePath, ]
-			outText<-RJSONIO::toJSON(list(files=myDfFiles$files),.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(list(files=myDfFiles$files),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			shinyjs::runjs(paste0("DataTable = ",outText,";renderFileTable(currentSortBy,'current');resize();"))
 		} 
 
@@ -679,7 +693,7 @@ server <- function(input,output, session) {
 	shiny::observeEvent(input$NextStep, {
 		if (input$NextStep=="none") { print ("Nothing to render"); flush.console(); return() }
 		if (input$NextStep != "") {
-			JSMESSAGE<<-RJSONIO::fromJSON(input$NextStep, asText=TRUE)
+			JSMESSAGE<<-jsonlite::fromJSON(input$NextStep)
 			newAction<-JSMESSAGE$action
 			newData<-JSMESSAGE$data
 			utils::flush.console();
@@ -695,13 +709,13 @@ server <- function(input,output, session) {
 				error=function(cond) {
 					message(paste0("Error executing ",newAction))
 					message("Here's the original error message:")
-					outText<-RJSONIO::toJSON(list(message=cond,action=c(paste0("Error executing ",newAction))),.escapeEscapes = FALSE)
+					outText<-jsonlite::toJSON(list(message=cond,action=c(paste0("Error executing ",newAction))),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 					shinyjs::runjs(paste0("ReturnMessage = ",outText,";showErrorMessage();"))
 				},
 				# warning=function(cond) {
 				# 	message(paste0("Warning executing ",newAction))
 				# 	message("Here's the original warning message:")
-				#	outText<-RJSONIO::toJSON(list(message=cond,action=c(paste0("Warning executing ",newAction))),.escapeEscapes = FALSE)
+				#	outText<-jsonlite::toJSON(list(message=cond,action=c(paste0("Warning executing ",newAction))),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 				# 	shinyjs::runjs(paste0("ReturnMessage = ",outText,";showErrorMessage();"))
 				# },
 				finally={
@@ -729,7 +743,7 @@ server <- function(input,output, session) {
 		}
 		message(paste0("Project renamed to ",newData[["description"]]))
 		range_server<<-serve_data(project_dir)
-		json<-RJSONIO::toJSON(currentProjects,.escapeEscapes = FALSE)
+		json<-jsonlite::toJSON(currentProjects,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 		shinyjs::runjs(paste0("ProjectData['session']['description']=`",newData[["description"]],"`;ProjectData['session']['datapath']=`",new_project_dir,"`;updateProjectsList(`",json,"`)"))		
 
 	}
@@ -885,12 +899,12 @@ server <- function(input,output, session) {
 				}			 
  				
 				loadProjectsFromHomeDir()
-				json<-RJSONIO::toJSON(currentProjects,.escapeEscapes = FALSE)
+				json<-jsonlite::toJSON(currentProjects,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 				shinyjs::runjs(paste0("updateProjectsList(`",json,"`)"))
 
 				
-				outSessionText<-RJSONIO::toJSON(list(session=currentProjectData),.escapeEscapes = FALSE)
-				outText<-RJSONIO::toJSON(list(files=myDfFiles$files),.escapeEscapes = FALSE)
+				outSessionText<-jsonlite::toJSON(list(session=currentProjectData),auto_unbox = TRUE, dataframe = "columns",pretty=0)
+				outText<-jsonlite::toJSON(list(files=myDfFiles$files),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 				
 
 		#		checkProjectIntegrity()
@@ -936,7 +950,7 @@ server <- function(input,output, session) {
 				utils::write.table(currentProjectData,file=projectInfoFile, col.names=T,sep="\t",quote=F,row.names = F)
 				
 				print(paste0("Starting server at ",project_dir))
-				print(shiny::resourcePaths())
+				# print(shiny::resourcePaths())
 				if("PROJECTS" %in% shiny::resourcePaths()){
 					shiny::removeResourcePath(prefix = "PROJECTS")  
 				}
@@ -1011,13 +1025,13 @@ server <- function(input,output, session) {
 				
 								
 				loadProjectsFromHomeDir()
-				json<-RJSONIO::toJSON(currentProjects,.escapeEscapes = FALSE)
+				json<-jsonlite::toJSON(currentProjects,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 				shinyjs::runjs(paste0("updateProjectsList(`",json,"`)"))
 
 
 				
-				outSessionText<-RJSONIO::toJSON(list(session=currentProjectData),.escapeEscapes = FALSE)
-				outText<-RJSONIO::toJSON(list(files=myDfFiles$files),.escapeEscapes = FALSE)
+				outSessionText<-jsonlite::toJSON(list(session=currentProjectData),auto_unbox = TRUE, dataframe = "columns",pretty=0)
+				outText<-jsonlite::toJSON(list(files=myDfFiles$files),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 		#		checkProjectIntegrity()
 
 				shinyjs::runjs(paste0("ProjectData=",outSessionText,";DataTable = ",outText,";renderProject();"))
@@ -1043,7 +1057,7 @@ server <- function(input,output, session) {
 			fs::dir_delete(toRemove)
 			
 			loadProjectsFromHomeDir()
-			json<-RJSONIO::toJSON(currentProjects,.escapeEscapes = FALSE)			
+			json<-jsonlite::toJSON(currentProjects,auto_unbox = TRUE, dataframe = "columns",pretty=0)			
 			shinyjs::runjs(paste0("updateProjectsList(`",json,"`)"))
 			#showNotification(paste0("Project ",toRemoveDesc," deleted"))
 		}
@@ -1085,14 +1099,14 @@ server <- function(input,output, session) {
 			CURRENT_COMMAND <<- ""
 
 			if("QC_showFiltered" %in% names(newData$common_params)){
-				showFiltered<-eval(parse(text=newData$common_params["QC_showFiltered"]))
+				showFiltered<-eval(parse(text=newData$common_params[["QC_showFiltered"]]))
 			} else {
 				showFiltered<-FALSE
 			}
 
 
 			### Read sampleSize param
-			sampleReads<-as.numeric(newData$common_params["QC_sampleReads"])
+			sampleReads<-as.numeric(newData$common_params[["QC_sampleReads"]])
 			if(sampleReads >0){
 				message(paste0("Sampling ", sampleReads, " for QC"))
 			} else {
@@ -1196,13 +1210,13 @@ server <- function(input,output, session) {
 			### Collect file info from props.json files
 			JSONfile<-paste0(input1,".props.json")
 			propText=paste(readLines(JSONfile), collapse="\n")
-			props<-RJSONIO::fromJSON(propText, asText=TRUE, na="null", null="null")
+			props<-jsonlite::fromJSON(propText)
 			fastq1Reads<-props$NREADS
 			
 			if (file.exists(input2)) {
 				JSONfile2<-paste0(input2,".props.json")
 				propText2=paste(readLines(JSONfile2), collapse="\n")
-				props2<-RJSONIO::fromJSON(propText2, asText=TRUE, na="null", null="null")
+				props2<-jsonlite::fromJSON(propText2)
 				fastq2Reads<-props2$NREADS
 			}
 			# Adapter identification
@@ -1618,7 +1632,7 @@ server <- function(input,output, session) {
 			fq1ViewFiles<-stringToList(props$VIEWFILES,"@@",";;")
 			fq1ViewFiles$REPORT<-paste0("./FASTQ/",basename(newData$input1),".html")
 			props$VIEWFILES<-listToString(fq1ViewFiles,"@@",";;")
-			propText<-RJSONIO::toJSON(props,.escapeEscapes = FALSE)
+			propText<-jsonlite::toJSON(props,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			writeLines(propText, JSONfile)						
 
 			myDfFiles$files[myDfFiles$files$fname==props["NAME"],]$viewfiles <- props$VIEWFILES
@@ -1629,7 +1643,7 @@ server <- function(input,output, session) {
 				fq2ViewFiles<-stringToList(props2$VIEWFILES,"@@",";;")
 				fq2ViewFiles$REPORT<-paste0("./FASTQ/",basename(newData$input2),".html")
 				props2$VIEWFILES<-listToString(fq2ViewFiles,"@@",";;")
-				propText2<-RJSONIO::toJSON(props2,.escapeEscapes = FALSE)
+				propText2<-jsonlite::toJSON(props2,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 				writeLines(propText2, JSONfile2)						
 				
 				myDfFiles$files[myDfFiles$files$fname==props2["NAME"],]$viewfiles <- props2$VIEWFILES
@@ -1637,7 +1651,7 @@ server <- function(input,output, session) {
 			saveFileTable()
 			
 			## Update file table
-			outText<-RJSONIO::toJSON(list(files=myDfFiles$files),.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(list(files=myDfFiles$files),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			shinyjs::runjs(paste0("DataTable = ",outText,";renderFileTable(currentSortBy,'current');resize();"))
 			
 			
@@ -1690,7 +1704,7 @@ server <- function(input,output, session) {
 					theparam=subset(PARAMS_fastP[["Param"]], PARAMS_fastP["ID"]==sp)
 					if (theparam=="BLANK") { theparam="" }
 				
-					stringParams_fastP=paste0(stringParams_fastP,", ",theparam,"=",newData$common_params[sp])
+					stringParams_fastP=paste0(stringParams_fastP,", ",theparam,"=",newData$common_params[[sp]])
 				}
 			}
 			
@@ -1795,7 +1809,7 @@ close(connErrFile)
 			stringParams=""
 			for(sp in names(newData$common_params)) {
 				theparam=subset(PARAMS_bowtie2[["Param"]], PARAMS_bowtie2["ID"]==sp)
-				thevalue=newData$common_params[sp]
+				thevalue=newData$common_params[[sp]]
 				skipif=subset(PARAMS_bowtie2[["SkipIf"]],  PARAMS_bowtie2["ID"]==sp)
 				if (thevalue != skipif) {
 					if (theparam=="BLANK") { theparam="" }
@@ -1868,10 +1882,10 @@ Rbowtie2::bowtie2(bt2Index=\'_GENOME_INDEX_FINAL_\', samOutput=\'_OUTPUT_SAM_\',
 					theparam=subset(PARAMS_removeDupReads[["Param"]], PARAMS_removeDupReads["ID"]==sp)
 					if (theparam=="BLANK") { theparam="" }
 					if (stringParamsRemoveDups=="") {
-						stringParamsRemoveDups=paste0(theparam,"=",newData$common_params_removeDups[sp])
+						stringParamsRemoveDups=paste0(theparam,"=",newData$common_params_removeDups[[sp]])
 					}
 					else {
-						stringParamsRemoveDups=paste0(stringParamsRemoveDups,", ",theparam,"=",newData$common_params_removeDups[sp])
+						stringParamsRemoveDups=paste0(stringParamsRemoveDups,", ",theparam,"=",newData$common_params_removeDups[[sp]])
 					}
 				}
 				to_eval_template <- paste0(to_eval_template,'## ## 00000 Load libraries\nlibrary(Rsubread)\n')
@@ -1971,7 +1985,7 @@ if (file.exists("_SEQ1_.gz") && !file.exists("_SEQ1_")) { R.utils::gunzip("_SEQ1
 			use_gff="none"
 			for(sp in names(newData$common_params)) {
 				theparam=subset(PARAMS_hisat2[["Param"]], PARAMS_hisat2["ID"]==sp)
-				thevalue=newData$common_params[sp]
+				thevalue=newData$common_params[[sp]]
 				skipif=subset(PARAMS_hisat2[["SkipIf"]],  PARAMS_hisat2["ID"]==sp)
 				if (thevalue != skipif) {
 					if (theparam=="BLANK") {
@@ -1990,7 +2004,7 @@ if (file.exists("_SEQ1_.gz") && !file.exists("_SEQ1_")) { R.utils::gunzip("_SEQ1
 					}
 					else if (thevalue != "skip_this_param") {
 						stringParams=paste0(stringParams," `",theparam,"`='",thevalue,"', ")
-					}
+				    }
 				}
 			}
 			stringParams=trimws(stringParams)
@@ -2071,10 +2085,10 @@ Rhisat2::hisat2(sequences=\'_INPUT1_\', index=\'_GENOME_INDEX_FINAL_\', type=\'s
 					theparam=subset(PARAMS_removeDupReads[["Param"]], PARAMS_removeDupReads["ID"]==sp)
 					if (theparam=="BLANK") { theparam="" }
 					if (stringParamsRemoveDups=="") {
-						stringParamsRemoveDups=paste0(theparam,"=",newData$common_params_removeDups[sp])
+						stringParamsRemoveDups=paste0(theparam,"=",newData$common_params_removeDups[[sp]])
 					}
 					else {
-						stringParamsRemoveDups=paste0(stringParamsRemoveDups,", ",theparam,"=",newData$common_params_removeDups[sp])
+						stringParamsRemoveDups=paste0(stringParamsRemoveDups,", ",theparam,"=",newData$common_params_removeDups[[sp]])
 					}
 				}
 				to_eval_template <- paste0(to_eval_template,'## ## 00000 Load libraries\nlibrary(Rsubread)\n')
@@ -2168,10 +2182,10 @@ if (file.exists("_INPUT1_.gz") && !file.exists("_INPUT1_")) { R.utils::gunzip("_
 				theparam=subset(PARAMS_alignRsubread[["Param"]], PARAMS_alignRsubread["ID"]==sp)
 				if (theparam=="BLANK") { theparam="" }
 				if (stringParams=="") {
-					stringParams=paste0(theparam,"=",newData$common_params[sp])
+					stringParams=paste0(theparam,"=",newData$common_params[[sp]])
 				}
 				else {
-					stringParams=paste0(stringParams,", ",theparam,"=",newData$common_params[sp])
+					stringParams=paste0(stringParams,", ",theparam,"=",newData$common_params[[sp]])
 				}
 			}
 
@@ -2257,7 +2271,7 @@ if (!dir.exists("_GENOME_INDEX_PATH_FINAL")) {
 			stringParams=""
 			for(sp in names(newData$common_params)) {
 				theparam=subset(PARAMS_removeDupReads[["Param"]], PARAMS_removeDupReads["ID"]==sp)
-				thevalue=newData$common_params[sp]
+				thevalue=newData$common_params[[sp]]
 				skipif=subset(PARAMS_removeDupReads[["SkipIf"]], PARAMS_removeDupReads["ID"]==sp)
 				if (thevalue != skipif) {
 					if (theparam=="BLANK") { theparam="" }
@@ -2303,7 +2317,7 @@ fs::file_move("',paste0(theoutput,".tmp"),'", "',theoutput,'")
 			stringParams=""
 			for(sp in names(newData$common_params)) {
 				theparam=subset(PARAMS_featureCounts[["Param"]], PARAMS_featureCounts["ID"]==sp)
-				thevalue=newData$common_params[sp]
+				thevalue=newData$common_params[[sp]]
 				skipif=subset(PARAMS_featureCounts[["SkipIf"]], PARAMS_featureCounts["ID"]==sp)
 				if (thevalue != skipif) {
 					if (theparam=="BLANK") { theparam="" }
@@ -2325,13 +2339,13 @@ fs::file_move("',paste0(theoutput,".tmp"),'", "',theoutput,'")
 			feature_and_block <-"c("
 			for(fb in names(newData$features_blocks)) {
 				if (feature_and_block!="c(") { feature_and_block=paste0(feature_and_block,",") }
-				if (newData$features_blocks[fb]==NOT_SELECTED) {
+				if (newData$features_blocks[[fb]]==NOT_SELECTED) {
 					feature_and_block<-paste0(feature_and_block,"'",fb,"'")	
 					SAFFILE=paste0(projectDir,"/temp/",basename(SAFFILE),".",fb);
 				}
 				else {
-					feature_and_block<-paste0(feature_and_block,"'",fb," > ",newData$features_blocks[fb],"'")	
-					SAFFILE=paste0(projectDir,"/temp/",basename(SAFFILE),".",fb,"-",newData$features_blocks[fb]);
+					feature_and_block<-paste0(feature_and_block,"'",fb," > ",newData$features_blocks[[fb]],"'")	
+					SAFFILE=paste0(projectDir,"/temp/",basename(SAFFILE),".",fb,"-",newData$features_blocks[[fb]]);
 				}
 			}
 			feature_and_block<-paste0(feature_and_block,")")
@@ -2343,7 +2357,7 @@ fs::file_move("',paste0(theoutput,".tmp"),'", "',theoutput,'")
 #				nfb=0
 #				for(fb in names(newData$features_blocks)) {
 #					thefeature=fb
-#					theblock=newData$features_blocks[fb]
+#					theblock=newData$features_blocks[[fb]]
 #					if (theblock==NOT_SELECTED) {
 #						tmpSAF=SAFfromPATHS(file=PATHSFILE, groupBy=thefeature, block="NOBLOCK")
 #					}
@@ -2411,7 +2425,7 @@ if (file.exists("',GFFFILE,'.gz") && !file.exists("',GFFFILE,'")) { R.utils::gun
 			stringParamsDESeq=""
 			for(sp in names(newData$common_params)) {
 				theparam=subset(PARAMS_DESeq2[["Param"]], PARAMS_DESeq2["ID"]==sp)
-				thevalue=newData$common_params[sp]
+				thevalue=newData$common_params[[sp]]
 				skipif=subset(PARAMS_DESeq2[["SkipIf"]], PARAMS_DESeq2["ID"]==sp)
 				if (thevalue != skipif) {
 					if (theparam=="BLANK") { theparam="" }
@@ -2624,7 +2638,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			stringParams=""
 			for(sp in names(newData$common_params)) {
 				theparam=subset(PARAMS_edgeR[["Param"]], PARAMS_edgeR["ID"]==sp)
-				thevalue=newData$common_params[sp]
+				thevalue=newData$common_params[[sp]]
 				skipif=subset(PARAMS_edgeR[["SkipIf"]], PARAMS_edgeR["ID"]==sp)
 				if (thevalue != skipif) {
 					if (theparam=="BLANK") { theparam="" }
@@ -2759,7 +2773,7 @@ DETAILS <- DETAILS %>% dplyr::group_by(ID,Type,Strand) %>% dplyr::summarise(Loca
 ID_Type_Location <- dplyr::left_join(x=data.frame(ID=row.names(res$table)), y=DETAILS, by=c('ID' = 'ID'))
 ",code_to_add_annots,"## ## 00385 Format differential expression columns
 suppressWarnings( # REMOVE THIS LINE
-Log2BaseMean    <- data.frame(Log2BaseMean=apply(res$table['logCPM'], 1, function(x) { as.numeric(sprintf('%0.2f', log2(x))) }))
+Log2BaseMean    <- data.frame(Log2BaseMean=apply(res$table['logCPM'], 1, function(x) { as.numeric(sprintf('%0.2f', x)) }))
 ) # REMOVE THIS LINE
 suppressWarnings( # REMOVE THIS LINE
 Log2Ratio       <- data.frame(Log2Ratio=apply(res$table['logFC'], 1, function(x) { as.numeric(sprintf('%0.2f',x)) }))
@@ -3197,7 +3211,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 				pairData<-myDfFiles$files[myDfFiles$files$fname==pairCandidate$PARTNER,]
 				pairJSONfile<-paste0(projectDir,"/",pairData$datapath,".props.json")
 				pairPropText=paste(readLines(pairJSONfile), collapse="\n")
-				pairProp<-RJSONIO::fromJSON(pairPropText, asText=TRUE, na="null", null="null")
+				pairProp<-jsonlite::fromJSON(pairPropText)
 				if(nreads == pairProp$NREADS && pairProp$PARTNER == "") { ## If the candidate does not have a PARTNER assigned
 					## Read header of first read and remove "length=XX" statement if neccesary
 					firstPairRead<-read_nonempty_lines(paste0(projectDir,"/",pairData$datapath),1)
@@ -3211,7 +3225,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 							pairProp$PARTNER = basename(newData$fname)
 							pairProp$DESCRIPTION = paste0(base::format(pairProp$NREADS, big.mark=",", scientific=FALSE)," short read pairs")
 							pairProp$VIEWFILES =  listToString(otherPair,"@@",";;")
-							pairPropText<-RJSONIO::toJSON(pairProp,.escapeEscapes = FALSE)
+							pairPropText<-jsonlite::toJSON(pairProp,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 							tempPairJSONfile = paste0(projectDir,"/temp/",pairCandidate$PARTNER,".props.json")
 							writeLines(pairPropText, tempPairJSONfile)						
 							currentDesc <-paste0(base::format(nreads, big.mark=",", scientific=FALSE)," short read pairs")
@@ -3253,7 +3267,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 				prop["DEPENDENCIES"]   = strsplit(newData$dependencies," @@ ")
 			}
   
-			outText<-RJSONIO::toJSON(prop,.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(prop,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			writeLines(outText, propsFile)
 		
 			commandPath=paste0(tempPath,".R");
@@ -3334,7 +3348,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 					
 
 			propText=paste(readLines(propsFile), collapse="\n")
-			prop<-RJSONIO::fromJSON(propText, asText=TRUE, na="null", null="null")
+			prop<-jsonlite::fromJSON(propText)
 
 			NAME         = prop["NAME"]
 			SIZE         = prop["SIZE"]
@@ -3368,7 +3382,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 				partnerProps=paste0(projectDir,"/FASTQ/",prop["PARTNER"],".props.json")
 				if(fs::file_exists(partnerTempProps) && fs::is_file(partnerTempProps) && fs::file_exists(partnerProps) && fs::is_file(partnerProps)){
 					pairPropText=paste(readLines(partnerTempProps), collapse="\n")
-					pairProp<-RJSONIO::fromJSON(pairPropText, asText=TRUE, na="null", null="null")
+					pairProp<-jsonlite::fromJSON(pairPropText)
 					fs::file_copy(partnerTempProps, partnerProps,overwrite=T)
 					fs::file_delete(partnerTempProps)
 
@@ -3382,7 +3396,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			#if (file.exists(paste0(tempPath,".html"))) { fs::file_move(paste0(tempPath,".html"), paste0(newPath,".html")) }
 			
 			addFileToProject(c(NAME, SIZE, TYPE, DATAPATH, CREATED, VIEWFILES, DEPENDENCIES, DESCRIPTION, HIDDEN, MD5))
-			outText<-RJSONIO::toJSON(list(files=myDfFiles$files),.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(list(files=myDfFiles$files),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			shinyjs::runjs(paste0("DataTable = ",outText,";renderFileTable('fcreated','up');resize();"))
 			shinyjs::runjs(paste0("hideFileType['",TYPE,"']=false;"))
 			stepDone("success","OK")
@@ -3511,7 +3525,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			prop["DESCRIPTION"] = toString(currentDesc)
 
 
-			outText<-RJSONIO::toJSON(prop,.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(prop,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			writeLines(outText, propsFile)
 
 
@@ -3579,7 +3593,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 #			prop["HIDDEN"]       = "AUXILIARY"
 #			prop["MD5"]          = tools::md5sum(tempPathBAI)
 #			prop["CREATED"]      = base::format(Sys.time(), "%Y/%m/%d %H:%M:%S")
-#			outText<-RJSONIO::toJSON(prop,.escapeEscapes = FALSE)
+#			outText<-jsonlite::toJSON(prop,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 #			writeLines(outText, propsFileBAI)
 
 			stepDone("success","OK")
@@ -3612,7 +3626,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 #			propsFileBAI    = paste0(tempPath,".bai.props.json")
 
 			propText=paste(readLines(propsFile), collapse="\n")
-			prop<-RJSONIO::fromJSON(propText, asText=TRUE, na="null", null="null")
+			prop<-jsonlite::fromJSON(propText)
 
 			NAME         = prop["NAME"]
 			SIZE         = prop["SIZE"]
@@ -3631,7 +3645,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			MD5          = prop["MD5"]
 
 #			propTextBAI=paste(readLines(propsFileBAI), collapse="\n")
-#			prop<-RJSONIO::fromJSON(propTextBAI, asText=TRUE, na="null", null="null")
+#			prop<-jsonlite::fromJSON(propTextBAI)
 
 #			NAME_BAI         = prop["NAME"]
 #			SIZE_BAI         = prop["SIZE"]
@@ -3659,11 +3673,11 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			if (file.exists(paste0(tempPath,".R"))) { fs::file_move(paste0(tempPath,".R"), paste0(newPath,".R")) }
 		
 			addFileToProject(c(NAME, SIZE, TYPE, DATAPATH, CREATED, VIEWFILES, DEPENDENCIES, DESCRIPTION, HIDDEN, MD5))
-			outText<-RJSONIO::toJSON(list(files=myDfFiles$files),.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(list(files=myDfFiles$files),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			shinyjs::runjs(paste0("DataTable = ",outText,";renderFileTable('fcreated','up');resize();"))
 			
 #			addFileToProject(c(NAME_BAI, SIZE_BAI, TYPE_BAI, DATAPATH_BAI, CREATED_BAI, VIEWFILES_BAI, DEPENDENCIES_BAI, DESCRIPTION_BAI, HIDDEN_BAI, MD5_BAI))
-#			outText<-RJSONIO::toJSON(list(files=myDfFiles$files),.escapeEscapes = FALSE)
+#			outText<-jsonlite::toJSON(list(files=myDfFiles$files),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 #			shinyjs::runjs(paste0("DataTable = ",outText,";renderFileTable('fcreated','down');resize();"))
 
 			shinyjs::runjs(paste0("hideFileType['",TYPE,"']=false;"))
@@ -3732,7 +3746,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 				prop["DEPENDENCIES"]   = strsplit(newData$dependencies," @@ ")
 			}
 
-			outText<-RJSONIO::toJSON(prop,.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(prop,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			writeLines(outText, propsFile)
 
 
@@ -3812,7 +3826,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 #			propsFileFAI=paste0(tempPathFAI,".props.json")
 
 			propText=paste(readLines(propsFile), collapse="\n")
-			prop<-RJSONIO::fromJSON(propText, asText=TRUE, na="null", null="null")
+			prop<-jsonlite::fromJSON(propText)
 
 			NAME         = prop["NAME"]
 			SIZE         = prop["SIZE"]
@@ -3831,7 +3845,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			MD5          = prop["MD5"]
 
 			addFileToProject(c(NAME, SIZE, TYPE, DATAPATH, CREATED, VIEWFILES, DEPENDENCIES, DESCRIPTION, HIDDEN, MD5))
-			outText<-RJSONIO::toJSON(list(files=myDfFiles$files),.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(list(files=myDfFiles$files),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			shinyjs::runjs(paste0("DataTable = ",outText,";renderFileTable('fcreated','up');resize();"))
 
 			fs::file_move(tempPath, newPath)
@@ -3840,7 +3854,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			if (file.exists(paste0(tempPath,".R"))) { fs::file_move(paste0(tempPath,".R"), paste0(newPath,".R")) }
 			
 #			propTextFAI=paste(readLines(propsFileFAI), collapse="\n")
-#			prop<-RJSONIO::fromJSON(propTextFAI, asText=TRUE, na="null", null="null")
+#			prop<-jsonlite::fromJSON(propTextFAI)
 
 #			NAME         = prop["NAME"]
 #			SIZE         = prop["SIZE"]
@@ -3854,7 +3868,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 #			MD5          = prop["MD5"]
 
 #			addFileToProject(c(NAME, SIZE, TYPE, DATAPATH, CREATED, VIEWFILES, DEPENDENCIES, DESCRIPTION, HIDDEN, MD5))
-#			outText<-RJSONIO::toJSON(list(files=myDfFiles$files),.escapeEscapes = FALSE)
+#			outText<-jsonlite::toJSON(list(files=myDfFiles$files),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 #			shinyjs::runjs(paste0("DataTable = ",outText,";renderFileTable('fcreated','down');resize();"))
 			
 			fs::file_move(tempPathFAI, newPathFAI)
@@ -3922,7 +3936,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 				prop["DEPENDENCIES"]   = strsplit(newData$dependencies," @@ ")
 			}
 
-			outText<-RJSONIO::toJSON(prop,.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(prop,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			writeLines(outText, propsFile)
 
 
@@ -3994,7 +4008,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 
 			propsFile    = paste0(tempPath,".props.json")
 			propText=paste(readLines(propsFile), collapse="\n")
-			prop<-RJSONIO::fromJSON(propText, asText=TRUE, na="null", null="null")
+			prop<-jsonlite::fromJSON(propText)
 			
 			if (file.exists(paste0(tempPath,".introns")) && file.info(paste0(tempPath,".introns"))$size >0) {
 				introns <- utils::read.table(paste0(tempPath,".introns"), sep="\t", header=FALSE, quote="")
@@ -4024,7 +4038,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 				prop["DESCRIPTION"]=paste0(base::format(genes, big.mark=",", scientific=FALSE)," genes. Unable to analyze introns in this file")
 			}
 
-			outText<-RJSONIO::toJSON(prop,.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(prop,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			writeLines(outText, propsFile)
 
 			stepDone("success","OK")
@@ -4061,7 +4075,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			propsFile    = paste0(tempPath,".props.json")
 
 			propText=paste(readLines(propsFile), collapse="\n")
-			prop<-RJSONIO::fromJSON(propText, asText=TRUE, na="null", null="null")
+			prop<-jsonlite::fromJSON(propText)
 
 			NAME         = prop["NAME"]
 			SIZE         = prop["SIZE"]
@@ -4106,7 +4120,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			if (file.exists(paste0(tempPathNoExtension,".sorted.gff.bgz.tbi")))  { fs::file_move(paste0(tempPathNoExtension,".sorted.gff.bgz.tbi"),  paste0(newPathNoExtension,".sorted.gff.bgz.tbi")) }
 	
 			addFileToProject(c(NAME, SIZE, TYPE, DATAPATH, CREATED, VIEWFILES, DEPENDENCIES, DESCRIPTION, HIDDEN, MD5))
-			outText<-RJSONIO::toJSON(list(files=myDfFiles$files),.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(list(files=myDfFiles$files),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			shinyjs::runjs(paste0("DataTable = ",outText,";renderFileTable('fcreated','up');resize();"))
 			
 			shinyjs::runjs(paste0("hideFileType['",TYPE,"']=false;"))
@@ -4143,11 +4157,11 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			SAFFILE=paste0(projectDir,"/temp/",basename(newData$gff))
 			#SAFFILE=gsub('\\.gff\\d*$','',SAFFILE, perl=TRUE)
 			for(fb in names(newData$features_blocks)) {
-				if (newData$features_blocks[fb]==NOT_SELECTED) {
+				if (newData$features_blocks[[fb]]==NOT_SELECTED) {
 					SAFFILE=paste0(projectDir,"/temp/",basename(SAFFILE),".",fb);
 				}
 				else {
-					SAFFILE=paste0(projectDir,"/temp/",basename(SAFFILE),".",fb,"-",newData$features_blocks[fb]);
+					SAFFILE=paste0(projectDir,"/temp/",basename(SAFFILE),".",fb,"-",newData$features_blocks[[fb]]);
 				}
 			}
 			SAFFILE=paste0(SAFFILE,".saf")
@@ -4158,11 +4172,11 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 	
 			currentDesc=paste0(". From <span class=\"fileSpan\">",basename(newData$gff),"</span> in ")	
 			for(fb in names(newData$features_blocks)) {
-				if (newData$features_blocks[fb]==NOT_SELECTED) {
+				if (newData$features_blocks[[fb]]==NOT_SELECTED) {
 					currentDesc=paste0(currentDesc,fb," (full) ")	
 				}
 				else {
-					currentDesc=paste0(currentDesc,fb," (",newData$features_blocks[fb],") ")
+					currentDesc=paste0(currentDesc,fb," (",newData$features_blocks[[fb]],") ")
 				}
 			}
 
@@ -4193,7 +4207,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 				prop["DEPENDENCIES"]   = strsplit(newData$dependencies," @@ ")
 			}
 
-			outText<-RJSONIO::toJSON(prop,.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(prop,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			writeLines(outText, propsFile)
 
 			commandPath=paste0(tempPath,".R");
@@ -4265,7 +4279,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			propsFile    = paste0(tempPath,".props.json")
 
 			propText=paste(readLines(propsFile), collapse="\n")
-			prop<-RJSONIO::fromJSON(propText, asText=TRUE, na="null", null="null")
+			prop<-jsonlite::fromJSON(propText)
 			
 			SAF       = prop["SAF"]
 			countsFolder=paste0(projectDir,"/COUNTS/",SAF)
@@ -4297,7 +4311,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			if (file.exists(paste0(tempPath,".R"))) { fs::file_move(paste0(tempPath,".R"), paste0(newPath,".R")) }
 	
 			addFileToProject(c(NAME, SIZE, TYPE, DATAPATH, CREATED, VIEWFILES, DEPENDENCIES, DESCRIPTION, HIDDEN, MD5))
-			outText<-RJSONIO::toJSON(list(files=myDfFiles$files),.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(list(files=myDfFiles$files),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			shinyjs::runjs(paste0("DataTable = ",outText,";renderFileTable('fcreated','up');resize();"))
 			
 			shinyjs::runjs(paste0("hideFileType['",TYPE,"']=false;"))
@@ -4353,7 +4367,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 				prop["DEPENDENCIES"]   = strsplit(newData$dependencies," @@ ")
 			}
 
-			outText<-RJSONIO::toJSON(prop,.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(prop,auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			writeLines(outText, propsFile)
 
 
@@ -4424,7 +4438,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			propsFile    = paste0(tempPath,".props.json")
 
 			propText=paste(readLines(propsFile), collapse="\n")
-			prop<-RJSONIO::fromJSON(propText, asText=TRUE, na="null", null="null")
+			prop<-jsonlite::fromJSON(propText)
 			
 			newPath      = paste0(projectDir,"/DIFFEXP/",basename(tempPath))
 			
@@ -4454,7 +4468,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			if (file.exists(paste0(tempPath,".FIESTA.html"))) { fs::file_move(paste0(tempPath,".FIESTA.html"), paste0(newPath,".FIESTA.html")) }
 	
 			addFileToProject(c(NAME, SIZE, TYPE, DATAPATH, CREATED, VIEWFILES, DEPENDENCIES, DESCRIPTION, HIDDEN, MD5))
-			outText<-RJSONIO::toJSON(list(files=myDfFiles$files),.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(list(files=myDfFiles$files),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			shinyjs::runjs(paste0("DataTable = ",outText,";renderFileTable('fcreated','up');resize();"))
 			
 			shinyjs::runjs(paste0("hideFileType['",TYPE,"']=false;"))
@@ -4612,7 +4626,7 @@ openxlsx::write.xlsx(file='",paste0(projectDir, '/temp/', output_file),"', final
 			MD5          = tools::md5sum(newPath)
 
 			addFileToProject(c(NAME, SIZE, TYPE, DATAPATH, CREATED, VIEWFILES, DEPENDENCIES, DESCRIPTION, HIDDEN, MD5))
-			outText<-RJSONIO::toJSON(list(files=myDfFiles$files),.escapeEscapes = FALSE)
+			outText<-jsonlite::toJSON(list(files=myDfFiles$files),auto_unbox = TRUE, dataframe = "columns",pretty=0)
 			shinyjs::runjs(paste0("DataTable = ",outText,";renderFileTable('fcreated','up');resize();"))
 
 			shinyjs::runjs(paste0("hideFileType['",TYPE,"']=false;"))

@@ -165,8 +165,12 @@
 				</tr>
 				<tr>
 					<td id="FootDivTD">
-						<div id="FootDiv">SeqNjoy for RNA-Seq. Developed by BioinfoGP CNB-CSIC (2022)
+						<div id="FootDiv">SeqNjoy for RNA-Seq. Developed by BioinfoGP CNB-CSIC (<span style="font-size: inherit;color:inherit">2022</span>–<span id="currentYear" style="font-size: inherit;color:inherit">2024</span>)
 						</div>
+						   <script>
+							const currentYear = new Date().getFullYear();
+							document.getElementById("currentYear").innerHTML = currentYear;
+						  </script>						
 					</td>
 				</tr>
 			</table>

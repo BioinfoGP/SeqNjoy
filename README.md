@@ -190,6 +190,19 @@ remotes::install_github("BioinfoGP/SeqNjoy", dependencies=TRUE, build_vignettes 
 
 ```
 
+**Warning:** Installation of Bioconductor dependencies can fail due to known bugs in the remotes package. If SeqNjoy installation fails due to missing required pacakges, install them manually from Bioconductor using:
+
+```{r, eval=FALSE}
+
+## Install Bioconductor
+if (!requireNamespace("BiocManager", quietly = TRUE)){
+    install.packages("BiocManager")
+}
+## Install required packages whos installation failed. e.g. "Rbowtie", "DESeq2"
+BiocManager::install(c("Rbowtie","DESeq2"))
+
+```
+
 ### From Source
 
 Installation from source can also be done using devtools.
@@ -203,9 +216,9 @@ Installation from source can also be done using devtools.
 ## Set your working directory to the location where the package was downloaded. 
 setwd("path/to/downloaded/package")
 
-## Install remotes
-if (!requireNamespace("remotes", quietly = TRUE)){
-    install.packages("remotes")
+## Install devtools
+if (!requireNamespace("devtools", quietly = TRUE)){
+    install.packages("devtools")
 }
 
 ## Install Bioconductor
@@ -218,7 +231,7 @@ d <- tempdir()
 untar("SeqNjoy_0.5.X.tar.gz", exdir=d)
 
 # Install SeqNjoy
-remotes::install(file.path(d, "SeqNjoy"), dependencies=TRUE, repos=BiocManager::repositories())
+devtools::install(file.path(d, "SeqNjoy"), dependencies=TRUE, repos=BiocManager::repositories())
 ```
 
 ## Starting SeqNjoy

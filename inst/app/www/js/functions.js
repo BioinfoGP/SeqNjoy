@@ -248,7 +248,7 @@ large and therefore may require long processing times, a lot of disk space and l
 				</tr>
 				<tr>
 					<td>
-						<div id="Home_Welcome2">SeqNjoy for RNA-Seq. Developed by BioinfoGP CNB-CSIC (2022)</div>
+						<div id="Home_Welcome2">SeqNjoy for RNA-Seq. Developed by BioinfoGP CNB-CSIC (2022–`+new Date().getFullYear()+`)</div>
 					</td>
 				</tr>
 				<tr>

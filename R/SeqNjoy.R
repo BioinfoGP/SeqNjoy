@@ -16,10 +16,10 @@
 #' @importFrom Rbowtie2 bowtie2 bowtie2_build
 #' @importFrom Rgff get_features plot_features saf_from_gff
 #' @importFrom Rhisat2 extract_splice_sites hisat2 hisat2_build
-#' @importFrom RJSONIO fromJSON toJSON
+#' @importFrom jsonlite fromJSON toJSON
 #' @importFrom Rsamtools asBam countBam indexBam indexFa 
 #' @importFrom Rsamtools scanBamFlag scanBamHeader ScanBamParam testPairedEndBam
-#' @importFrom Rsubread align buildindex featureCounts removeDupReads
+#' @importFrom Rsubread align buildindex featureCounts removeDupReads 
 #' @importFrom Biostrings quality
 #' @importFrom shinyjs runjs
 #' @importFrom shinyFiles getVolumes parseDirPath shinyDirChoose
